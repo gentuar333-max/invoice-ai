@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { InvoiceData, SavedInvoice } from "@/lib/invoice-schema";
 import { saveInvoiceToSupabase } from "@/lib/save-invoice";
@@ -21,7 +21,6 @@ function EditableField({ label, value, onChange, type = "text" }: {
   );
 }
 
-// Streaming text component
 function StreamingText({ text, speed = 18 }: { text: string; speed?: number }) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
@@ -30,13 +29,8 @@ function StreamingText({ text, speed = 18 }: { text: string; speed?: number }) {
     setDone(false);
     let i = 0;
     const interval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayed(text.slice(0, i + 1));
-        i++;
-      } else {
-        setDone(true);
-        clearInterval(interval);
-      }
+      if (i < text.length) { setDisplayed(text.slice(0, i + 1)); i++; }
+      else { setDone(true); clearInterval(interval); }
     }, speed);
     return () => clearInterval(interval);
   }, [text, speed]);
@@ -48,7 +42,6 @@ function StreamingText({ text, speed = 18 }: { text: string; speed?: number }) {
   );
 }
 
-// Step indicator
 function StepIndicator({ step }: { step: number }) {
   const steps = [
     { n: 1, label: "Import" },
@@ -61,20 +54,10 @@ function StepIndicator({ step }: { step: number }) {
       {steps.map((s, i) => (
         <div key={s.n} style={{ display: "flex", alignItems: "center" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: "50%",
-              background: step >= s.n ? "#6366f1" : step === s.n - 1 ? "#eef2ff" : "#f3f4f6",
-              border: `2px solid ${step >= s.n ? "#6366f1" : step === s.n - 1 ? "#c7d2fe" : "#e5e7eb"}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 13, fontWeight: 700,
-              color: step >= s.n ? "white" : "#9ca3af",
-              transition: "all 0.3s",
-            }}>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: step >= s.n ? "#6366f1" : "#f3f4f6", border: `2px solid ${step >= s.n ? "#6366f1" : "#e5e7eb"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: step >= s.n ? "white" : "#9ca3af", transition: "all 0.3s" }}>
               {step > s.n ? "✓" : s.n}
             </div>
-            <span style={{ fontSize: 11, color: step >= s.n ? "#6366f1" : "#9ca3af", fontWeight: step >= s.n ? 600 : 400, whiteSpace: "nowrap" }}>
-              {s.label}
-            </span>
+            <span style={{ fontSize: 11, color: step >= s.n ? "#6366f1" : "#9ca3af", fontWeight: step >= s.n ? 600 : 400, whiteSpace: "nowrap" }}>{s.label}</span>
           </div>
           {i < steps.length - 1 && (
             <div style={{ width: 60, height: 2, background: step > s.n ? "#6366f1" : "#e5e7eb", margin: "0 4px 18px", transition: "all 0.3s" }} />
@@ -85,39 +68,23 @@ function StepIndicator({ step }: { step: number }) {
   );
 }
 
-// AI Loading animation
 function AIAnalyzing({ filename }: { filename: string }) {
-  const messages = [
-    "Lecture du document...",
-    "Identification du fournisseur...",
-    "Extraction des montants...",
-    "Analyse de la TVA...",
-    "Verification des lignes...",
-    "Finalisation...",
-  ];
+  const messages = ["Lecture du document...","Identification du fournisseur...","Extraction des montants...","Analyse de la TVA...","Verification des lignes...","Finalisation..."];
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-
   useEffect(() => {
-    const msgInterval = setInterval(() => {
-      setMsgIndex((prev) => (prev < messages.length - 1 ? prev + 1 : prev));
-    }, 700);
-    const progInterval = setInterval(() => {
-      setProgress((prev) => (prev < 90 ? prev + 3 : prev));
-    }, 150);
+    const msgInterval = setInterval(() => setMsgIndex((prev) => (prev < messages.length - 1 ? prev + 1 : prev)), 700);
+    const progInterval = setInterval(() => setProgress((prev) => (prev < 90 ? prev + 3 : prev)), 150);
     return () => { clearInterval(msgInterval); clearInterval(progInterval); };
   }, []);
-
   return (
     <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 16, padding: "40px 32px", textAlign: "center" }}>
       <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 20px" }}>🤖</div>
       <h3 style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 8 }}>Analyse en cours</h3>
       <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 24, fontFamily: "monospace" }}>{filename}</p>
-
       <div style={{ background: "#f3f4f6", borderRadius: 8, height: 6, marginBottom: 16, overflow: "hidden" }}>
         <div style={{ height: "100%", background: "linear-gradient(90deg, #6366f1, #8b5cf6)", borderRadius: 8, width: `${progress}%`, transition: "width 0.15s ease" }} />
       </div>
-
       <p style={{ fontSize: 14, color: "#6366f1", fontWeight: 500, minHeight: 20 }}>
         <StreamingText text={messages[msgIndex]} speed={25} />
       </p>
@@ -147,16 +114,11 @@ export default function InvoicesPage() {
     } catch {}
   }, []);
 
-  // Auto-redirect après save
   useEffect(() => {
     if (saved) {
       const interval = setInterval(() => {
         setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            router.push("/dashboard");
-            return 0;
-          }
+          if (prev <= 1) { clearInterval(interval); router.push("/dashboard"); return 0; }
           return prev - 1;
         });
       }, 1000);
@@ -170,14 +132,11 @@ export default function InvoicesPage() {
     e.preventDefault();
     setDragging(false);
     const dropped = e.dataTransfer.files[0];
-    if (dropped) { setFile(dropped); }
+    if (dropped) setFile(dropped);
   }, []);
 
-  // Auto-extract quand fichier sélectionné
   useEffect(() => {
-    if (file && step === 1) {
-      handleExtract();
-    }
+    if (file && step === 1) handleExtract();
   }, [file]);
 
   async function handleExtract() {
@@ -190,7 +149,6 @@ export default function InvoicesPage() {
     setSaved(false);
     setSaveError("");
     setDuplicateWarning("");
-
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -276,17 +234,14 @@ export default function InvoicesPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-10">
 
-        {/* Step indicator */}
         <StepIndicator step={step} />
 
-        {/* STEP 1 — Upload */}
         {step === 1 && (
           <div className="fade-in">
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">Nouvelle facture</h1>
               <p className="text-gray-400 text-sm">Importez votre facture — l'IA extrait tout automatiquement</p>
             </div>
-
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -302,28 +257,25 @@ export default function InvoicesPage() {
               </label>
               <p className="text-xs text-gray-300 mt-4">L'analyse démarre automatiquement après la sélection</p>
             </div>
-
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-600 text-sm mt-4">⚠️ {error}</div>
             )}
           </div>
         )}
 
-        {/* STEP 2 — AI Analyzing */}
         {step === 2 && file && (
           <div className="fade-in">
             <AIAnalyzing filename={file.name} />
           </div>
         )}
 
-        {/* STEP 3 — Review */}
         {step === 3 && edited && (
           <div className="fade-in">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
                 <StreamingText text={`Facture ${edited.vendor_name || "extraite"}`} speed={40} />
               </h2>
-              <p className="text-gray-400 text-sm">Vérifiez les données extraites par l'IA</p>
+              <p className="text-gray-400 text-sm">Verifiez les donnees extraites par l'IA</p>
             </div>
 
             {duplicateWarning && (
@@ -333,7 +285,7 @@ export default function InvoicesPage() {
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-4">
               <div style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }} className="px-6 py-4 flex items-center justify-between">
                 <div>
-                  <p className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Fournisseur détecté</p>
+                  <p className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Fournisseur detecte</p>
                   <h3 className="text-white text-xl font-bold">{edited.vendor_name || "Inconnu"}</h3>
                 </div>
                 <div className="text-right">
@@ -345,9 +297,9 @@ export default function InvoicesPage() {
               <div className="p-6 flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-4">
                   <EditableField label="Fournisseur" value={edited.vendor_name || ""} onChange={(v) => updateField("vendor_name", v)} />
-                  <EditableField label="N° Facture" value={edited.invoice_number || ""} onChange={(v) => updateField("invoice_number", v)} />
+                  <EditableField label="N Facture" value={edited.invoice_number || ""} onChange={(v) => updateField("invoice_number", v)} />
                   <EditableField label="Date facture" value={edited.invoice_date || ""} onChange={(v) => updateField("invoice_date", v)} type="date" />
-                  <EditableField label="Date échéance" value={edited.due_date || ""} onChange={(v) => updateField("due_date", v)} type="date" />
+                  <EditableField label="Date echeance" value={edited.due_date || ""} onChange={(v) => updateField("due_date", v)} type="date" />
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
@@ -364,7 +316,7 @@ export default function InvoicesPage() {
                         <thead className="bg-gray-50">
                           <tr className="text-xs text-gray-400">
                             <th className="text-left px-3 py-2 font-medium">Description</th>
-                            <th className="text-center px-3 py-2 font-medium w-16">Qté</th>
+                            <th className="text-center px-3 py-2 font-medium w-16">Qte</th>
                             <th className="text-right px-3 py-2 font-medium w-24">Total</th>
                           </tr>
                         </thead>
@@ -390,7 +342,7 @@ export default function InvoicesPage() {
 
                 {edited.missing_fields && edited.missing_fields.length > 0 && (
                   <div className="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
-                    <p className="text-xs text-amber-600 font-medium mb-1">Champs non détectés :</p>
+                    <p className="text-xs text-amber-600 font-medium mb-1">Champs non detectes:</p>
                     <p className="text-xs text-amber-500">{edited.missing_fields.join(", ")}</p>
                   </div>
                 )}
@@ -412,16 +364,15 @@ export default function InvoicesPage() {
           </div>
         )}
 
-        {/* STEP 4 — Saved */}
         {step === 4 && saved && (
           <div className="fade-in text-center">
             <div style={{ width: 72, height: 72, background: "linear-gradient(135deg, #10b981, #059669)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 20px" }}>✓</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Facture enregistrée</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Facture enregistree</h2>
             <p className="text-gray-500 text-sm mb-2">
               {edited?.vendor_name} · {formatAmount(edited?.total_amount ?? null, edited?.currency ?? null)}
             </p>
             <p className="text-indigo-500 text-sm font-medium mb-8">
-              Redirection vers Mes factures dans {countdown}s...
+              Redirection dans {countdown}s...
             </p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => router.push("/dashboard")} className="bg-indigo-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">

@@ -235,7 +235,7 @@ export default function InvoicesPage() {
     if (!edited) return;
     setSaveError("");
     try {
-      await saveInvoiceToSupabase(edited, file?.name || "manuel");
+      await saveInvoiceToSupabase(edited);
     } catch (err: any) {
       setSaveError("Erreur: " + err.message);
       return;

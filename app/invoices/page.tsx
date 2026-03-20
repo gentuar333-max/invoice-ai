@@ -4,6 +4,13 @@ import { useRouter } from "next/navigation";
 import type { InvoiceData, SavedInvoice } from "@/lib/invoice-schema";
 import { saveInvoiceToSupabase } from "@/lib/save-invoice";
 
+const BG = "#131f2e";
+const CARD = "#1e2d40";
+const BORDER = "#2e4058";
+const GOLD = "#e8b84b";
+const TEXT = "#ffffff";
+const MUTED = "#a8c4d8";
+
 function formatAmount(value: number | null, currency: string | null): string {
   if (value === null) return "—";
   const symbol = currency === "EUR" ? "€" : (currency || "");
@@ -14,9 +21,14 @@ function EditableField({ label, value, onChange, type = "text" }: {
   label: string; value: string; onChange: (v: string) => void; type?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs text-gray-400 uppercase tracking-wider">{label}</label>
-      <input type={type} value={value || ""} onChange={(e) => onChange(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-blue-400 bg-white" />
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <label style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase" }}>{label}</label>
+      <input
+        type={type}
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "10px 12px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit" }}
+      />
     </div>
   );
 }
@@ -37,30 +49,30 @@ function StreamingText({ text, speed = 18 }: { text: string; speed?: number }) {
   return (
     <span>
       {displayed}
-      {!done && <span style={{ display: "inline-block", width: 2, height: "1em", background: "#6366f1", marginLeft: 2, animation: "blink 0.7s infinite", verticalAlign: "text-bottom" }} />}
+      {!done && <span style={{ display: "inline-block", width: 2, height: "1em", background: GOLD, marginLeft: 2, animation: "blink 0.7s infinite", verticalAlign: "text-bottom" }} />}
     </span>
   );
 }
 
 function StepIndicator({ step }: { step: number }) {
   const steps = [
-    { n: 1, label: "Import" },
-    { n: 2, label: "Analyse IA" },
-    { n: 3, label: "Verification" },
-    { n: 4, label: "Enregistre" },
+    { n: 1, label: "IMPORT" },
+    { n: 2, label: "ANALYSE IA" },
+    { n: 3, label: "VERIFICATION" },
+    { n: 4, label: "ENREGISTRE" },
   ];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
       {steps.map((s, i) => (
         <div key={s.n} style={{ display: "flex", alignItems: "center" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: step >= s.n ? "#6366f1" : "#f3f4f6", border: `2px solid ${step >= s.n ? "#6366f1" : "#e5e7eb"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: step >= s.n ? "white" : "#9ca3af", transition: "all 0.3s" }}>
+            <div style={{ width: 30, height: 30, borderRadius: 3, background: step >= s.n ? GOLD : BORDER, border: `1px solid ${step >= s.n ? GOLD : BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: step >= s.n ? "#0f1923" : MUTED, transition: "all 0.3s" }}>
               {step > s.n ? "✓" : s.n}
             </div>
-            <span style={{ fontSize: 11, color: step >= s.n ? "#6366f1" : "#9ca3af", fontWeight: step >= s.n ? 600 : 400, whiteSpace: "nowrap" }}>{s.label}</span>
+            <span style={{ fontSize: 9, color: step >= s.n ? GOLD : MUTED, fontWeight: 700, letterSpacing: 1.5, whiteSpace: "nowrap" }}>{s.label}</span>
           </div>
           {i < steps.length - 1 && (
-            <div style={{ width: 60, height: 2, background: step > s.n ? "#6366f1" : "#e5e7eb", margin: "0 4px 18px", transition: "all 0.3s" }} />
+            <div style={{ width: 55, height: 2, background: step > s.n ? GOLD : BORDER, margin: "0 4px 18px", transition: "all 0.3s" }} />
           )}
         </div>
       ))}
@@ -78,14 +90,14 @@ function AIAnalyzing({ filename }: { filename: string }) {
     return () => { clearInterval(msgInterval); clearInterval(progInterval); };
   }, []);
   return (
-    <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 16, padding: "40px 32px", textAlign: "center" }}>
-      <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 20px" }}>🤖</div>
-      <h3 style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 8 }}>Analyse en cours</h3>
-      <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 24, fontFamily: "monospace" }}>{filename}</p>
-      <div style={{ background: "#f3f4f6", borderRadius: 8, height: 6, marginBottom: 16, overflow: "hidden" }}>
-        <div style={{ height: "100%", background: "linear-gradient(90deg, #6366f1, #8b5cf6)", borderRadius: 8, width: `${progress}%`, transition: "width 0.15s ease" }} />
+    <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
+      <div style={{ width: 56, height: 56, background: `${GOLD}20`, border: `2px solid ${GOLD}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 20px" }}>🤖</div>
+      <h3 style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 6, letterSpacing: 1, textTransform: "uppercase" }}>ANALYSE EN COURS</h3>
+      <p style={{ fontSize: 11, color: MUTED, marginBottom: 24, fontFamily: "monospace", letterSpacing: 1 }}>{filename}</p>
+      <div style={{ background: "#0f1923", borderRadius: 3, height: 4, marginBottom: 16, overflow: "hidden" }}>
+        <div style={{ height: "100%", background: GOLD, borderRadius: 3, width: `${progress}%`, transition: "width 0.15s ease" }} />
       </div>
-      <p style={{ fontSize: 14, color: "#6366f1", fontWeight: 500, minHeight: 20 }}>
+      <p style={{ fontSize: 13, color: GOLD, fontWeight: 500, minHeight: 20, letterSpacing: 0.5 }}>
         <StreamingText text={messages[msgIndex]} speed={25} />
       </p>
     </div>
@@ -230,161 +242,172 @@ export default function InvoicesPage() {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         .fade-in { animation: fadeIn 0.3s ease forwards; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+        input::placeholder { color: #4a6a85; }
+        input:focus { border-color: #e8b84b !important; }
       `}</style>
 
-      <div className="max-w-2xl mx-auto px-4 py-10">
+      <div style={{ minHeight: "100vh", background: BG, padding: "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ maxWidth: 640, margin: "0 auto" }}>
 
-        <StepIndicator step={step} />
+          <StepIndicator step={step} />
 
-        {step === 1 && (
-          <div className="fade-in">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">Nouvelle facture</h1>
-              <p className="text-gray-400 text-sm">Importez votre facture — l'IA extrait tout automatiquement</p>
-            </div>
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-16 text-center transition-all cursor-pointer ${dragging ? "border-indigo-500 bg-indigo-50" : "border-gray-200 bg-gray-50 hover:border-indigo-300 hover:bg-indigo-50"}`}
-            >
-              <div className="text-5xl mb-4">📄</div>
-              <p className="font-semibold text-gray-700 mb-2 text-lg">Glissez votre facture ici</p>
-              <p className="text-gray-400 text-sm mb-6">PDF, JPG, PNG · 10 Mo maximum</p>
-              <label className="bg-indigo-600 text-white px-6 py-3 rounded-lg cursor-pointer text-sm font-semibold hover:bg-indigo-700 transition">
-                Parcourir les fichiers
-                <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-              </label>
-              <p className="text-xs text-gray-300 mt-4">L'analyse démarre automatiquement après la sélection</p>
-            </div>
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-600 text-sm mt-4">⚠️ {error}</div>
-            )}
-          </div>
-        )}
-
-        {step === 2 && file && (
-          <div className="fade-in">
-            <AIAnalyzing filename={file.name} />
-          </div>
-        )}
-
-        {step === 3 && edited && (
-          <div className="fade-in">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                <StreamingText text={`Facture ${edited.vendor_name || "extraite"}`} speed={40} />
-              </h2>
-              <p className="text-gray-400 text-sm">Verifiez les donnees extraites par l'IA</p>
-            </div>
-
-            {duplicateWarning && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-amber-700 text-sm mb-4">⚠️ {duplicateWarning}</div>
-            )}
-
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-4">
-              <div style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }} className="px-6 py-4 flex items-center justify-between">
-                <div>
-                  <p className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Fournisseur detecte</p>
-                  <h3 className="text-white text-xl font-bold">{edited.vendor_name || "Inconnu"}</h3>
-                </div>
-                <div className="text-right">
-                  <p className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Total TTC</p>
-                  <p className="text-white text-2xl font-bold">{formatAmount(edited.total_amount, edited.currency)}</p>
-                </div>
+          {/* STEP 1 */}
+          {step === 1 && (
+            <div className="fade-in">
+              <div style={{ marginBottom: 24 }}>
+                <h1 style={{ fontSize: 20, fontWeight: 600, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>NOUVELLE FACTURE</h1>
+                <p style={{ color: MUTED, fontSize: 12, letterSpacing: 1 }}>IMPORTEZ VOTRE FACTURE — L'IA EXTRAIT TOUT AUTOMATIQUEMENT</p>
               </div>
 
-              <div className="p-6 flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <EditableField label="Fournisseur" value={edited.vendor_name || ""} onChange={(v) => updateField("vendor_name", v)} />
-                  <EditableField label="N Facture" value={edited.invoice_number || ""} onChange={(v) => updateField("invoice_number", v)} />
-                  <EditableField label="Date facture" value={edited.invoice_date || ""} onChange={(v) => updateField("invoice_date", v)} type="date" />
-                  <EditableField label="Date echeance" value={edited.due_date || ""} onChange={(v) => updateField("due_date", v)} type="date" />
-                </div>
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                style={{ border: `2px dashed ${dragging ? GOLD : BORDER}`, borderRadius: 4, padding: "56px 32px", textAlign: "center", background: dragging ? `${GOLD}08` : CARD, transition: "all 0.2s", cursor: "pointer" }}
+              >
+                <div style={{ fontSize: 40, marginBottom: 16 }}>📄</div>
+                <p style={{ fontWeight: 600, color: TEXT, marginBottom: 6, fontSize: 15, letterSpacing: 0.5 }}>Glissez votre facture ici</p>
+                <p style={{ color: MUTED, fontSize: 12, marginBottom: 24, letterSpacing: 1 }}>PDF, JPG, PNG · 10 Mo maximum</p>
+                <label style={{ background: GOLD, color: "#0f1923", padding: "10px 28px", borderRadius: 3, cursor: "pointer", fontSize: 11, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>
+                  PARCOURIR LES FICHIERS
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }} onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                </label>
+                <p style={{ fontSize: 11, color: MUTED, marginTop: 16, letterSpacing: 1 }}>L'ANALYSE DEMARRE AUTOMATIQUEMENT</p>
+              </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <EditableField label="Sous-total" value={String(edited.subtotal ?? "")} onChange={(v) => updateField("subtotal", parseFloat(v) || null)} type="number" />
-                  <EditableField label="TVA" value={String(edited.tax_amount ?? "")} onChange={(v) => updateField("tax_amount", parseFloat(v) || null)} type="number" />
-                  <EditableField label="Total TTC" value={String(edited.total_amount ?? "")} onChange={(v) => updateField("total_amount", parseFloat(v) || null)} type="number" />
-                </div>
+              {error && (
+                <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "12px 16px", color: "#ef4444", fontSize: 12, marginTop: 14 }}>⚠ {error}</div>
+              )}
+            </div>
+          )}
 
-                {edited.line_items && edited.line_items.length > 0 && (
+          {/* STEP 2 */}
+          {step === 2 && file && (
+            <div className="fade-in">
+              <AIAnalyzing filename={file.name} />
+            </div>
+          )}
+
+          {/* STEP 3 */}
+          {step === 3 && edited && (
+            <div className="fade-in">
+              <div style={{ marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: TEXT, marginBottom: 4, letterSpacing: 0.5 }}>
+                  <StreamingText text={`FACTURE ${(edited.vendor_name || "EXTRAITE").toUpperCase()}`} speed={40} />
+                </h2>
+                <p style={{ color: MUTED, fontSize: 12, letterSpacing: 1 }}>VERIFIEZ LES DONNEES EXTRAITES PAR L'IA</p>
+              </div>
+
+              {duplicateWarning && (
+                <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 3, padding: "12px 16px", color: "#f59e0b", fontSize: 12, marginBottom: 14 }}>⚠ {duplicateWarning}</div>
+              )}
+
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginBottom: 14 }}>
+                <div style={{ background: `${GOLD}15`, borderBottom: `1px solid ${GOLD}30`, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">Lignes · {edited.line_items.length} articles</p>
-                    <div className="border border-gray-100 rounded-lg overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-gray-50">
-                          <tr className="text-xs text-gray-400">
-                            <th className="text-left px-3 py-2 font-medium">Description</th>
-                            <th className="text-center px-3 py-2 font-medium w-16">Qte</th>
-                            <th className="text-right px-3 py-2 font-medium w-24">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {edited.line_items.map((item, i) => (
-                            <tr key={i} className="border-t border-gray-50">
-                              <td className="px-3 py-2">
-                                <input value={item.description || ""} onChange={(e) => updateLineItem(i, "description", e.target.value)} className="w-full text-sm text-gray-700 border-0 focus:outline-none bg-transparent" />
-                              </td>
-                              <td className="px-3 py-2 text-center">
-                                <input type="number" value={item.quantity ?? ""} onChange={(e) => updateLineItem(i, "quantity", parseFloat(e.target.value) || null)} className="w-full text-sm text-center text-gray-500 border-0 focus:outline-none bg-transparent" />
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <input type="number" value={item.total ?? ""} onChange={(e) => updateLineItem(i, "total", parseFloat(e.target.value) || null)} className={`w-full text-sm text-right border-0 focus:outline-none bg-transparent font-medium ${item.total !== null && item.total < 0 ? "text-red-500" : "text-gray-900"}`} />
-                              </td>
+                    <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>FOURNISSEUR DETECTE</p>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>{edited.vendor_name || "INCONNU"}</h3>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>TOTAL TTC</p>
+                    <p style={{ fontSize: 22, fontWeight: 800, color: GOLD }}>{formatAmount(edited.total_amount, edited.currency)}</p>
+                  </div>
+                </div>
+
+                <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <EditableField label="Fournisseur" value={edited.vendor_name || ""} onChange={(v) => updateField("vendor_name", v)} />
+                    <EditableField label="N Facture" value={edited.invoice_number || ""} onChange={(v) => updateField("invoice_number", v)} />
+                    <EditableField label="Date facture" value={edited.invoice_date || ""} onChange={(v) => updateField("invoice_date", v)} type="date" />
+                    <EditableField label="Date echeance" value={edited.due_date || ""} onChange={(v) => updateField("due_date", v)} type="date" />
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                    <EditableField label="Sous-total" value={String(edited.subtotal ?? "")} onChange={(v) => updateField("subtotal", parseFloat(v) || null)} type="number" />
+                    <EditableField label="TVA" value={String(edited.tax_amount ?? "")} onChange={(v) => updateField("tax_amount", parseFloat(v) || null)} type="number" />
+                    <EditableField label="Total TTC" value={String(edited.total_amount ?? "")} onChange={(v) => updateField("total_amount", parseFloat(v) || null)} type="number" />
+                  </div>
+
+                  {edited.line_items && edited.line_items.length > 0 && (
+                    <div>
+                      <p style={{ fontSize: 10, color: MUTED, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>LIGNES · {edited.line_items.length} ARTICLES</p>
+                      <div style={{ border: `1px solid ${BORDER}`, borderRadius: 3, overflow: "hidden" }}>
+                        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+                          <thead style={{ background: "#0f1923" }}>
+                            <tr>
+                              {["DESCRIPTION","QTE","TOTAL"].map((h) => (
+                                <th key={h} style={{ textAlign: h === "TOTAL" ? "right" : h === "QTE" ? "center" : "left", padding: "8px 12px", fontSize: 10, color: MUTED, letterSpacing: 1.5, fontWeight: 600 }}>{h}</th>
+                              ))}
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {edited.line_items.map((item, i) => (
+                              <tr key={i} style={{ borderTop: `1px solid ${BORDER}` }}>
+                                <td style={{ padding: "8px 12px" }}>
+                                  <input value={item.description || ""} onChange={(e) => updateLineItem(i, "description", e.target.value)} style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: TEXT, fontSize: 12 }} />
+                                </td>
+                                <td style={{ padding: "8px 12px", textAlign: "center" }}>
+                                  <input type="number" value={item.quantity ?? ""} onChange={(e) => updateLineItem(i, "quantity", parseFloat(e.target.value) || null)} style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: MUTED, fontSize: 12, textAlign: "center" }} />
+                                </td>
+                                <td style={{ padding: "8px 12px", textAlign: "right" }}>
+                                  <input type="number" value={item.total ?? ""} onChange={(e) => updateLineItem(i, "total", parseFloat(e.target.value) || null)} style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: item.total !== null && item.total < 0 ? "#ef4444" : TEXT, fontSize: 12, textAlign: "right", fontWeight: 600 }} />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
+                  )}
+
+                  {edited.missing_fields && edited.missing_fields.length > 0 && (
+                    <div style={{ background: "#f59e0b10", border: "1px solid #f59e0b30", borderRadius: 3, padding: "10px 14px" }}>
+                      <p style={{ fontSize: 10, color: "#f59e0b", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>CHAMPS NON DETECTES</p>
+                      <p style={{ fontSize: 11, color: MUTED }}>{edited.missing_fields.join(", ")}</p>
+                    </div>
+                  )}
+
+                  {saveError && (
+                    <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12 }}>⚠ {saveError}</div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 10, paddingTop: 6 }}>
+                    <button onClick={handleSave} style={{ flex: 1, background: GOLD, color: "#0f1923", border: "none", padding: "12px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: "pointer", letterSpacing: 2, textTransform: "uppercase" }}>
+                      CONFIRMER ET ENREGISTRER
+                    </button>
+                    <button onClick={handleReset} style={{ background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, padding: "12px 20px", borderRadius: 3, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                      ANNULER
+                    </button>
                   </div>
-                )}
-
-                {edited.missing_fields && edited.missing_fields.length > 0 && (
-                  <div className="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
-                    <p className="text-xs text-amber-600 font-medium mb-1">Champs non detectes:</p>
-                    <p className="text-xs text-amber-500">{edited.missing_fields.join(", ")}</p>
-                  </div>
-                )}
-
-                {saveError && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-600 text-sm">⚠️ {saveError}</div>
-                )}
-
-                <div className="flex gap-3 pt-2">
-                  <button onClick={handleSave} className="flex-1 text-white font-semibold py-3 rounded-lg text-sm transition" style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", boxShadow: "0 4px 12px rgba(99,102,241,0.3)" }}>
-                    Confirmer et enregistrer
-                  </button>
-                  <button onClick={handleReset} className="border border-gray-200 text-gray-500 hover:bg-gray-50 font-medium py-3 px-5 rounded-lg text-sm transition">
-                    Annuler
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {step === 4 && saved && (
-          <div className="fade-in text-center">
-            <div style={{ width: 72, height: 72, background: "linear-gradient(135deg, #10b981, #059669)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 20px" }}>✓</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Facture enregistree</h2>
-            <p className="text-gray-500 text-sm mb-2">
-              {edited?.vendor_name} · {formatAmount(edited?.total_amount ?? null, edited?.currency ?? null)}
-            </p>
-            <p className="text-indigo-500 text-sm font-medium mb-8">
-              Redirection dans {countdown}s...
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button onClick={() => router.push("/dashboard")} className="bg-indigo-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
-                Voir mes factures
-              </button>
-              <button onClick={handleReset} className="border border-gray-200 text-gray-500 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
-                Nouvelle facture
-              </button>
+          {/* STEP 4 */}
+          {step === 4 && saved && (
+            <div className="fade-in" style={{ textAlign: "center" }}>
+              <div style={{ width: 64, height: 64, background: `${GOLD}20`, border: `2px solid ${GOLD}`, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 20px" }}>✓</div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: TEXT, marginBottom: 6, letterSpacing: 1, textTransform: "uppercase" }}>FACTURE ENREGISTREE</h2>
+              <p style={{ color: MUTED, fontSize: 13, marginBottom: 6 }}>
+                {edited?.vendor_name} · {formatAmount(edited?.total_amount ?? null, edited?.currency ?? null)}
+              </p>
+              <p style={{ color: GOLD, fontSize: 12, fontWeight: 600, marginBottom: 28, letterSpacing: 1 }}>
+                REDIRECTION DANS {countdown}S...
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                <button onClick={() => router.push("/dashboard")} style={{ background: GOLD, color: "#0f1923", border: "none", padding: "11px 28px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: "pointer", letterSpacing: 2, textTransform: "uppercase" }}>
+                  VOIR MES FACTURES
+                </button>
+                <button onClick={handleReset} style={{ background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, padding: "11px 20px", borderRadius: 3, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  NOUVELLE FACTURE
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
+        </div>
       </div>
     </>
   );

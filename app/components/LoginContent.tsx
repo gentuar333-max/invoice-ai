@@ -2,6 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const BG = "#131f2e";
+const CARD = "#1e2d40";
+const BORDER = "#2e4058";
+const GOLD = "#e8b84b";
+const TEXT = "#ffffff";
+const MUTED = "#a8c4d8";
+
 export default function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +19,7 @@ export default function LoginContent() {
   const router = useRouter();
 
   async function handleSubmit() {
+    if (!email || !password) return;
     setLoading(true);
     setError("");
     setSuccess("");
@@ -25,7 +33,7 @@ export default function LoginContent() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.push("/invoices");
+        router.push("/dashboard");
       }
     } catch (err: any) {
       setError(err.message || "Erreur inconnue.");
@@ -35,44 +43,80 @@ export default function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white border border-gray-200 rounded-xl p-8 w-full max-w-sm shadow-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">AgentHub 🤖</h1>
-          <p className="text-gray-500 text-sm">
-            {mode === "login" ? "Connectez-vous a votre compte" : "Creez votre compte"}
+    <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "40px 36px", width: "100%", maxWidth: 380 }}>
+
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🤖</div>
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>AgentHub</h1>
+          <p style={{ fontSize: 12, color: MUTED, letterSpacing: 1 }}>
+            {mode === "login" ? "CONNECTEZ-VOUS A VOTRE COMPTE" : "CREEZ VOTRE COMPTE"}
           </p>
         </div>
-        <div className="flex flex-col gap-4 mb-6">
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
           <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.com" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-blue-400" />
+            <label style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", display: "block", marginBottom: 6 }}>EMAIL</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="vous@exemple.com"
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "11px 14px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
           </div>
           <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Mot de passe</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-blue-400" />
+            <label style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", display: "block", marginBottom: 6 }}>MOT DE PASSE</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "11px 14px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
           </div>
         </div>
+
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-600 text-sm mb-4">⚠️ {error}</div>
+          <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12, marginBottom: 14 }}>
+            {error}
+          </div>
         )}
+
         {success && (
-          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-green-700 text-sm mb-4">✓ {success}</div>
+          <div style={{ background: "#4ade8015", border: "1px solid #4ade8040", borderRadius: 3, padding: "10px 14px", color: "#4ade80", fontSize: 12, marginBottom: 14 }}>
+            {success}
+          </div>
         )}
+
         <button
           onClick={handleSubmit}
           disabled={loading || !email || !password}
-          className={`w-full py-3 rounded-lg text-white font-semibold text-sm transition ${loading || !email || !password ? "bg-gray-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+          style={{ width: "100%", background: loading || !email || !password ? BORDER : GOLD, color: "#0f1923", border: "none", padding: "12px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: loading || !email || !password ? "not-allowed" : "pointer", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}
         >
-          {loading ? "Chargement..." : mode === "login" ? "Se connecter" : "Creer un compte"}
+          {loading ? "CHARGEMENT..." : mode === "login" ? "SE CONNECTER" : "CREER UN COMPTE"}
         </button>
-        <p className="text-center text-sm text-gray-500 mt-6">
+
+        <p style={{ textAlign: "center", fontSize: 12, color: MUTED }}>
           {mode === "login" ? (
-            <>Pas encore de compte?{" "}<button onClick={() => setMode("register")} className="text-blue-600 font-medium hover:underline">S'inscrire</button></>
+            <>
+              Pas encore de compte?{" "}
+              <button onClick={() => setMode("register")} style={{ background: "none", border: "none", color: GOLD, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                S'inscrire
+              </button>
+            </>
           ) : (
-            <>Deja un compte?{" "}<button onClick={() => setMode("login")} className="text-blue-600 font-medium hover:underline">Se connecter</button></>
+            <>
+              Deja un compte?{" "}
+              <button onClick={() => setMode("login")} style={{ background: "none", border: "none", color: GOLD, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                Se connecter
+              </button>
+            </>
           )}
         </p>
+
       </div>
     </div>
   );

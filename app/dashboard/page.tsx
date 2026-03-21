@@ -49,7 +49,10 @@ export default function DashboardPage() {
   const [period, setPeriod] = useState<Period>("all");
 
   useEffect(() => { loadInvoices(); }, []);
-  useEffect(() => { filterByPeriod(invoices, period); }, [invoices, period]);
+
+  useEffect(() => {
+    if (invoices.length >= 0) filterByPeriod(invoices, period);
+  }, [invoices, period]);
 
   async function loadInvoices() {
     const supabase = createClient();
@@ -108,10 +111,10 @@ export default function DashboardPage() {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`Genere le: ${now.toLocaleDateString("fr-FR")}`, 20, 30);
-    doc.text(`Total factures: ${filtered.length}`, 20, 42);
-    doc.text(`Montant HT: ${totalSubtotal.toFixed(2)} EUR`, 20, 50);
+    doc.text(`Total: ${filtered.length} factures`, 20, 42);
+    doc.text(`HT: ${totalSubtotal.toFixed(2)} EUR`, 20, 50);
     doc.text(`TVA: ${totalTax.toFixed(2)} EUR`, 20, 58);
-    doc.text(`Total TTC: ${totalAmount.toFixed(2)} EUR`, 20, 66);
+    doc.text(`TTC: ${totalAmount.toFixed(2)} EUR`, 20, 66);
     doc.setFont("helvetica", "bold");
     doc.text("Fournisseur", 20, 82);
     doc.text("Date", 90, 82);
@@ -223,9 +226,7 @@ export default function DashboardPage() {
                     <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", letterSpacing: 1, textTransform: "uppercase" }}>
                       {overdueCount + pendingCount} FACTURE{(overdueCount + pendingCount) > 1 ? "S" : ""} NON PAYEE{(overdueCount + pendingCount) > 1 ? "S" : ""}
                     </p>
-                    <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>
-                      Montant total en attente: {fmt(unpaidTotal)}
-                    </p>
+                    <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Montant total en attente: {fmt(unpaidTotal)}</p>
                   </div>
                 </div>
                 <Link href="/reconciliation" style={{ background: "#ef444420", color: "#ef4444", border: "1px solid #ef444440", padding: "6px 14px", borderRadius: 3, fontSize: 10, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
@@ -239,9 +240,7 @@ export default function DashboardPage() {
                   <span style={{ fontSize: 18 }}>🟡</span>
                   <div>
                     <p style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b", letterSpacing: 1, textTransform: "uppercase" }}>TVA A DECLARER</p>
-                    <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>
-                      Avant le 20/{String(nextMonth).padStart(2, "0")}/{tvaYear} — {fmt(totalTax)}
-                    </p>
+                    <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Avant le 20/{String(nextMonth).padStart(2, "0")}/{tvaYear} — {fmt(totalTax)}</p>
                   </div>
                 </div>
                 <span style={{ background: "#f59e0b20", color: "#f59e0b", border: "1px solid #f59e0b40", padding: "6px 14px", borderRadius: 3, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
@@ -400,10 +399,7 @@ export default function DashboardPage() {
                               {sc.dot} {sc.label}
                             </span>
                             {canConfirm && (
-                              <button
-                                onClick={() => confirmPayment(inv.id)}
-                                style={{ background: "#4ade8015", color: "#4ade80", border: "1px solid #4ade8040", padding: "3px 10px", borderRadius: 2, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}
-                              >
+                              <button onClick={() => confirmPayment(inv.id)} style={{ background: "#4ade8015", color: "#4ade80", border: "1px solid #4ade8040", padding: "3px 10px", borderRadius: 2, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>
                                 CONFIRMER
                               </button>
                             )}

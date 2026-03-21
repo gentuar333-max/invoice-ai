@@ -1,4 +1,3 @@
- 
 "use client";
 import { usePathname } from "next/navigation";
 
@@ -6,6 +5,7 @@ const links = [
   { href: "/invoices", label: "Créer une facture", icon: "📄" },
   { href: "/dashboard", label: "Mes factures", icon: "📊" },
   { href: "/reconciliation", label: "Banque", icon: "🏦" },
+  { href: "/pricing", label: "Tarifs",  },
 ];
 
 export default function NavbarClient() {

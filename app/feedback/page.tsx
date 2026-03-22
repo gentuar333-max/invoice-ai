@@ -1,6 +1,5 @@
- 
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 
 const CARD = "#1e2d40";
@@ -53,8 +52,6 @@ export function FeedbackWidget({ trigger = "manual", onClose }: Props) {
 
   return (
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, width: 320, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "20px 22px", boxShadow: "0 8px 32px rgba(0,0,0,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-      
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: TEXT }}>
           {done ? "Merci ! 🎉" : "Votre avis compte"}
@@ -71,8 +68,6 @@ export function FeedbackWidget({ trigger = "manual", onClose }: Props) {
           <p style={{ fontSize: 12, color: MUTED, marginBottom: 16, lineHeight: 1.5 }}>
             Comment évaluez-vous votre expérience?
           </p>
-
-          {/* Stars */}
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -86,8 +81,6 @@ export function FeedbackWidget({ trigger = "manual", onClose }: Props) {
               </button>
             ))}
           </div>
-
-          {/* Label */}
           {(hovered || rating) && (
             <p style={{ fontSize: 11, color: GOLD, marginBottom: 12, letterSpacing: 0.5 }}>
               {(hovered ?? rating) === 1 ? "Très insatisfait" :
@@ -97,8 +90,6 @@ export function FeedbackWidget({ trigger = "manual", onClose }: Props) {
                "Très satisfait 😍"}
             </p>
           )}
-
-          {/* Comment */}
           {rating && (
             <textarea
               value={comment}
@@ -108,8 +99,6 @@ export function FeedbackWidget({ trigger = "manual", onClose }: Props) {
               style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "10px 12px", fontSize: 12, color: TEXT, outline: "none", fontFamily: "inherit", resize: "none", boxSizing: "border-box", marginBottom: 12 }}
             />
           )}
-
-          {/* Submit */}
           {rating && (
             <button
               onClick={handleSubmit}
@@ -119,3 +108,16 @@ export function FeedbackWidget({ trigger = "manual", onClose }: Props) {
               {loading ? "ENVOI..." : "ENVOYER"}
             </button>
           )}
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function FeedbackPage() {
+  return (
+    <div style={{ minHeight: "100vh", background: "#131f2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <FeedbackWidget trigger="manual" />
+    </div>
+  );
+}

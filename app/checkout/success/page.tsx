@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -9,7 +10,7 @@ const GOLD = "#e8b84b";
 const TEXT = "#ffffff";
 const MUTED = "#a8c4d8";
 
-export default function CheckoutSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "starter";
 
@@ -31,5 +32,13 @@ export default function CheckoutSuccessPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#131f2e" }} />}>
+      <SuccessContent />
+    </Suspense>
   );
 }

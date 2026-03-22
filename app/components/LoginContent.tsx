@@ -29,6 +29,11 @@ export default function LoginContent() {
       if (mode === "register") {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+        await fetch("/api/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "welcome", to: email, data: {} }),
+        });
         setSuccess("Compte cree! Verifiez votre email pour confirmer.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });

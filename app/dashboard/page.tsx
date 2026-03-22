@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { logAudit } from "@/lib/audit";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -78,14 +79,29 @@ export default function DashboardPage() {
 
   async function deleteInvoice(id: string) {
     const supabase = createClient();
+    const inv = invoices.find((i) => i.id === id);
     await supabase.from("invoices").delete().eq("id", id);
     setInvoices((prev) => prev.filter((inv) => inv.id !== id));
+    await logAudit({
+      action: "DELETE",
+      entity: "invoice",
+      entity_id: id,
+      old_data: inv,
+    });
   }
 
   async function confirmPayment(id: string) {
     const supabase = createClient();
+    const inv = invoices.find((i) => i.id === id);
     await supabase.from("invoices").update({ status: "paid" }).eq("id", id);
     setInvoices((prev) => prev.map((i) => i.id === id ? { ...i, status: "paid" } : i));
+    await logAudit({
+      action: "CONFIRM_PAYMENT",
+      entity: "invoice",
+      entity_id: id,
+      old_data: { status: inv?.status },
+      new_data: { status: "paid" },
+    });
   }
 
   function getChartData() {

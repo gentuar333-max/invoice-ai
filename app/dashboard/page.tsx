@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { logAudit } from "@/lib/audit";
+import { FeedbackWidget } from "@/app/feedback/page";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -48,12 +49,22 @@ export default function DashboardPage() {
   const [filtered, setFiltered] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("all");
+  const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => { loadInvoices(); }, []);
 
   useEffect(() => {
     if (invoices.length >= 0) filterByPeriod(invoices, period);
   }, [invoices, period]);
+
+  useEffect(() => {
+    if (invoices.length >= 5 && !localStorage.getItem("feedback_shown")) {
+      setTimeout(() => {
+        setShowFeedback(true);
+        localStorage.setItem("feedback_shown", "true");
+      }, 3000);
+    }
+  }, [invoices]);
 
   async function loadInvoices() {
     const supabase = createClient();
@@ -438,6 +449,12 @@ export default function DashboardPage() {
         )}
 
       </div>
+
+      {/* Feedback Widget */}
+      {showFeedback && (
+        <FeedbackWidget trigger="auto" onClose={() => setShowFeedback(false)} />
+      )}
+
     </div>
   );
 }

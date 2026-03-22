@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { InvoiceData, SavedInvoice } from "@/lib/invoice-schema";
 import { saveInvoiceToSupabase } from "@/lib/save-invoice";
+import UpgradeModal from "@/components/UpgradeModal";
 
 const BG = "#131f2e";
 const CARD = "#1e2d40";
@@ -118,11 +119,17 @@ export default function InvoicesPage() {
   const [duplicateWarning, setDuplicateWarning] = useState("");
   const [history, setHistory] = useState<SavedInvoice[]>([]);
   const [countdown, setCountdown] = useState(3);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [invoiceCount, setInvoiceCount] = useState(0);
 
   useEffect(() => {
     try {
       const s = localStorage.getItem("invoices_v3");
-      if (s) setHistory(JSON.parse(s));
+      if (s) {
+        const parsed = JSON.parse(s);
+        setHistory(parsed);
+        setInvoiceCount(parsed.length);
+      }
     } catch {}
   }, []);
 
@@ -153,6 +160,13 @@ export default function InvoicesPage() {
 
   async function handleExtract() {
     if (!file) return;
+
+    // Freemium limit check
+    if (invoiceCount >= 5) {
+      setShowUpgrade(true);
+      return;
+    }
+
     setLoading(true);
     setStep(2);
     setError("");
@@ -218,6 +232,7 @@ export default function InvoicesPage() {
     };
     const updated = [newEntry, ...history].slice(0, 100);
     setHistory(updated);
+    setInvoiceCount(updated.length);
     localStorage.setItem("invoices_v3", JSON.stringify(updated));
     setSaved(true);
     setStep(4);
@@ -247,10 +262,26 @@ export default function InvoicesPage() {
         input:focus { border-color: #e8b84b !important; }
       `}</style>
 
+      {showUpgrade && (
+        <UpgradeModal reason="invoices" onClose={() => { setShowUpgrade(false); setFile(null); }} />
+      )}
+
       <div style={{ minHeight: "100vh", background: BG, padding: "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ maxWidth: 640, margin: "0 auto" }}>
 
           <StepIndicator step={step} />
+
+          {/* Banner limit */}
+          {invoiceCount >= 4 && invoiceCount < 5 && (
+            <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+              <p style={{ fontSize: 12, color: "#f59e0b" }}>
+                ⚠ Il vous reste <strong>1 facture</strong> sur votre plan gratuit.
+              </p>
+              <a href="/pricing" style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textDecoration: "none", letterSpacing: 1, textTransform: "uppercase", border: "1px solid #f59e0b40", padding: "4px 12px", borderRadius: 2 }}>
+                UPGRADER →
+              </a>
+            </div>
+          )}
 
           {/* STEP 1 */}
           {step === 1 && (

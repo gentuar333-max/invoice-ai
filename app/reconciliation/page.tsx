@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import UpgradeModal from "@/components/UpgradeModal";
 
 const BG = "#0f1923";
 const CARD = "#1a2535";
@@ -35,6 +36,7 @@ export default function ReconciliationPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [step, setStep] = useState(1);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const stats = {
     total: transactions.length,
@@ -106,6 +108,15 @@ export default function ReconciliationPage() {
   async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Freemium check
+    const plan = localStorage.getItem("user_plan") || "free";
+    if (plan === "free") {
+      setShowUpgrade(true);
+      e.target.value = "";
+      return;
+    }
+
     setLoading(true);
     setError("");
     setSuccessMsg("");
@@ -187,188 +198,204 @@ export default function ReconciliationPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: BG, padding: "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+    <>
+      {showUpgrade && (
+        <UpgradeModal reason="csv" onClose={() => setShowUpgrade(false)} />
+      )}
 
-        {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
-            RAPPROCHEMENT BANCAIRE
-          </h1>
-          <p style={{ color: MUTED, fontSize: 12, letterSpacing: 1 }}>
-            IMPORTEZ VOTRE RELEVE CSV — LE MATCHING SE FAIT AUTOMATIQUEMENT
-          </p>
-        </div>
+      <div style={{ minHeight: "100vh", background: BG, padding: "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
-        {/* Steps */}
-        <div style={{ display: "flex", gap: 0, marginBottom: 24, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-          {[
-            { num: 1, label: "IMPORTER", desc: "Chargez votre CSV" },
-            { num: 2, label: "MATCHING IA", desc: "Automatique" },
-            { num: 3, label: "EXPORTER", desc: "Rapport final" },
-          ].map((s, i) => (
-            <div key={s.num} style={{ flex: 1, padding: "14px 18px", borderRight: i < 2 ? `1px solid ${BORDER}` : "none", background: step === s.num ? "#1f2f45" : "transparent", borderBottom: step === s.num ? `2px solid ${GOLD}` : "2px solid transparent", transition: "all 0.2s" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                <div style={{ width: 20, height: 20, borderRadius: 2, background: step >= s.num ? GOLD : BORDER, color: step >= s.num ? "#0f1923" : MUTED, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>
-                  {step > s.num ? "✓" : s.num}
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: step === s.num ? GOLD : MUTED }}>{s.label}</span>
-                {step === s.num && s.num === 2 && matching && (
-                  <span style={{ fontSize: 10, color: GOLD, fontStyle: "italic" }}>en cours...</span>
-                )}
-              </div>
-              <p style={{ fontSize: 11, color: MUTED, marginLeft: 28 }}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
+          {/* Header */}
+          <div style={{ marginBottom: 24 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
+              RAPPROCHEMENT BANCAIRE
+            </h1>
+            <p style={{ color: MUTED, fontSize: 12, letterSpacing: 1 }}>
+              IMPORTEZ VOTRE RELEVE CSV — LE MATCHING SE FAIT AUTOMATIQUEMENT
+            </p>
+          </div>
 
-        {/* Stats */}
-        {stats.total > 0 && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
+          {/* Steps */}
+          <div style={{ display: "flex", gap: 0, marginBottom: 24, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
             {[
-              { label: "TOTAL", value: stats.total, color: GOLD },
-              { label: "RAPPROCHEES", value: stats.reconciled, color: "#4ade80" },
-              { label: "EN ATTENTE", value: stats.unmatched, color: "#fb923c" },
-              { label: "ERREURS", value: stats.error, color: "#ef4444" },
-            ].map((s) => (
-              <div key={s.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px" }}>
-                <div style={{ fontSize: 10, color: MUTED, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>{s.label}</div>
-                <div style={{ fontSize: 26, fontWeight: 700, color: s.color }}>{s.value}</div>
+              { num: 1, label: "IMPORTER", desc: "Chargez votre CSV" },
+              { num: 2, label: "MATCHING IA", desc: "Automatique" },
+              { num: 3, label: "EXPORTER", desc: "Rapport final" },
+            ].map((s, i) => (
+              <div key={s.num} style={{ flex: 1, padding: "14px 18px", borderRight: i < 2 ? `1px solid ${BORDER}` : "none", background: step === s.num ? "#1f2f45" : "transparent", borderBottom: step === s.num ? `2px solid ${GOLD}` : "2px solid transparent", transition: "all 0.2s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 2, background: step >= s.num ? GOLD : BORDER, color: step >= s.num ? "#0f1923" : MUTED, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>
+                    {step > s.num ? "✓" : s.num}
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: step === s.num ? GOLD : MUTED }}>{s.label}</span>
+                  {step === s.num && s.num === 2 && matching && (
+                    <span style={{ fontSize: 10, color: GOLD, fontStyle: "italic" }}>en cours...</span>
+                  )}
+                </div>
+                <p style={{ fontSize: 11, color: MUTED, marginLeft: 28 }}>{s.desc}</p>
               </div>
             ))}
           </div>
-        )}
 
-        {/* Upload zone */}
-        {transactions.length === 0 && (
-          <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "32px 24px", marginBottom: 20 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>IMPORTER VOTRE RELEVE BANCAIRE</h3>
-            <p style={{ fontSize: 12, color: MUTED, marginBottom: 16, lineHeight: 1.6 }}>
-              Format requis: <span style={{ color: GOLD, fontFamily: "monospace" }}>Date, Description, Amount</span>
+          {/* Freemium banner */}
+          <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+            <p style={{ fontSize: 12, color: "#f59e0b" }}>
+              🔒 Le rapprochement bancaire est disponible à partir du plan <strong>Starter — 19€/mois</strong>
             </p>
-            <div style={{ background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "12px 16px", marginBottom: 20, fontFamily: "monospace", fontSize: 11, color: MUTED }}>
-              <div style={{ color: GOLD, marginBottom: 4 }}>// EXEMPLE FORMAT</div>
-              <div>Date,Description,Amount</div>
-              <div>2026-03-14,LIDL,-11.26</div>
-              <div>2026-03-13,CLIENT ABC,1500.00</div>
+            <a href="/pricing" style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textDecoration: "none", letterSpacing: 1, textTransform: "uppercase", border: "1px solid #f59e0b40", padding: "4px 12px", borderRadius: 2 }}>
+              UPGRADER →
+            </a>
+          </div>
+
+          {/* Stats */}
+          {stats.total > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
+              {[
+                { label: "TOTAL", value: stats.total, color: GOLD },
+                { label: "RAPPROCHEES", value: stats.reconciled, color: "#4ade80" },
+                { label: "EN ATTENTE", value: stats.unmatched, color: "#fb923c" },
+                { label: "ERREURS", value: stats.error, color: "#ef4444" },
+              ].map((s) => (
+                <div key={s.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px" }}>
+                  <div style={{ fontSize: 10, color: MUTED, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>{s.label}</div>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: s.color }}>{s.value}</div>
+                </div>
+              ))}
             </div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <label style={{ background: GOLD, color: "#0f1923", padding: "10px 24px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "inline-block", letterSpacing: 1.5, textTransform: "uppercase" }}>
-                {loading ? "CHARGEMENT..." : "IMPORTER MON RELEVE CSV"}
-                <input type="file" accept=".csv" style={{ display: "none" }} onChange={handleCSVUpload} disabled={loading} />
+          )}
+
+          {/* Upload zone */}
+          {transactions.length === 0 && (
+            <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "32px 24px", marginBottom: 20 }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>IMPORTER VOTRE RELEVE BANCAIRE</h3>
+              <p style={{ fontSize: 12, color: MUTED, marginBottom: 16, lineHeight: 1.6 }}>
+                Format requis: <span style={{ color: GOLD, fontFamily: "monospace" }}>Date, Description, Amount</span>
+              </p>
+              <div style={{ background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "12px 16px", marginBottom: 20, fontFamily: "monospace", fontSize: 11, color: MUTED }}>
+                <div style={{ color: GOLD, marginBottom: 4 }}>// EXEMPLE FORMAT</div>
+                <div>Date,Description,Amount</div>
+                <div>2026-03-14,LIDL,-11.26</div>
+                <div>2026-03-13,CLIENT ABC,1500.00</div>
+              </div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <label style={{ background: GOLD, color: "#0f1923", padding: "10px 24px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: "pointer", display: "inline-block", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  {loading ? "CHARGEMENT..." : "IMPORTER MON RELEVE CSV"}
+                  <input type="file" accept=".csv" style={{ display: "none" }} onChange={handleCSVUpload} disabled={loading} />
+                </label>
+                <button onClick={downloadSampleCSV} style={{ background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, padding: "10px 20px", borderRadius: 4, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  TELECHARGER EXEMPLE
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Matching en cours */}
+          {matching && (
+            <div style={{ background: CARD, border: `1px solid ${GOLD}50`, borderRadius: 4, padding: "14px 20px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 16, height: 16, border: `2px solid ${GOLD}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: GOLD, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>MATCHING EN COURS...</span>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          )}
+
+          {/* Actions */}
+          {transactions.length > 0 && (
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+              <button onClick={handleAutoMatch} disabled={matching || stats.unmatched === 0} style={{ background: matching || stats.unmatched === 0 ? BORDER : GOLD, color: matching || stats.unmatched === 0 ? MUTED : "#0f1923", border: "none", padding: "10px 22px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: matching || stats.unmatched === 0 ? "not-allowed" : "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                {matching ? "MATCHING..." : `AUTO-MATCH (${stats.unmatched})`}
+              </button>
+              <button onClick={exportReport} style={{ background: "transparent", color: "#4ade80", border: "1px solid #4ade8050", padding: "10px 22px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                EXPORTER
+              </button>
+              <label style={{ background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, padding: "10px 16px", borderRadius: 4, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                + IMPORTER CSV
+                <input type="file" accept=".csv" style={{ display: "none" }} onChange={handleCSVUpload} />
               </label>
-              <button onClick={downloadSampleCSV} style={{ background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, padding: "10px 20px", borderRadius: 4, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
-                TELECHARGER EXEMPLE
+              <button onClick={handleClearAll} style={{ background: "transparent", color: "#ef4444", border: "1px solid #ef444430", padding: "10px 16px", borderRadius: 4, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase", marginLeft: "auto" }}>
+                TOUT EFFACER
               </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Matching en cours */}
-        {matching && (
-          <div style={{ background: CARD, border: `1px solid ${GOLD}50`, borderRadius: 4, padding: "14px 20px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 16, height: 16, border: `2px solid ${GOLD}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: GOLD, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>MATCHING EN COURS...</span>
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        )}
-
-        {/* Actions */}
-        {transactions.length > 0 && (
-          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-            <button onClick={handleAutoMatch} disabled={matching || stats.unmatched === 0} style={{ background: matching || stats.unmatched === 0 ? BORDER : GOLD, color: matching || stats.unmatched === 0 ? MUTED : "#0f1923", border: "none", padding: "10px 22px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: matching || stats.unmatched === 0 ? "not-allowed" : "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
-              {matching ? "MATCHING..." : `AUTO-MATCH (${stats.unmatched})`}
-            </button>
-            <button onClick={exportReport} style={{ background: "transparent", color: "#4ade80", border: "1px solid #4ade8050", padding: "10px 22px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
-              EXPORTER
-            </button>
-            <label style={{ background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, padding: "10px 16px", borderRadius: 4, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase" }}>
-              + IMPORTER CSV
-              <input type="file" accept=".csv" style={{ display: "none" }} onChange={handleCSVUpload} />
-            </label>
-            <button onClick={handleClearAll} style={{ background: "transparent", color: "#ef4444", border: "1px solid #ef444430", padding: "10px 16px", borderRadius: 4, fontSize: 11, cursor: "pointer", letterSpacing: 1.5, textTransform: "uppercase", marginLeft: "auto" }}>
-              TOUT EFFACER
-            </button>
-          </div>
-        )}
-
-        {/* Messages */}
-        {error && (
-          <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 4, padding: "12px 16px", color: "#ef4444", fontSize: 12, marginBottom: 14, letterSpacing: 0.5 }}>
-            {error}
-          </div>
-        )}
-        {successMsg && (
-          <div style={{ background: "#4ade8015", border: "1px solid #4ade8040", borderRadius: 4, padding: "12px 16px", color: "#4ade80", fontSize: 12, marginBottom: 14, letterSpacing: 0.5 }}>
-            ✓ {successMsg}
-          </div>
-        )}
-
-        {/* Table */}
-        {transactions.length > 0 && (
-          <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-            <div style={{ padding: "12px 16px", borderBottom: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: "#151f2e" }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase" }}>
-                {transactions.length} TRANSACTIONS
-              </span>
-              <span style={{ fontSize: 11, color: MUTED, letterSpacing: 1 }}>
-                {stats.reconciled} RAPPROCHEES · {stats.unmatched} EN ATTENTE
-              </span>
+          {/* Messages */}
+          {error && (
+            <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 4, padding: "12px 16px", color: "#ef4444", fontSize: 12, marginBottom: 14, letterSpacing: 0.5 }}>
+              {error}
             </div>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse", minWidth: 700 }}>
-                <thead style={{ background: "#151f2e", borderBottom: `1px solid ${BORDER}` }}>
-                  <tr>
-                    {["DATE","DESCRIPTION","MONTANT","STATUT","FACTURE","CONFIANCE","ACTION"].map((h) => (
-                      <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, color: MUTED, letterSpacing: 1.5, fontWeight: 600, whiteSpace: "nowrap" }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.map((tx, i) => {
-                    const matchedInv = invoices.find((inv) => inv.id === tx.matched_invoice_id);
-                    const isReconciled = tx.status === "reconciled";
-                    return (
-                      <tr key={tx.id} style={{ borderBottom: i < transactions.length - 1 ? `1px solid ${BORDER}` : "none", background: isReconciled ? "#16a34a10" : "transparent", transition: "background 0.1s" }}
-                        onMouseEnter={(e) => !isReconciled && (e.currentTarget.style.background = "#1f2f45")}
-                        onMouseLeave={(e) => !isReconciled && (e.currentTarget.style.background = "transparent")}
-                      >
-                        <td style={{ padding: "11px 14px", color: MUTED, fontFamily: "monospace", fontSize: 11, whiteSpace: "nowrap" }}>{tx.date}</td>
-                        <td style={{ padding: "11px 14px", fontWeight: 600, color: TEXT }}>{tx.description}</td>
-                        <td style={{ padding: "11px 14px", fontFamily: "monospace", fontWeight: 700, color: tx.amount > 0 ? "#4ade80" : TEXT, whiteSpace: "nowrap" }}>
-                          {tx.amount > 0 ? "+" : ""}{tx.amount} EUR
-                        </td>
-                        <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
-                          <span style={{ background: isReconciled ? "#4ade8020" : "#fb923c20", color: isReconciled ? "#4ade80" : "#fb923c", padding: "3px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                            {isReconciled ? "✓ RAPPROCHE" : "? EN ATTENTE"}
-                          </span>
-                        </td>
-                        <td style={{ padding: "11px 14px", fontSize: 11, color: MUTED }}>
-                          {matchedInv ? `${matchedInv.vendor_name} — ${matchedInv.total_amount} EUR` : "—"}
-                        </td>
-                        <td style={{ padding: "11px 14px", fontSize: 11, color: GOLD, fontFamily: "monospace" }}>
-                          {tx.match_confidence ? `${tx.match_confidence}%` : "—"}
-                        </td>
-                        <td style={{ padding: "11px 14px" }}>
-                          {!isReconciled && (
-                            <select onChange={(e) => handleManualMatch(tx.id, e.target.value)} style={{ fontSize: 11, border: `1px solid ${BORDER}`, borderRadius: 3, padding: "4px 8px", color: TEXT, background: "#0f1923", maxWidth: 160, letterSpacing: 0.5 }} defaultValue="">
-                              <option value="">ASSOCIER</option>
-                              {invoices.map((inv) => (
-                                <option key={inv.id} value={inv.id}>{inv.vendor_name} — {inv.total_amount} EUR</option>
-                              ))}
-                            </select>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          )}
+          {successMsg && (
+            <div style={{ background: "#4ade8015", border: "1px solid #4ade8040", borderRadius: 4, padding: "12px 16px", color: "#4ade80", fontSize: 12, marginBottom: 14, letterSpacing: 0.5 }}>
+              ✓ {successMsg}
             </div>
-          </div>
-        )}
+          )}
 
+          {/* Table */}
+          {transactions.length > 0 && (
+            <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", borderBottom: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: "#151f2e" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  {transactions.length} TRANSACTIONS
+                </span>
+                <span style={{ fontSize: 11, color: MUTED, letterSpacing: 1 }}>
+                  {stats.reconciled} RAPPROCHEES · {stats.unmatched} EN ATTENTE
+                </span>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse", minWidth: 700 }}>
+                  <thead style={{ background: "#151f2e", borderBottom: `1px solid ${BORDER}` }}>
+                    <tr>
+                      {["DATE","DESCRIPTION","MONTANT","STATUT","FACTURE","CONFIANCE","ACTION"].map((h) => (
+                        <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, color: MUTED, letterSpacing: 1.5, fontWeight: 600, whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.map((tx, i) => {
+                      const matchedInv = invoices.find((inv) => inv.id === tx.matched_invoice_id);
+                      const isReconciled = tx.status === "reconciled";
+                      return (
+                        <tr key={tx.id} style={{ borderBottom: i < transactions.length - 1 ? `1px solid ${BORDER}` : "none", background: isReconciled ? "#16a34a10" : "transparent", transition: "background 0.1s" }}
+                          onMouseEnter={(e) => !isReconciled && (e.currentTarget.style.background = "#1f2f45")}
+                          onMouseLeave={(e) => !isReconciled && (e.currentTarget.style.background = "transparent")}
+                        >
+                          <td style={{ padding: "11px 14px", color: MUTED, fontFamily: "monospace", fontSize: 11, whiteSpace: "nowrap" }}>{tx.date}</td>
+                          <td style={{ padding: "11px 14px", fontWeight: 600, color: TEXT }}>{tx.description}</td>
+                          <td style={{ padding: "11px 14px", fontFamily: "monospace", fontWeight: 700, color: tx.amount > 0 ? "#4ade80" : TEXT, whiteSpace: "nowrap" }}>
+                            {tx.amount > 0 ? "+" : ""}{tx.amount} EUR
+                          </td>
+                          <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
+                            <span style={{ background: isReconciled ? "#4ade8020" : "#fb923c20", color: isReconciled ? "#4ade80" : "#fb923c", padding: "3px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                              {isReconciled ? "✓ RAPPROCHE" : "? EN ATTENTE"}
+                            </span>
+                          </td>
+                          <td style={{ padding: "11px 14px", fontSize: 11, color: MUTED }}>
+                            {matchedInv ? `${matchedInv.vendor_name} — ${matchedInv.total_amount} EUR` : "—"}
+                          </td>
+                          <td style={{ padding: "11px 14px", fontSize: 11, color: GOLD, fontFamily: "monospace" }}>
+                            {tx.match_confidence ? `${tx.match_confidence}%` : "—"}
+                          </td>
+                          <td style={{ padding: "11px 14px" }}>
+                            {!isReconciled && (
+                              <select onChange={(e) => handleManualMatch(tx.id, e.target.value)} style={{ fontSize: 11, border: `1px solid ${BORDER}`, borderRadius: 3, padding: "4px 8px", color: TEXT, background: "#0f1923", maxWidth: 160, letterSpacing: 0.5 }} defaultValue="">
+                                <option value="">ASSOCIER</option>
+                                {invoices.map((inv) => (
+                                  <option key={inv.id} value={inv.id}>{inv.vendor_name} — {inv.total_amount} EUR</option>
+                                ))}
+                              </select>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -13,6 +13,10 @@ const MUTED = "#a8c4d8";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "starter";
+
+  useEffect(() => {
+    localStorage.setItem("user_plan", plan);
+  }, [plan]);
 
   return (
     <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'DM Sans', sans-serif" }}>

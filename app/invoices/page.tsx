@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { InvoiceData, SavedInvoice } from "@/lib/invoice-schema";
 import { saveInvoiceToSupabase } from "@/lib/save-invoice";
 import UpgradeModal from "@/components/UpgradeModal";
+import { getUserPlan, PLAN_LIMITS } from "@/lib/plan";
 
 const BG = "#131f2e";
 const CARD = "#1e2d40";
@@ -121,8 +122,17 @@ export default function InvoicesPage() {
   const [countdown, setCountdown] = useState(3);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [invoiceCount, setInvoiceCount] = useState(0);
+  const [userPlan, setUserPlan] = useState("free");
+  const [maxInvoices, setMaxInvoices] = useState(5);
 
   useEffect(() => {
+    async function loadPlan() {
+      const plan = await getUserPlan();
+      setUserPlan(plan);
+      setMaxInvoices(PLAN_LIMITS[plan].max_invoices);
+    }
+    loadPlan();
+
     try {
       const s = localStorage.getItem("invoices_v3");
       if (s) {
@@ -161,8 +171,7 @@ export default function InvoicesPage() {
   async function handleExtract() {
     if (!file) return;
 
-    // Freemium limit check
-    if (invoiceCount >= 5) {
+    if (invoiceCount >= maxInvoices) {
       setShowUpgrade(true);
       return;
     }
@@ -272,10 +281,10 @@ export default function InvoicesPage() {
           <StepIndicator step={step} />
 
           {/* Banner limit */}
-          {invoiceCount >= 4 && invoiceCount < 5 && (
+          {invoiceCount >= maxInvoices - 1 && invoiceCount < maxInvoices && (
             <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
               <p style={{ fontSize: 12, color: "#f59e0b" }}>
-                ⚠ Il vous reste <strong>1 facture</strong> sur votre plan gratuit.
+                ⚠ Il vous reste <strong>1 facture</strong> sur votre plan.
               </p>
               <a href="/pricing" style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, textDecoration: "none", letterSpacing: 1, textTransform: "uppercase", border: "1px solid #f59e0b40", padding: "4px 12px", borderRadius: 2 }}>
                 UPGRADER →

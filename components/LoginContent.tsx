@@ -1,4 +1,3 @@
- 
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -27,18 +26,45 @@ export default function LoginContent() {
     try {
       const { createClient } = await import("@/lib/supabase");
       const supabase = createClient();
+
       if (mode === "register") {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error, data } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+
         await fetch("/api/email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "welcome", to: email, data: {} }),
         });
-        setSuccess("Compte cree! Verifiez votre email pour confirmer.");
+
+        setSuccess("Compte créé ! Vérifiez votre email pour confirmer votre inscription avant de vous connecter.");
+
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          if (error.message.includes("Email not confirmed")) {
+            setError("Votre email n'est pas encore confirmé. Vérifiez votre boîte mail et cliquez sur le lien de confirmation.");
+          } else if (error.message.includes("Invalid login credentials")) {
+            setError("Email ou mot de passe incorrect.");
+          } else {
+            throw error;
+          }
+          return;
+        }
+
+        if (data.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("plan")
+            .eq("id", data.user.id)
+            .single();
+
+          if (profile?.plan) {
+            localStorage.setItem("user_plan", profile.plan);
+          }
+        }
+
         router.push("/dashboard");
       }
     } catch (err: any) {
@@ -51,6 +77,7 @@ export default function LoginContent() {
   return (
     <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'DM Sans', sans-serif" }}>
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "40px 36px", width: "100%", maxWidth: 380 }}>
+
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>🤖</div>
           <h1 style={{ fontSize: 18, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>AgentHub</h1>
@@ -58,32 +85,70 @@ export default function LoginContent() {
             {mode === "login" ? "CONNECTEZ-VOUS A VOTRE COMPTE" : "CREEZ VOTRE COMPTE"}
           </p>
         </div>
+
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
           <div>
             <label style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", display: "block", marginBottom: 6 }}>EMAIL</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.com" onKeyDown={(e) => e.key === "Enter" && handleSubmit()} style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "11px 14px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="vous@exemple.com"
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "11px 14px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
           </div>
           <div>
             <label style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", display: "block", marginBottom: 6 }}>MOT DE PASSE</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" onKeyDown={(e) => e.key === "Enter" && handleSubmit()} style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "11px 14px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }} />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              style={{ width: "100%", background: "#0f1923", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "11px 14px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
           </div>
         </div>
+
         {error && (
-          <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12, marginBottom: 14 }}>{error}</div>
+          <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12, marginBottom: 14, lineHeight: 1.6 }}>
+            {error}
+          </div>
         )}
+
         {success && (
-          <div style={{ background: "#4ade8015", border: "1px solid #4ade8040", borderRadius: 3, padding: "10px 14px", color: "#4ade80", fontSize: 12, marginBottom: 14 }}>{success}</div>
+          <div style={{ background: "#4ade8015", border: "1px solid #4ade8040", borderRadius: 3, padding: "10px 14px", color: "#4ade80", fontSize: 12, marginBottom: 14, lineHeight: 1.6 }}>
+            ✓ {success}
+          </div>
         )}
-        <button onClick={handleSubmit} disabled={loading || !email || !password} style={{ width: "100%", background: loading || !email || !password ? BORDER : GOLD, color: "#0f1923", border: "none", padding: "12px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: loading || !email || !password ? "not-allowed" : "pointer", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>
+
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !email || !password}
+          style={{ width: "100%", background: loading || !email || !password ? BORDER : GOLD, color: "#0f1923", border: "none", padding: "12px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: loading || !email || !password ? "not-allowed" : "pointer", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}
+        >
           {loading ? "CHARGEMENT..." : mode === "login" ? "SE CONNECTER" : "CREER UN COMPTE"}
         </button>
+
         <p style={{ textAlign: "center", fontSize: 12, color: MUTED }}>
           {mode === "login" ? (
-            <>Pas encore de compte?{" "}<button onClick={() => setMode("register")} style={{ background: "none", border: "none", color: GOLD, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>S'inscrire</button></>
+            <>
+              Pas encore de compte?{" "}
+              <button onClick={() => { setMode("register"); setError(""); setSuccess(""); }} style={{ background: "none", border: "none", color: GOLD, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                S'inscrire
+              </button>
+            </>
           ) : (
-            <>Deja un compte?{" "}<button onClick={() => setMode("login")} style={{ background: "none", border: "none", color: GOLD, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Se connecter</button></>
+            <>
+              Deja un compte?{" "}
+              <button onClick={() => { setMode("login"); setError(""); setSuccess(""); }} style={{ background: "none", border: "none", color: GOLD, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                Se connecter
+              </button>
+            </>
           )}
         </p>
+
       </div>
     </div>
   );

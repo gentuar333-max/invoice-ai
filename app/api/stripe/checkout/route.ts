@@ -1,4 +1,3 @@
- 
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -18,6 +17,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Plan invalide" }, { status: 400 });
     }
 
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
@@ -33,8 +34,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       customer_email: email || undefined,
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/checkout/success?plan=${plan}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/pricing`,
+      success_url: `${appUrl}/checkout/success?plan=${plan}`,
+      cancel_url: `${appUrl}/pricing`,
       metadata: { plan },
     });
 

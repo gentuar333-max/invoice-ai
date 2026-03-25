@@ -1,15 +1,19 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+
+let client: ReturnType<typeof createSupabaseClient> | null = null;
 
 export function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!url || !key) {
-    if (typeof window === "undefined") {
-      return { auth: { signUp: async () => ({}), signInWithPassword: async () => ({}), signOut: async () => ({}) }, from: () => ({ select: () => ({ order: () => ({}) }) }) } as any;
-    }
-    throw new Error("Supabase URL and Key are required");
+  if (typeof window === "undefined") {
+    return createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
   }
-  
-  return createBrowserClient(url, key);
+  if (!client) {
+    client = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return client;
 }

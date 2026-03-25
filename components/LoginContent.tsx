@@ -37,18 +37,19 @@ export default function LoginContent() {
           body: JSON.stringify({ type: "welcome", to: email, data: {} }),
         });
 
-        setSuccess("Compte créé ! Vérifiez votre email pour confirmer votre inscription avant de vous connecter.");
+        setSuccess("Compte cree! Connectez-vous maintenant.");
+        setMode("login");
 
       } else {
         const { error, data } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
           if (error.message.includes("Email not confirmed")) {
-            setError("Votre email n'est pas encore confirmé. Vérifiez votre boîte mail et cliquez sur le lien de confirmation.");
+            setError("Votre email n'est pas encore confirme. Verifiez votre boite mail.");
           } else if (error.message.includes("Invalid login credentials")) {
             setError("Email ou mot de passe incorrect.");
           } else {
-            throw error;
+            setError(error.message);
           }
           return;
         }
@@ -65,6 +66,7 @@ export default function LoginContent() {
           }
         }
 
+        router.refresh();
         router.push("/dashboard");
       }
     } catch (err: any) {

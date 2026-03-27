@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { logAudit } from "@/lib/audit";
 import { FeedbackWidget } from "@/app/feedback/page";
-import UpgradeModal from "@/components/UpgradeModal";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -55,6 +54,14 @@ export default function DashboardPage() {
   const [contracts, setContracts] = useState<any[]>([]);
   const [contractLoading, setContractLoading] = useState(false);
   const [contractResult, setContractResult] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    function checkMobile() { setIsMobile(window.innerWidth < 768); }
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => { loadInvoices(); loadContracts(); }, []);
 
@@ -222,13 +229,13 @@ export default function DashboardPage() {
     { key: "all", label: "TOUT" },
   ];
 
-  const statusConfig: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-    paid: { label: "PAYE", color: "#4ade80", bg: "#4ade8020", dot: "🔵" },
-    rapproche: { label: "RAPPROCHE", color: "#4ade80", bg: "#4ade8020", dot: "🟢" },
-    suggestion_ai: { label: "SUGGESTION AI", color: "#e8b84b", bg: "#e8b84b20", dot: "🟡" },
-    correspondance_partielle: { label: "PARTIEL", color: "#fb923c", bg: "#fb923c20", dot: "🟡" },
-    pending: { label: "EN ATTENTE", color: "#fb923c", bg: "#fb923c20", dot: "🟡" },
-    overdue: { label: "EN RETARD", color: "#ef4444", bg: "#ef444420", dot: "🔴" },
+  const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
+    paid: { label: "PAYE", color: "#4ade80", bg: "#4ade8020" },
+    rapproche: { label: "RAPPROCHE", color: "#4ade80", bg: "#4ade8020" },
+    suggestion_ai: { label: "SUGGESTION AI", color: "#e8b84b", bg: "#e8b84b20" },
+    correspondance_partielle: { label: "PARTIEL", color: "#fb923c", bg: "#fb923c20" },
+    pending: { label: "EN ATTENTE", color: "#fb923c", bg: "#fb923c20" },
+    overdue: { label: "EN RETARD", color: "#ef4444", bg: "#ef444420" },
   };
 
   if (loading) {
@@ -237,26 +244,26 @@ export default function DashboardPage() {
         <p style={{ color: MUTED, fontSize: 12, letterSpacing: 2, textTransform: "uppercase" }}>CHARGEMENT...</p>
       </div>
     );
-  }
-
-  return (
-    <div style={{ minHeight: "100vh", background: BG, padding: "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
+  }return (
+    <div style={{ minHeight: "100vh", background: BG, padding: isMobile ? "16px 12px" : "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
 
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <h1 style={{ fontSize: 20, fontWeight: 600, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>MES DOCUMENTS</h1>
-            <p style={{ color: MUTED, fontSize: 11, letterSpacing: 1 }}>{filtered.length} FACTURE{filtered.length !== 1 ? "S" : ""} · {paidCount} PAYEE{paidCount !== 1 ? "S" : ""}</p>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+            <div>
+              <h1 style={{ fontSize: isMobile ? 16 : 20, fontWeight: 600, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>MES DOCUMENTS</h1>
+              <p style={{ color: MUTED, fontSize: 11, letterSpacing: 1 }}>{filtered.length} FACTURE{filtered.length !== 1 ? "S" : ""} · {paidCount} PAYEE{paidCount !== 1 ? "S" : ""}</p>
+            </div>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Link href="/invoices" style={{ background: GOLD, color: "#0f1923", padding: "10px 22px", borderRadius: 3, fontSize: 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
+            <Link href="/invoices" style={{ background: GOLD, color: "#0f1923", padding: isMobile ? "8px 14px" : "10px 22px", borderRadius: 3, fontSize: isMobile ? 10 : 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
               + NOUVELLE FACTURE
             </Link>
-            <Link href="/reconciliation" style={{ background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, padding: "10px 22px", borderRadius: 3, fontSize: 11, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
+            <Link href="/reconciliation" style={{ background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, padding: isMobile ? "8px 14px" : "10px 22px", borderRadius: 3, fontSize: isMobile ? 10 : 11, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
               + CSV BANCAIRE
             </Link>
-            {activeTab === "factures" && filtered.length > 0 && (
+            {!isMobile && filtered.length > 0 && (
               <>
                 <button onClick={exportCSV} style={{ background: "transparent", color: TEXT, border: `1px solid ${BORDER}`, padding: "10px 18px", borderRadius: 3, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase" }}>EXPORT CSV</button>
                 <button onClick={generatePDF} style={{ background: "transparent", color: TEXT, border: `1px solid ${BORDER}`, padding: "10px 18px", borderRadius: 3, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase" }}>RAPPORT PDF</button>
@@ -266,12 +273,12 @@ export default function DashboardPage() {
         </div>
 
         {/* TABS */}
-        <div style={{ display: "flex", gap: 0, marginBottom: 24, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", width: "fit-content" }}>
+        <div style={{ display: "flex", gap: 0, marginBottom: 20, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", width: "fit-content" }}>
           {[
-            { key: "factures", label: "📄 FACTURES", count: filtered.length },
-            { key: "contrats", label: "📋 CONTRATS", count: contracts.length },
+            { key: "factures", label: "FACTURES", count: filtered.length },
+            { key: "contrats", label: "CONTRATS", count: contracts.length },
           ].map((tab) => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: "10px 24px", border: "none", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? GOLD : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: isMobile ? "8px 16px" : "10px 24px", border: "none", fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? GOLD : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
               {tab.label}
               <span style={{ background: activeTab === tab.key ? "#0f192320" : BORDER, color: activeTab === tab.key ? "#0f1923" : MUTED, fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10 }}>
                 {tab.count}
@@ -280,38 +287,36 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* TAB FACTURES */}
         {activeTab === "factures" && (
           <>
-            {/* ALERTS */}
             {filtered.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
                 {(overdueCount + pendingCount) > 0 && (
-                  <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 4, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 18 }}>🔴</span>
+                  <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 4, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444", flexShrink: 0 }} />
                       <div>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", letterSpacing: 1, textTransform: "uppercase" }}>
+                        <p style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: "#ef4444", letterSpacing: 1, textTransform: "uppercase" }}>
                           {overdueCount + pendingCount} FACTURE{(overdueCount + pendingCount) > 1 ? "S" : ""} NON PAYEE{(overdueCount + pendingCount) > 1 ? "S" : ""}
                         </p>
-                        <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Montant total en attente: {fmt(unpaidTotal)}</p>
+                        <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Montant en attente: {fmt(unpaidTotal)}</p>
                       </div>
                     </div>
-                    <Link href="/reconciliation" style={{ background: "#ef444420", color: "#ef4444", border: "1px solid #ef444440", padding: "6px 14px", borderRadius: 3, fontSize: 10, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                    <Link href="/reconciliation" style={{ background: "#ef444420", color: "#ef4444", border: "1px solid #ef444440", padding: "5px 12px", borderRadius: 3, fontSize: 10, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase", whiteSpace: "nowrap" }}>
                       RAPPROCHER
                     </Link>
                   </div>
                 )}
                 {totalTax > 0 && (
-                  <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 18 }}>🟡</span>
+                  <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />
                       <div>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b", letterSpacing: 1, textTransform: "uppercase" }}>TVA A DECLARER</p>
-                        <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Avant le 20/{String(nextMonth).padStart(2, "0")}/{tvaYear} — {fmt(totalTax)}</p>
+                        <p style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: "#f59e0b", letterSpacing: 1, textTransform: "uppercase" }}>TVA A DECLARER</p>
+                        <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Avant le 20/{String(nextMonth).padStart(2, "0")}/{tvaYear}</p>
                       </div>
                     </div>
-                    <span style={{ background: "#f59e0b20", color: "#f59e0b", border: "1px solid #f59e0b40", padding: "6px 14px", borderRadius: 3, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
+                    <span style={{ background: "#f59e0b20", color: "#f59e0b", border: "1px solid #f59e0b40", padding: "5px 12px", borderRadius: 3, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                       {fmt(totalTax)}
                     </span>
                   </div>
@@ -319,87 +324,71 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* MONEY BOX */}
             {filtered.length > 0 && (
-              <div style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: "18px 22px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                <div>
-                  <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>MONTANT NON ENCAISSE</p>
-                  <p style={{ fontSize: 28, fontWeight: 800, color: GOLD }}>{fmt(unpaidTotal)}</p>
-                </div>
-                <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                  <div style={{ textAlign: "center" }}>
-                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>NON PAYEES</p>
-                    <p style={{ fontSize: 22, fontWeight: 700, color: "#ef4444" }}>{overdueCount + pendingCount}</p>
-                  </div>
-                  <div style={{ textAlign: "center" }}>
-                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>EN RETARD</p>
-                    <p style={{ fontSize: 22, fontWeight: 700, color: "#ef4444" }}>{overdueCount}</p>
-                  </div>
-                  <div style={{ textAlign: "center" }}>
-                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>PAYEES</p>
-                    <p style={{ fontSize: 22, fontWeight: 700, color: "#4ade80" }}>{paidCount}</p>
+              <div style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: isMobile ? "12px 14px" : "18px 22px", marginBottom: 16 }}>
+                <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>MONTANT NON ENCAISSE</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                  <p style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: GOLD }}>{fmt(unpaidTotal)}</p>
+                  <div style={{ display: "flex", gap: isMobile ? 16 : 20 }}>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>NON PAYEES</p>
+                      <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "#ef4444" }}>{overdueCount + pendingCount}</p>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>EN RETARD</p>
+                      <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "#ef4444" }}>{overdueCount}</p>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>PAYEES</p>
+                      <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "#4ade80" }}>{paidCount}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Period filter */}
-            <div style={{ display: "flex", gap: 2, marginBottom: 20, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 3, padding: 3, width: "fit-content" }}>
+            <div style={{ display: "flex", gap: 2, marginBottom: 16, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 3, padding: 3, width: "fit-content" }}>
               {periods.map((p) => (
-                <button key={p.key} onClick={() => setPeriod(p.key)} style={{ padding: "7px 18px", borderRadius: 2, border: "none", fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: period === p.key ? "#0f1923" : MUTED, background: period === p.key ? GOLD : "transparent", cursor: "pointer", transition: "all 0.15s" }}>
+                <button key={p.key} onClick={() => setPeriod(p.key)} style={{ padding: isMobile ? "5px 10px" : "7px 18px", borderRadius: 2, border: "none", fontSize: isMobile ? 9 : 10, fontWeight: 800, letterSpacing: 1.5, color: period === p.key ? "#0f1923" : MUTED, background: period === p.key ? GOLD : "transparent", cursor: "pointer", transition: "all 0.15s" }}>
                   {p.label}
                 </button>
               ))}
             </div>
 
-            {/* Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
               {[
                 { label: "TOTAL FACTURES", value: filtered.length, color: GOLD },
                 { label: "MONTANT TOTAL TTC", value: fmt(totalAmount), color: "#4ade80" },
                 { label: "TVA TOTALE", value: fmt(totalTax), color: "#fb923c" },
                 { label: "MOYENNE / FACTURE", value: fmt(avgAmount), color: "#60a5fa" },
               ].map((s) => (
-                <div key={s.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "16px 20px" }}>
-                  <p style={{ fontSize: 10, color: MUTED, letterSpacing: 2, marginBottom: 8, textTransform: "uppercase" }}>{s.label}</p>
-                  <p style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.value}</p>
+                <div key={s.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "10px 12px" : "16px 20px" }}>
+                  <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1.5, marginBottom: 4, textTransform: "uppercase" }}>{s.label}</p>
+                  <p style={{ fontSize: isMobile ? 16 : 24, fontWeight: 700, color: s.color }}>{s.value}</p>
                 </div>
               ))}
             </div>
 
-            {/* Status cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>
-              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 32, height: 32, background: "#4ade8020", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>✓</div>
-                <div>
-                  <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 3 }}>MONTANT HT</p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: "#4ade80" }}>{fmt(totalSubtotal)}</p>
-                </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "8px 10px" : "14px 18px" }}>
+                <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>MONTANT HT</p>
+                <p style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#4ade80" }}>{fmt(totalSubtotal)}</p>
               </div>
-              <div style={{ background: CARD, border: `1px solid ${overdueCount > 0 ? "#ef444450" : BORDER}`, borderRadius: 4, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 32, height: 32, background: overdueCount > 0 ? "#ef444420" : "#fb923c20", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
-                  {overdueCount > 0 ? "⚠" : "⏳"}
-                </div>
-                <div>
-                  <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 3 }}>
-                    {overdueCount > 0 ? "EN RETARD" : "EN ATTENTE"}
-                  </p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: overdueCount > 0 ? "#ef4444" : "#fb923c" }}>
-                    {overdueCount > 0 ? overdueCount : pendingCount} FACTURE{(overdueCount || pendingCount) !== 1 ? "S" : ""}
-                  </p>
-                </div>
+              <div style={{ background: CARD, border: `1px solid ${overdueCount > 0 ? "#ef444450" : BORDER}`, borderRadius: 4, padding: isMobile ? "8px 10px" : "14px 18px" }}>
+                <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>
+                  {overdueCount > 0 ? "EN RETARD" : "EN ATTENTE"}
+                </p>
+                <p style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: overdueCount > 0 ? "#ef4444" : "#fb923c" }}>
+                  {overdueCount > 0 ? overdueCount : pendingCount} FAC.
+                </p>
               </div>
-              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 32, height: 32, background: "#3b82f620", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>📊</div>
-                <div>
-                  <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 3 }}>TVA A DECLARER</p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa" }}>{fmt(totalTax)}</p>
-                </div>
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "8px 10px" : "14px 18px" }}>
+                <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>TVA</p>
+                <p style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#60a5fa" }}>{fmt(totalTax)}</p>
               </div>
             </div>
 
-            {/* Chart */}
-            {chartData.length > 0 && (
+            {!isMobile && chartData.length > 0 && (
               <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "18px 20px", marginBottom: 16 }}>
                 <p style={{ fontSize: 10, color: MUTED, letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>DEPENSES PAR MOIS</p>
                 <ResponsiveContainer width="100%" height={160}>
@@ -414,24 +403,57 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Banque CTA */}
-            <div style={{ background: CARD, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: "16px 20px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ background: CARD, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: isMobile ? "10px 12px" : "16px 20px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: GOLD, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>RAPPROCHEMENT BANCAIRE</p>
-                <p style={{ fontSize: 12, color: MUTED }}>Importez le CSV de votre banque — l'IA rapproche automatiquement</p>
+                <p style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: GOLD, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 2 }}>RAPPROCHEMENT BANCAIRE</p>
+                {!isMobile && <p style={{ fontSize: 12, color: MUTED }}>Importez le CSV de votre banque</p>}
               </div>
-              <Link href="/reconciliation" style={{ background: GOLD, color: "#0f1923", padding: "10px 22px", borderRadius: 3, fontSize: 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+              <Link href="/reconciliation" style={{ background: GOLD, color: "#0f1923", padding: isMobile ? "7px 12px" : "10px 22px", borderRadius: 3, fontSize: isMobile ? 10 : 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase", whiteSpace: "nowrap" }}>
                 + IMPORTER CSV
               </Link>
             </div>
 
-            {/* Table factures */}
             {filtered.length === 0 ? (
               <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
                 <p style={{ color: MUTED, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 20 }}>AUCUNE FACTURE</p>
                 <Link href="/invoices" style={{ background: GOLD, color: "#0f1923", padding: "10px 24px", borderRadius: 3, fontSize: 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
                   + NOUVELLE FACTURE
                 </Link>
+              </div>
+            ) : isMobile ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {filtered.map((inv) => {
+                  const status = getStatus(inv);
+                  const sc = statusConfig[status] || statusConfig["pending"];
+                  const canConfirm = status === "suggestion_ai" || status === "correspondance_partielle";
+                  return (
+                    <div key={inv.id} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "10px 12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                        <div>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: TEXT, marginBottom: 2 }}>{inv.vendor_name || "—"}</p>
+                          <p style={{ fontSize: 10, color: MUTED }}>{inv.invoice_date || "—"}</p>
+                        </div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: GOLD }}>{inv.total_amount ? fmt(Number(inv.total_amount)) : "—"}</p>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ background: sc.bg, color: sc.color, padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                          {sc.label}
+                        </span>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {canConfirm && (
+                            <button onClick={() => confirmPayment(inv.id)} style={{ background: "#4ade8015", color: "#4ade80", border: "1px solid #4ade8040", padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase" }}>
+                              CONFIRMER
+                            </button>
+                          )}
+                          <button onClick={() => deleteInvoice(inv.id)} style={{ background: "none", border: "none", color: BORDER, cursor: "pointer", fontSize: 16 }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = BORDER)}
+                          >×</button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
@@ -464,7 +486,7 @@ export default function DashboardPage() {
                             <td style={{ padding: "11px 14px" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                                 <span style={{ background: sc.bg, color: sc.color, padding: "3px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                                  {sc.dot} {sc.label}
+                                  {sc.label}
                                 </span>
                                 {canConfirm && (
                                   <button onClick={() => confirmPayment(inv.id)} style={{ background: "#4ade8015", color: "#4ade80", border: "1px solid #4ade8040", padding: "3px 10px", borderRadius: 2, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>
@@ -491,42 +513,38 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* TAB CONTRATS */}
         {activeTab === "contrats" && (
           <div>
-            {/* Upload zone */}
-            <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "32px 24px", marginBottom: 20, textAlign: "center" }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
+            <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "20px 16px" : "32px 24px", marginBottom: 20, textAlign: "center" }}>
+              <h3 style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
                 ANALYSER UN CONTRAT
               </h3>
-              <p style={{ fontSize: 12, color: MUTED, marginBottom: 8, lineHeight: 1.6 }}>
-                L'IA analyse votre contrat et détecte les clauses importantes, les frais cachés et les risques.
+              <p style={{ fontSize: 12, color: MUTED, marginBottom: isMobile ? 12 : 16, lineHeight: 1.6 }}>
+                L'IA analyse votre contrat et detecte les clauses importantes, les frais caches et les risques.
               </p>
-              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
-                {["💰 Conditions de paiement", "⚠️ Clauses à risque", "🔍 Frais cachés", "📅 Dates clés"].map((tag) => (
-                  <span key={tag} style={{ background: `${GOLD}15`, color: GOLD, border: `1px solid ${GOLD}30`, padding: "4px 10px", borderRadius: 20, fontSize: 11 }}>{tag}</span>
-                ))}
-              </div>
-              <label style={{ background: contractLoading ? BORDER : GOLD, color: "#0f1923", padding: "11px 28px", borderRadius: 3, cursor: contractLoading ? "not-allowed" : "pointer", fontSize: 11, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", display: "inline-block" }}>
+              {!isMobile && (
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+                  {["Conditions de paiement", "Clauses a risque", "Frais caches", "Dates cles"].map((tag) => (
+                    <span key={tag} style={{ background: `${GOLD}15`, color: GOLD, border: `1px solid ${GOLD}30`, padding: "4px 10px", borderRadius: 20, fontSize: 11 }}>{tag}</span>
+                  ))}
+                </div>
+              )}
+              <label style={{ background: contractLoading ? BORDER : GOLD, color: "#0f1923", padding: isMobile ? "10px 20px" : "11px 28px", borderRadius: 3, cursor: contractLoading ? "not-allowed" : "pointer", fontSize: isMobile ? 10 : 11, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", display: "inline-block" }}>
                 {contractLoading ? "ANALYSE EN COURS..." : "IMPORTER UN CONTRAT (PDF)"}
                 <input type="file" accept=".pdf" style={{ display: "none" }} onChange={handleContractUpload} disabled={contractLoading} />
               </label>
             </div>
 
-            {/* Résultat analyse */}
             {contractResult && (
-              <div style={{ background: CARD, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: "24px", marginBottom: 20 }}>
-                <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>RÉSULTAT DE L'ANALYSE IA</p>
-
+              <div style={{ background: CARD, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: isMobile ? "16px" : "24px", marginBottom: 20 }}>
+                <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>RESULTAT DE L'ANALYSE IA</p>
                 {contractResult.summary && (
                   <div style={{ background: "#0f1923", borderRadius: 3, padding: "14px 16px", marginBottom: 16 }}>
-                    <p style={{ fontSize: 11, color: GOLD, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>RÉSUMÉ</p>
+                    <p style={{ fontSize: 11, color: GOLD, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>RESUME</p>
                     <p style={{ fontSize: 13, color: TEXT, lineHeight: 1.7 }}>{contractResult.summary}</p>
                   </div>
                 )}
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12, marginBottom: 16 }}>
                   {contractResult.vendor_name && (
                     <div style={{ background: "#0f1923", borderRadius: 3, padding: "12px 14px" }}>
                       <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>FOURNISSEUR</p>
@@ -540,10 +558,9 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
-
                 {contractResult.hidden_fees && contractResult.hidden_fees.length > 0 && (
                   <div style={{ background: "#ef444410", border: "1px solid #ef444430", borderRadius: 3, padding: "14px 16px", marginBottom: 12 }}>
-                    <p style={{ fontSize: 11, color: "#ef4444", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>🔍 FRAIS CACHÉS DÉTECTÉS</p>
+                    <p style={{ fontSize: 11, color: "#ef4444", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>FRAIS CACHES DETECTES</p>
                     {contractResult.hidden_fees.map((fee: any, i: number) => (
                       <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                         <p style={{ fontSize: 12, color: TEXT }}>{fee.description}</p>
@@ -552,10 +569,9 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 )}
-
                 {contractResult.risk_clauses && contractResult.risk_clauses.length > 0 && (
                   <div style={{ background: "#f59e0b10", border: "1px solid #f59e0b30", borderRadius: 3, padding: "14px 16px", marginBottom: 12 }}>
-                    <p style={{ fontSize: 11, color: "#f59e0b", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>⚠️ CLAUSES À RISQUE</p>
+                    <p style={{ fontSize: 11, color: "#f59e0b", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>CLAUSES A RISQUE</p>
                     {contractResult.risk_clauses.map((clause: any, i: number) => (
                       <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
                         <span style={{ fontSize: 10, fontWeight: 700, color: clause.severity === "high" ? "#ef4444" : clause.severity === "medium" ? "#f59e0b" : MUTED, background: clause.severity === "high" ? "#ef444420" : "#f59e0b20", padding: "2px 6px", borderRadius: 2, whiteSpace: "nowrap", marginTop: 2 }}>
@@ -566,19 +582,11 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 )}
-
-                {contractResult.penalties && (
-                  <div style={{ background: "#0f1923", borderRadius: 3, padding: "12px 14px", marginBottom: 12 }}>
-                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>PÉNALITÉS</p>
-                    <p style={{ fontSize: 12, color: TEXT }}>{contractResult.penalties}</p>
-                  </div>
-                )}
-
                 {contractResult.key_dates && contractResult.key_dates.length > 0 && (
                   <div style={{ background: "#0f1923", borderRadius: 3, padding: "12px 14px" }}>
-                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>📅 DATES CLÉS</p>
+                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>DATES CLES</p>
                     {contractResult.key_dates.map((d: any, i: number) => (
-                      <div key={i} style={{ display: "flex", gap: 12, marginBottom: 6 }}>
+                      <div key={i} style={{ display: "flex", gap: 12, marginBottom: 6, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 12, color: GOLD, fontWeight: 700, whiteSpace: "nowrap" }}>{d.date}</span>
                         <span style={{ fontSize: 12, color: TEXT }}>{d.description}</span>
                       </div>
@@ -588,28 +596,27 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Liste contrats */}
             {contracts.length > 0 && (
               <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
                 <div style={{ padding: "12px 16px", borderBottom: `1px solid ${BORDER}`, background: "#151f2e" }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase" }}>{contracts.length} CONTRAT{contracts.length > 1 ? "S" : ""} ANALYSÉ{contracts.length > 1 ? "S" : ""}</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase" }}>{contracts.length} CONTRAT{contracts.length > 1 ? "S" : ""} ANALYSE{contracts.length > 1 ? "S" : ""}</p>
                 </div>
                 <div>
                   {contracts.map((contract, i) => (
-                    <div key={contract.id} style={{ padding: "14px 18px", borderBottom: i < contracts.length - 1 ? `1px solid ${BORDER}` : "none", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <div key={contract.id} style={{ padding: isMobile ? "10px 12px" : "14px 18px", borderBottom: i < contracts.length - 1 ? `1px solid ${BORDER}` : "none", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                       <div>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 3 }}>{contract.vendor_name || contract.filename}</p>
-                        <p style={{ fontSize: 11, color: MUTED }}>{contract.payment_terms || "—"} · {new Date(contract.created_at).toLocaleDateString("fr-FR")}</p>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: TEXT, marginBottom: 2 }}>{contract.vendor_name || contract.filename}</p>
+                        <p style={{ fontSize: 10, color: MUTED }}>{contract.payment_terms || "—"} · {new Date(contract.created_at).toLocaleDateString("fr-FR")}</p>
                       </div>
-                      <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                         {contract.risk_clauses && contract.risk_clauses.length > 0 && (
-                          <span style={{ background: "#f59e0b20", color: "#f59e0b", padding: "3px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700 }}>
-                            ⚠ {contract.risk_clauses.length} RISQUE{contract.risk_clauses.length > 1 ? "S" : ""}
+                          <span style={{ background: "#f59e0b20", color: "#f59e0b", padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700 }}>
+                            {contract.risk_clauses.length} RISQUE{contract.risk_clauses.length > 1 ? "S" : ""}
                           </span>
                         )}
                         {contract.hidden_fees && contract.hidden_fees.length > 0 && (
-                          <span style={{ background: "#ef444420", color: "#ef4444", padding: "3px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700 }}>
-                            🔍 {contract.hidden_fees.length} FRAIS CACHÉ{contract.hidden_fees.length > 1 ? "S" : ""}
+                          <span style={{ background: "#ef444420", color: "#ef4444", padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700 }}>
+                            {contract.hidden_fees.length} FRAIS
                           </span>
                         )}
                       </div>
@@ -623,7 +630,6 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* Feedback Widget */}
       {showFeedback && (
         <FeedbackWidget trigger="auto" onClose={() => setShowFeedback(false)} />
       )}

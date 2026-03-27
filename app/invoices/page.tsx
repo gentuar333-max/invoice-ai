@@ -122,13 +122,11 @@ export default function InvoicesPage() {
   const [countdown, setCountdown] = useState(3);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [invoiceCount, setInvoiceCount] = useState(0);
-  const [userPlan, setUserPlan] = useState("free");
   const [maxInvoices, setMaxInvoices] = useState(5);
 
   useEffect(() => {
     async function loadPlan() {
       const plan = await getUserPlan();
-      setUserPlan(plan);
       setMaxInvoices(PLAN_LIMITS[plan].max_invoices);
     }
     loadPlan();
@@ -147,7 +145,11 @@ export default function InvoicesPage() {
     if (saved) {
       const interval = setInterval(() => {
         setCountdown((prev) => {
-          if (prev <= 1) { clearInterval(interval); router.push("/dashboard"); return 0; }
+          if (prev <= 1) {
+            clearInterval(interval);
+            setTimeout(() => router.push("/dashboard"), 0);
+            return 0;
+          }
           return prev - 1;
         });
       }, 1000);
@@ -206,10 +208,9 @@ export default function InvoicesPage() {
     const duplicate = history.find((inv) => {
       const sameVendor = inv.data.vendor_name?.toLowerCase() === data.vendor_name?.toLowerCase();
       const sameTotal = inv.data.total_amount === data.total_amount;
-      const sameDate = inv.data.invoice_date === data.invoice_date;
-      return sameVendor && sameTotal && sameDate;
+      return sameVendor && sameTotal;
     });
-    if (duplicate) setDuplicateWarning(`Facture similaire — ${duplicate.data.vendor_name}, ${duplicate.data.invoice_date}`);
+    if (duplicate) setDuplicateWarning(`⚠ Facture en double detectee — ${duplicate.data.vendor_name}, ${duplicate.data.total_amount} €`);
   }
 
   function updateField(field: keyof InvoiceData, value: any) {
@@ -227,12 +228,30 @@ export default function InvoicesPage() {
   async function handleSave() {
     if (!edited) return;
     setSaveError("");
+
+    // Duplicate check nga Supabase
+    try {
+      const { createClient } = await import("@/lib/supabase");
+      const supabase = createClient();
+      const { data: existing } = await supabase
+        .from("invoices")
+        .select("id")
+        .eq("vendor_name", edited.vendor_name || "")
+        .eq("total_amount", edited.total_amount || 0);
+
+      if (existing && existing.length > 0) {
+        setSaveError("⚠ Facture en double detectee — cette facture existe deja.");
+        return;
+      }
+    } catch {}
+
     try {
       await saveInvoiceToSupabase(edited);
     } catch (err: any) {
       setSaveError("Erreur: " + err.message);
       return;
     }
+
     const newEntry: SavedInvoice = {
       id: Date.now().toString(),
       filename: file?.name || "manuel",
@@ -280,7 +299,6 @@ export default function InvoicesPage() {
 
           <StepIndicator step={step} />
 
-          {/* Banner limit */}
           {invoiceCount >= maxInvoices - 1 && invoiceCount < maxInvoices && (
             <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
               <p style={{ fontSize: 12, color: "#f59e0b" }}>
@@ -292,7 +310,6 @@ export default function InvoicesPage() {
             </div>
           )}
 
-          {/* STEP 1 */}
           {step === 1 && (
             <div className="fade-in">
               <div style={{ marginBottom: 24 }}>
@@ -322,14 +339,12 @@ export default function InvoicesPage() {
             </div>
           )}
 
-          {/* STEP 2 */}
           {step === 2 && file && (
             <div className="fade-in">
               <AIAnalyzing filename={file.name} />
             </div>
           )}
 
-          {/* STEP 3 */}
           {step === 3 && edited && (
             <div className="fade-in">
               <div style={{ marginBottom: 20 }}>
@@ -340,7 +355,9 @@ export default function InvoicesPage() {
               </div>
 
               {duplicateWarning && (
-                <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 3, padding: "12px 16px", color: "#f59e0b", fontSize: 12, marginBottom: 14 }}>⚠ {duplicateWarning}</div>
+                <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "12px 16px", color: "#ef4444", fontSize: 12, marginBottom: 14 }}>
+                  {duplicateWarning}
+                </div>
               )}
 
               <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginBottom: 14 }}>
@@ -409,7 +426,7 @@ export default function InvoicesPage() {
                   )}
 
                   {saveError && (
-                    <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12 }}>⚠ {saveError}</div>
+                    <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12 }}>{saveError}</div>
                   )}
 
                   <div style={{ display: "flex", gap: 10, paddingTop: 6 }}>
@@ -425,7 +442,6 @@ export default function InvoicesPage() {
             </div>
           )}
 
-          {/* STEP 4 */}
           {step === 4 && saved && (
             <div className="fade-in" style={{ textAlign: "center" }}>
               <div style={{ width: 64, height: 64, background: `${GOLD}20`, border: `2px solid ${GOLD}`, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 20px" }}>✓</div>

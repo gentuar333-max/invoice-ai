@@ -6,15 +6,16 @@ import type { InvoiceData } from "@/lib/invoice-schema";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const SYSTEM_PROMPT = `
-Tu es un expert en extraction de données de factures.
-Analyse ce document et extrais les données en JSON.
-
-RÈGLES STRICTES:
+Tu es un expert en extraction de donnees de factures francaises.
+Analyse ce document et extrais les donnees en JSON.
+REGLES STRICTES:
 - Retourne UNIQUEMENT du JSON valide, aucun texte autour
 - Si une valeur est absente ou illisible, retourne null (ne jamais inventer)
-- Les dates doivent être au format YYYY-MM-DD
-- Les montants doivent être des nombres (ex: 1250.00, pas "1 250,00 €")
-- missing_fields doit lister les champs que tu n'as pas trouvés
+- Les dates doivent etre au format YYYY-MM-DD
+- Les montants doivent etre des nombres (ex: 1250.00, pas "1 250,00 EUR")
+- missing_fields doit lister les champs que tu n'as pas trouves
+- Pour le SIRET: cherche un numero a 14 chiffres sur la facture
+- Pour la categorie: choisis parmi: Alimentation, Energie, Transport, Informatique, Fournitures, Loyer, Services, Autre
 
 FORMAT JSON ATTENDU:
 {
@@ -26,6 +27,8 @@ FORMAT JSON ATTENDU:
   "subtotal": number ou null,
   "tax_amount": number ou null,
   "total_amount": number ou null,
+  "siret": "14 chiffres ou null",
+  "category": "Alimentation|Energie|Transport|Informatique|Fournitures|Loyer|Services|Autre ou null",
   "line_items": [
     {
       "description": "string",
@@ -40,84 +43,44 @@ FORMAT JSON ATTENDU:
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Récupérer le fichier
     const formData = await request.formData();
     const file = formData.get("file") as File;
-
     if (!file) {
-      return NextResponse.json(
-        { success: false, error: "Aucun fichier reçu." },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Aucun fichier recu." }, { status: 400 });
     }
 
-    // 2. Valider le fichier
     const validationError = validateFile(file);
     if (validationError) {
-      return NextResponse.json(
-        { success: false, error: validationError },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: validationError }, { status: 400 });
     }
 
-    // 3. Convertir en base64
     const base64 = await fileToBase64(file);
     const mimeType = getMimeType(file);
 
-    // 4. Appeler Gemini
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const result = await model.generateContent([
       SYSTEM_PROMPT,
-      {
-        inlineData: {
-          mimeType,
-          data: base64,
-        },
-      },
+      { inlineData: { mimeType, data: base64 } },
     ]);
 
     const text = result.response.text();
-
-    // 5. Parser le JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("Réponse Gemini invalide:", text);
-      return NextResponse.json(
-        { success: false, error: "Réponse IA invalide. Réessayez." },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: "Reponse IA invalide. Reessayez." }, { status: 500 });
     }
 
     const invoiceData: InvoiceData = JSON.parse(jsonMatch[0]);
 
-    return NextResponse.json({
-      success: true,
-      data: invoiceData,
-    });
-
+    return NextResponse.json({ success: true, data: invoiceData });
   } catch (error: any) {
     console.error("Erreur extract route:", error);
-
     if (error.message?.includes("API_KEY")) {
-      return NextResponse.json(
-        { success: false, error: "Clé API invalide." },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Cle API invalide." }, { status: 401 });
     }
-
     if (error.message?.includes("429")) {
-      return NextResponse.json(
-        { success: false, error: "Quota API dépassé. Réessayez dans quelques secondes." },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: "Quota API depasse. Reessayez." }, { status: 429 });
     }
-
-    return NextResponse.json(
-      { success: false, error: "Erreur serveur. Réessayez." },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Erreur serveur. Reessayez." }, { status: 500 });
   }
 }

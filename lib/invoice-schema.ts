@@ -14,6 +14,8 @@ export type InvoiceData = {
   subtotal: number | null;
   tax_amount: number | null;
   total_amount: number | null;
+  siret: string | null;
+  category: string | null;
   line_items: LineItem[];
   missing_fields: string[];
 };

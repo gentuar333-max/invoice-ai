@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -13,9 +13,29 @@ const MUTED = "#a8c4d8";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "starter";
+  const [updated, setUpdated] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("user_plan", plan);
+    async function updatePlan() {
+      try {
+        localStorage.setItem("user_plan", plan);
+
+        const { createClient } = await import("@/lib/supabase");
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          await supabase
+            .from("profiles")
+            .update({ plan })
+            .eq("id", user.id);
+        }
+        setUpdated(true);
+      } catch {
+        setUpdated(true);
+      }
+    }
+    updatePlan();
   }, [plan]);
 
   return (

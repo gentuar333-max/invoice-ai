@@ -299,28 +299,28 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* TESTIMONIALS — foto reale nga Unsplash */}
+        {/* TESTIMONIALS */}
         <section id="temoignages" className="section divider" aria-labelledby="testimonials-heading">
           <div className="section-label">Témoignages</div>
           <h2 id="testimonials-heading" className="section-title">Ce que disent nos utilisateurs</h2>
           <p className="section-sub">Plus de 500 PME et indépendants font confiance à AgentHub.</p>
-          <div className="testimonials-grid">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:20,marginTop:56,maxWidth:900,marginLeft:'auto',marginRight:'auto'}}>
             {[
               {
-                photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face',
-                name: 'Sophie M.', role: 'Gérante, cabinet de conseil — Lyon',
+                photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face&q=80',
+                name: 'Camille Fontaine', role: 'Directrice financière, Lyon',
                 text: "J'avais 200 factures en retard. AgentHub les a toutes traitées en 20 minutes. L'export FEC pour mon comptable est parfait.",
                 stars: 5
               },
               {
-                photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face',
-                name: 'Thomas B.', role: 'Artisan électricien — Bordeaux',
+                photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face&q=80',
+                name: 'Laurent Mercier', role: 'Gérant PME bâtiment, Bordeaux',
                 text: "Je n'y connaissais rien en comptabilité. Maintenant j'importe mes factures chaque semaine et tout est prêt pour mon expert-comptable.",
                 stars: 5
               },
               {
-                photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&fit=crop&crop=face',
-                name: 'Marie-Claire D.', role: 'DAF, PME industrielle — Nantes',
+                photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&crop=face&q=80',
+                name: 'Isabelle Renard', role: 'DAF, industrie manufacturière, Nantes',
                 text: "La réconciliation bancaire nous prenait 2 jours par mois. Avec AgentHub, c'est automatique. Le score de confiance est très utile.",
                 stars: 5
               },

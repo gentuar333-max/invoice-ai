@@ -4,28 +4,28 @@ import InlineDemo from '@/components/InlineDemo'
 const BASE_URL = 'https://invoiceagent.fr'
 
 export const metadata: Metadata = {
-  title: 'AgentHub — Agent IA Factures & Comptabilité | invoiceagent.fr',
+  title: 'InvoiceAgent — Agent IA Factures & Comptabilité | invoiceagent.fr',
   description: "Automatisez l'extraction de factures PDF, la réconciliation bancaire CSV et l'analyse de contrats avec l'IA. Conforme RGPD, export FEC. Essai gratuit sans carte bancaire.",
   keywords: ['agent IA factures', 'extraction facture PDF', 'OCR facture France', 'réconciliation bancaire CSV', 'analyse contrat IA', 'automatisation comptable PME', 'export FEC', 'logiciel comptabilité IA'],
   alternates: { canonical: BASE_URL },
   openGraph: {
-    title: 'AgentHub — Agent IA pour vos Factures et votre Comptabilité',
+    title: 'InvoiceAgent — Agent IA pour vos Factures et votre Comptabilité',
     description: "Extrayez, catégorisez et réconciliez vos factures automatiquement. IA Gemini, conforme RGPD, export FEC.",
-    url: BASE_URL, siteName: 'AgentHub', locale: 'fr_FR', type: 'website',
-    images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'AgentHub — Automatisation comptable par IA' }],
+    url: BASE_URL, siteName: 'InvoiceAgent', locale: 'fr_FR', type: 'website',
+    images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'InvoiceAgent — Automatisation comptable par IA' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AgentHub — Agent IA Factures & Comptabilité',
+    title: 'InvoiceAgent — Agent IA Factures & Comptabilité',
     description: "Automatisez vos factures, réconciliation bancaire et contrats avec l'IA Gemini.",
     images: [`${BASE_URL}/og-image.png`],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' } },
 }
 
-const schemaOrg = { '@context': 'https://schema.org', '@type': 'Organization', name: 'AgentHub', url: BASE_URL, description: "Plateforme d'automatisation comptable par IA pour PME français.", address: { '@type': 'PostalAddress', addressCountry: 'FR' } }
-const schemaSoftware = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'AgentHub', applicationCategory: 'BusinessApplication', operatingSystem: 'Web, SaaS', url: BASE_URL, offers: { '@type': 'AggregateOffer', lowPrice: '0', highPrice: '49', priceCurrency: 'EUR', offerCount: '4' }, aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', reviewCount: '124' }, featureList: ['Extraction automatique factures PDF', 'Réconciliation bancaire CSV', 'Analyse contrats IA', 'Export FEC', 'Alertes TVA', 'Conforme RGPD'] }
-const schemaFAQ = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [ { '@type': 'Question', name: "Comment fonctionne l'extraction de factures par IA ?", acceptedAnswer: { '@type': 'Answer', text: "Téléchargez votre facture PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, SIRET, montants HT/TTC, TVA et dates en moins de 5 secondes." } }, { '@type': 'Question', name: 'Comment marche la réconciliation bancaire CSV ?', acceptedAnswer: { '@type': 'Answer', text: "Exportez votre relevé CSV depuis votre banque, importez-le dans AgentHub. L'IA compare chaque transaction avec vos factures avec un score de confiance." } }, { '@type': 'Question', name: 'AgentHub est-il conforme RGPD ?', acceptedAnswer: { '@type': 'Answer', text: 'Oui. Données hébergées à Frankfurt (UE), jamais partagées avec des tiers.' } }, { '@type': 'Question', name: "L'IA peut-elle analyser mes contrats fournisseurs ?", acceptedAnswer: { '@type': 'Answer', text: "Oui, dès le plan Pro. L'IA identifie clauses à risque, frais cachés et dates d'échéance." } }, { '@type': 'Question', name: 'Quel est le prix ?', acceptedAnswer: { '@type': 'Answer', text: 'Plan gratuit (5 factures/mois), Starter 19€/mois, Pro 29€/mois, Business 49€/mois.' } } ] }
+const schemaOrg = { '@context': 'https://schema.org', '@type': 'Organization', name: 'InvoiceAgent', url: BASE_URL, description: "Plateforme d'automatisation comptable par IA pour PME français.", address: { '@type': 'PostalAddress', addressCountry: 'FR' } }
+const schemaSoftware = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'InvoiceAgent', applicationCategory: 'BusinessApplication', operatingSystem: 'Web, SaaS', url: BASE_URL, offers: { '@type': 'AggregateOffer', lowPrice: '0', highPrice: '49', priceCurrency: 'EUR', offerCount: '4' }, aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', reviewCount: '124' }, featureList: ['Extraction automatique factures PDF', 'Réconciliation bancaire CSV', 'Analyse contrats IA', 'Export FEC', 'Alertes TVA', 'Conforme RGPD'] }
+const schemaFAQ = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [ { '@type': 'Question', name: "Comment fonctionne l'extraction de factures par IA ?", acceptedAnswer: { '@type': 'Answer', text: "Téléchargez votre facture PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, SIRET, montants HT/TTC, TVA et dates en moins de 5 secondes." } }, { '@type': 'Question', name: 'Comment marche la réconciliation bancaire CSV ?', acceptedAnswer: { '@type': 'Answer', text: "Exportez votre relevé CSV depuis votre banque, importez-le dans InvoiceAgent. L'IA compare chaque transaction avec vos factures avec un score de confiance." } }, { '@type': 'Question', name: 'InvoiceAgent est-il conforme RGPD ?', acceptedAnswer: { '@type': 'Answer', text: 'Oui. Données hébergées à Frankfurt (UE), jamais partagées avec des tiers.' } }, { '@type': 'Question', name: "L'IA peut-elle analyser mes contrats fournisseurs ?", acceptedAnswer: { '@type': 'Answer', text: "Oui, dès le plan Pro. L'IA identifie clauses à risque, frais cachés et dates d'échéance." } }, { '@type': 'Question', name: 'Quel est le prix ?', acceptedAnswer: { '@type': 'Answer', text: 'Plan gratuit (5 factures/mois), Starter 19€/mois, Pro 29€/mois, Business 49€/mois.' } } ] }
 const schemaBreadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Accueil', item: BASE_URL }] }
 
 export default function LandingPage() {
@@ -42,7 +42,7 @@ export default function LandingPage() {
         .landing { background: #09090b; color: #fafafa; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
         .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 60px; background: rgba(9,9,11,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06); }
         .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #fafafa; text-decoration: none; }
-        .nav-logo-mark { width: 30px; height: 30px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
+        .nav-logo-mark { width: 32px; height: 32px; flex-shrink: 0; }
         .nav-links { display: flex; align-items: center; gap: 32px; }
         .nav-link { font-size: 14px; color: #a1a1aa; text-decoration: none; }
         .nav-link:hover { color: #fafafa; }
@@ -165,8 +165,13 @@ export default function LandingPage() {
 
         <nav className="nav" role="navigation" aria-label="Navigation principale">
           <a href={BASE_URL} className="nav-logo">
-            <div className="nav-logo-mark">A</div>
-            AgentHub
+            <svg className="nav-logo-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5"/>
+              <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="'DM Sans',sans-serif">I</text>
+              <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontFamily="'Instrument Serif',serif" fontStyle="italic">A</text>
+              <circle cx="28" cy="5" r="3" fill="#818cf8"/>
+            </svg>
+            InvoiceAgent
           </a>
           <div className="nav-links">
             <a href="#agents" className="nav-link">Agents</a>
@@ -336,9 +341,9 @@ export default function LandingPage() {
             {[
               { q: "Comment fonctionne l'extraction de factures par IA ?", a: "Téléchargez votre facture PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, SIRET, montants HT/TTC, TVA et dates en moins de 5 secondes." },
               { q: 'Comment marche la réconciliation bancaire CSV ?', a: "Exportez votre relevé bancaire au format CSV depuis votre banque. L'IA compare chaque transaction avec vos factures et identifie les correspondances avec un score de confiance." },
-              { q: 'AgentHub est-il conforme RGPD ?', a: "Oui. Données hébergées à Frankfurt, Allemagne (UE). Jamais partagées avec des tiers. Suppression complète sur demande." },
+              { q: 'InvoiceAgent est-il conforme RGPD ?', a: "Oui. Données hébergées à Frankfurt, Allemagne (UE). Jamais partagées avec des tiers. Suppression complète sur demande." },
               { q: "L'IA peut-elle analyser mes contrats fournisseurs ?", a: "Oui, dès le plan Pro. L'IA identifie les clauses à risque, les frais cachés, les pénalités et les dates d'échéance importantes." },
-              { q: 'AgentHub est-il compatible avec mon logiciel comptable ?', a: "Export FEC natif compatible Sage, EBP, Cegid et QuickBooks. Export CSV pour Excel également disponible." },
+              { q: 'InvoiceAgent est-il compatible avec mon logiciel comptable ?', a: "Export FEC natif compatible Sage, EBP, Cegid et QuickBooks. Export CSV pour Excel également disponible." },
               { q: 'Quel est le prix ?', a: "Plan gratuit : 5 factures/mois, sans carte bancaire. Starter : 19€/mois. Pro : 29€/mois. Business : 49€/mois." },
             ].map((faq, i) => (
               <div key={i} className="faq-item">
@@ -352,7 +357,7 @@ export default function LandingPage() {
         <section style={{padding:'0 48px 100px',maxWidth:1100,margin:'0 auto'}}>
           <div className="try-section" style={{background:'rgba(99,102,241,0.08)',borderColor:'rgba(99,102,241,0.2)'}}>
             <div className="try-title">Prêt à gagner 10 heures par semaine ?</div>
-            <p className="try-sub">Rejoignez plus de 500 PME françaises qui automatisent leur comptabilité avec AgentHub.</p>
+            <p className="try-sub">Rejoignez plus de 500 PME françaises qui automatisent leur comptabilité avec InvoiceAgent.</p>
             <a href={`${BASE_URL}/auth/login`} className="btn-try">Commencer gratuitement →</a>
             <p style={{fontSize:12,color:'#3f3f46',marginTop:16,fontFamily:"'DM Mono',monospace"}}>Sans engagement · Données hébergées en Europe · Setup en 2 minutes</p>
           </div>
@@ -362,8 +367,13 @@ export default function LandingPage() {
           <div className="footer-grid">
             <div className="footer-brand">
               <a href={BASE_URL} className="nav-logo" style={{textDecoration:'none'}}>
-                <div className="nav-logo-mark">A</div>
-                <span style={{color:'#fafafa',fontSize:15,fontWeight:600}}>AgentHub</span>
+                <svg className="nav-logo-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5"/>
+                  <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="'DM Sans',sans-serif">I</text>
+                  <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontFamily="'Instrument Serif',serif" fontStyle="italic">A</text>
+                  <circle cx="28" cy="5" r="3" fill="#818cf8"/>
+                </svg>
+                <span style={{color:'#fafafa',fontSize:15,fontWeight:600}}>InvoiceAgent</span>
               </a>
               <p>Automatisation comptable par IA pour PME et indépendants français.</p>
               <div style={{display:'flex',flexDirection:'column',gap:6}}>
@@ -423,7 +433,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="footer-bottom">
-            <span>© 2026 AgentHub. Tous droits réservés. Fait avec soin en France.</span>
+            <span>© 2026 InvoiceAgent. Tous droits réservés. Fait avec soin en France.</span>
             <div className="footer-bottom-links">
               {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((l) => (
                 <a key={l} href="#" className="footer-bottom-link">{l}</a>

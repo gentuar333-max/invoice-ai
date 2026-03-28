@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Automatisez vos factures, reconciliation bancaire et analyse de contrats avec IA Gemini. Extraction PDF intelligente, import CSV bancaire. Plan gratuit disponible.',
   keywords: ['facture IA', 'reconciliation bancaire', 'automatisation comptable France', 'analyse contrat IA', 'extraction facture PDF', 'CSV bancaire PME'],
   openGraph: {
-    title: 'AgentHub - Automatisation Intelligente des Factures',
+    title: 'InvoiceAgent - Automatisation Intelligente des Factures',
     description: 'Automatisez vos factures avec IA. Plan gratuit disponible.',
     type: 'website',
     locale: 'fr_FR',

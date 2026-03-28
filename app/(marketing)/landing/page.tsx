@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 
-const BASE_URL = const BASE_URL = 'https://invoiceagent.fr'
+const BASE_URL = 'https://invoiceagent.fr'
 
 export const metadata: Metadata = {
   title: 'AgentHub - Automatisation Factures IA | Reconciliation Bancaire | France',
@@ -120,7 +120,7 @@ export default function LandingPage() {
             Fini la saisie manuelle des <span style={{ color: '#fbbf24' }}>factures</span>
           </h1>
           <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.9)', marginBottom: '40px', lineHeight: 1.6 }}>
-            L'IA extrait automatiquement vos factures, reconcilie votre banque CSV et analyse vos contrats. Gagnez 10 heures par semaine.
+            {"L'IA extrait automatiquement vos factures, reconcilie votre banque CSV et analyse vos contrats. Gagnez 10 heures par semaine."}
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '32px', flexWrap: 'wrap' }}>
             <a href={`${BASE_URL}/auth/login`} style={{ backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>
@@ -281,146 +281,82 @@ export default function LandingPage() {
         <p style={{ marginTop: '16px', opacity: 0.8, fontSize: '14px' }}>Sans engagement · Plan gratuit disponible · Setup en 2 minutes</p>
       </section>
 
-      {/* FOOTER — I RI */}
-      <footer style={{
-        backgroundColor: '#0f172a',
-        color: '#94a3b8',
-        padding: '80px 20px 0',
-      }}>
+      {/* FOOTER */}
+      <footer style={{ backgroundColor: '#0f172a', color: '#94a3b8', padding: '80px 20px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '48px', paddingBottom: '64px', borderBottom: '1px solid #1e293b' }}>
 
-          {/* TOP GRID */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '48px',
-            paddingBottom: '64px',
-            borderBottom: '1px solid #1e293b',
-          }}>
-
-            {/* BRAND */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                <div style={{
-                  width: '36px', height: '36px',
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  borderRadius: '8px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'white', fontWeight: 800, fontSize: '16px',
-                }}>A</div>
+                <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '16px' }}>A</div>
                 <span style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>AgentHub</span>
               </div>
               <p style={{ fontSize: '13px', lineHeight: 1.8, color: '#64748b', maxWidth: '220px', marginBottom: '24px' }}>
                 Automatisation comptable par IA pour PME et indépendants français.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[
-                  'EU Données hébergées (Frankfurt)',
-                  'Conforme RGPD',
-                  'Propulsé par Gemini AI',
-                ].map((badge) => (
-                  <span key={badge} style={{
-                    fontSize: '11px', color: '#475569',
-                    backgroundColor: '#1e293b',
-                    padding: '4px 10px', borderRadius: '20px',
-                    display: 'inline-block', width: 'fit-content',
-                  }}>{badge}</span>
+                {['EU Données hébergées (Frankfurt)', 'Conforme RGPD', 'Propulsé par Gemini AI'].map((badge) => (
+                  <span key={badge} style={{ fontSize: '11px', color: '#475569', backgroundColor: '#1e293b', padding: '4px 10px', borderRadius: '20px', display: 'inline-block', width: 'fit-content' }}>{badge}</span>
                 ))}
               </div>
             </div>
 
-            {/* PRODUITS */}
-            <div>
-              <h4 style={{
-                color: '#3b82f6', marginBottom: '20px',
-                fontSize: '11px', fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '2px',
-              }}>Produits</h4>
-              {[
-                { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
-                { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
-                { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
-                { label: 'ERP Integration', href: '#', soon: true },
-                { label: 'Fraud Detection', href: '#', soon: true },
-              ].map((link) => (
-                <div key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ color: link.soon ? '#334155' : '#3b82f6', fontSize: '13px' }}>&#8594;</span>
-                  <a href={link.href} style={{
-                    color: link.soon ? '#475569' : '#94a3b8',
-                    textDecoration: 'none', fontSize: '13px', flex: 1,
-                    pointerEvents: link.soon ? 'none' : 'auto',
-                  }}>{link.label}</a>
-                  {link.soon && (
-                    <span style={{
-                      fontSize: '9px', fontWeight: 700,
-                      backgroundColor: '#1e3a5f', color: '#60a5fa',
-                      padding: '2px 6px', borderRadius: '4px',
-                      textTransform: 'uppercase', letterSpacing: '0.5px',
-                    }}>Bientôt</span>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* INDUSTRIA */}
-            <div>
-              <h4 style={{
-                color: '#3b82f6', marginBottom: '20px',
-                fontSize: '11px', fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '2px',
-              }}>Industria</h4>
-              {['FinTech', 'Manufacturing', 'Retail & eCommerce', 'Healthcare', 'Enterprise'].map((label) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ color: '#3b82f6', fontSize: '13px' }}>&#8594;</span>
-                  <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '13px' }}>{label}</a>
-                </div>
-              ))}
-            </div>
-
-            {/* RESSOURCES */}
-            <div>
-              <h4 style={{
-                color: '#3b82f6', marginBottom: '20px',
-                fontSize: '11px', fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '2px',
-              }}>Ressources</h4>
-              {['Blog & Insights', 'Case Studies', 'Webinars', 'API Documentation', 'ROI Calculator'].map((label) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ color: '#3b82f6', fontSize: '13px' }}>&#8594;</span>
-                  <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '13px' }}>{label}</a>
-                </div>
-              ))}
-            </div>
-
-            {/* CONTACT & LEGAL */}
-            <div>
-              <h4 style={{
-                color: '#3b82f6', marginBottom: '20px',
-                fontSize: '11px', fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '2px',
-              }}>Contact & Légal</h4>
-              {[
-                { label: 'Connexion', href: `${BASE_URL}/auth/login` },
-                { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login` },
-                { label: 'Mentions légales', href: '#' },
-                { label: 'Confidentialité', href: '#' },
-                { label: 'CGU', href: '#' },
-              ].map((link) => (
-                <div key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ color: '#3b82f6', fontSize: '13px' }}>&#8594;</span>
-                  <a href={link.href} style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '13px' }}>{link.label}</a>
-                </div>
-              ))}
-            </div>
+            {[
+              {
+                title: 'Produits',
+                links: [
+                  { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
+                  { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
+                  { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
+                  { label: 'ERP Integration', href: '#', soon: true },
+                  { label: 'Fraud Detection', href: '#', soon: true },
+                ],
+              },
+              {
+                title: 'Industria',
+                links: [
+                  { label: 'FinTech', href: '#', soon: false },
+                  { label: 'Manufacturing', href: '#', soon: false },
+                  { label: 'Retail & eCommerce', href: '#', soon: false },
+                  { label: 'Healthcare', href: '#', soon: false },
+                  { label: 'Enterprise', href: '#', soon: false },
+                ],
+              },
+              {
+                title: 'Ressources',
+                links: [
+                  { label: 'Blog & Insights', href: '#', soon: false },
+                  { label: 'Case Studies', href: '#', soon: false },
+                  { label: 'Webinars', href: '#', soon: false },
+                  { label: 'API Documentation', href: '#', soon: false },
+                  { label: 'ROI Calculator', href: '#', soon: false },
+                ],
+              },
+              {
+                title: 'Contact & Légal',
+                links: [
+                  { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
+                  { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
+                  { label: 'Mentions légales', href: '#', soon: false },
+                  { label: 'Confidentialité', href: '#', soon: false },
+                  { label: 'CGU', href: '#', soon: false },
+                ],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 style={{ color: '#3b82f6', marginBottom: '20px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px' }}>{col.title}</h4>
+                {col.links.map((link) => (
+                  <div key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ color: link.soon ? '#334155' : '#3b82f6', fontSize: '13px' }}>&#8594;</span>
+                    <a href={link.href} style={{ color: link.soon ? '#475569' : '#94a3b8', textDecoration: 'none', fontSize: '13px', flex: 1, pointerEvents: link.soon ? 'none' : 'auto' }}>{link.label}</a>
+                    {link.soon && <span style={{ fontSize: '9px', fontWeight: 700, backgroundColor: '#1e3a5f', color: '#60a5fa', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>Bientôt</span>}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
 
-          {/* STATS BAR */}
-          <div style={{
-            display: 'flex', justifyContent: 'center',
-            gap: '56px', flexWrap: 'wrap',
-            padding: '32px 0',
-            borderBottom: '1px solid #1e293b',
-          }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '56px', flexWrap: 'wrap', padding: '32px 0', borderBottom: '1px solid #1e293b' }}>
             {[
               { value: '500+', label: 'PME utilisatrices' },
               { value: '98%', label: 'Précision extraction' },
@@ -434,13 +370,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* BOTTOM BAR */}
-          <div style={{
-            display: 'flex', justifyContent: 'space-between',
-            alignItems: 'center', flexWrap: 'wrap',
-            gap: '16px', padding: '24px 0',
-            fontSize: '12px', color: '#475569',
-          }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', padding: '24px 0', fontSize: '12px', color: '#475569' }}>
             <p style={{ margin: 0 }}>© 2026 AgentHub. Tous droits réservés. Fait avec soin en France.</p>
             <div style={{ display: 'flex', gap: '24px' }}>
               {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((link) => (
@@ -448,7 +378,6 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
-
         </div>
       </footer>
     </>

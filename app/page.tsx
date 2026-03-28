@@ -23,25 +23,20 @@ export const metadata: Metadata = {
 }
 
 const schemaOrg = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
+  '@context': 'https://schema.org', '@type': 'Organization',
   name: 'AgentHub', url: BASE_URL,
   description: "Plateforme d'automatisation comptable par IA pour PME français.",
   address: { '@type': 'PostalAddress', addressCountry: 'FR' },
 }
-
 const schemaSoftware = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
+  '@context': 'https://schema.org', '@type': 'SoftwareApplication',
   name: 'AgentHub', applicationCategory: 'BusinessApplication', operatingSystem: 'Web, SaaS', url: BASE_URL,
   offers: { '@type': 'AggregateOffer', lowPrice: '0', highPrice: '49', priceCurrency: 'EUR', offerCount: '4' },
   aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', reviewCount: '124' },
   featureList: ['Extraction automatique factures PDF', 'Réconciliation bancaire CSV', 'Analyse contrats IA', 'Export FEC', 'Alertes TVA', 'Conforme RGPD'],
 }
-
 const schemaFAQ = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
+  '@context': 'https://schema.org', '@type': 'FAQPage',
   mainEntity: [
     { '@type': 'Question', name: "Comment fonctionne l'extraction de factures par IA ?", acceptedAnswer: { '@type': 'Answer', text: "Téléchargez votre facture PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, SIRET, montants HT/TTC, TVA et dates en moins de 5 secondes." } },
     { '@type': 'Question', name: 'Comment marche la réconciliation bancaire CSV ?', acceptedAnswer: { '@type': 'Answer', text: "Exportez votre relevé CSV depuis votre banque, importez-le dans AgentHub. L'IA compare chaque transaction avec vos factures avec un score de confiance." } },
@@ -50,10 +45,8 @@ const schemaFAQ = {
     { '@type': 'Question', name: 'Quel est le prix ?', acceptedAnswer: { '@type': 'Answer', text: 'Plan gratuit (5 factures/mois), Starter 19€/mois, Pro 29€/mois, Business 49€/mois.' } },
   ],
 }
-
 const schemaBreadcrumb = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
   itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Accueil', item: BASE_URL }],
 }
 
@@ -71,7 +64,7 @@ export default function LandingPage() {
         .landing { background: #09090b; color: #fafafa; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
         .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 60px; background: rgba(9,9,11,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06); }
         .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #fafafa; text-decoration: none; }
-        .nav-logo-mark { width: 30px; height: 30px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        .nav-logo-mark { width: 30px; height: 30px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
         .nav-links { display: flex; align-items: center; gap: 32px; }
         .nav-link { font-size: 14px; color: #a1a1aa; text-decoration: none; }
         .nav-link:hover { color: #fafafa; }
@@ -97,23 +90,30 @@ export default function LandingPage() {
         .section-label { font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 0.12em; color: #52525b; text-transform: uppercase; margin-bottom: 16px; }
         .section-title { font-family: 'Instrument Serif', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 400; color: #fafafa; margin-bottom: 8px; line-height: 1.1; }
         .section-sub { font-size: 16px; color: #52525b; margin-bottom: 56px; }
-        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .agent-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 36px; text-decoration: none; color: inherit; transition: all 0.25s; display: flex; flex-direction: column; gap: 20px; }
-        .agent-card:hover { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.06); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .agent-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .agent-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+
+        /* AGENTS — 2 karta */
+        .agents-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .agent-card-2 { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 40px; text-decoration: none; color: inherit; transition: all 0.25s; }
+        .agent-card-2:hover { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.06); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .agent-card-2.soon { opacity: 0.5; cursor: default; }
+        .agent-card-2.soon:hover { transform: none; box-shadow: none; border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+        .agent-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .agent-icons-row { display: flex; gap: 10px; }
+        .agent-icon-sm { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .agent-badge { font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
         .badge-live { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .badge-soon { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-        .agent-name { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
-        .agent-desc { font-size: 14px; color: #a1a1aa; line-height: 1.6; }
-        .agent-features { display: flex; flex-direction: column; gap: 8px; }
-        .agent-feature { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e4e4e7; }
+        .agent-title { font-size: 22px; font-weight: 700; color: #ffffff; margin-bottom: 10px; }
+        .agent-desc { font-size: 14px; color: #71717a; line-height: 1.6; margin-bottom: 24px; }
+        .agent-features-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 28px; }
+        .agent-feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a1a1aa; }
         .feature-dot { width: 5px; height: 5px; border-radius: 50%; background: #6366f1; flex-shrink: 0; }
-        .agent-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); margin-top: auto; }
-        .agent-price { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: #fafafa; }
+        .agent-footer-2 { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .agent-price { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: #fafafa; }
         .agent-price span { font-size: 13px; color: #52525b; }
-        .agent-cta { font-size: 13px; color: #6366f1; font-weight: 600; padding: 6px 14px; border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; }
+        .agent-cta-btn { font-size: 13px; color: #6366f1; font-weight: 600; padding: 8px 16px; border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; text-decoration: none; }
+        .soon-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+
         .divider { border-top: 1px solid rgba(255,255,255,0.06); }
         .trust-section { padding: 60px 48px; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
         .trust-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 32px; }
@@ -129,6 +129,18 @@ export default function LandingPage() {
         .step-number { font-family: 'DM Mono', monospace; font-size: 11px; color: #52525b; }
         .step-title { font-size: 16px; font-weight: 600; color: #fafafa; }
         .step-desc { font-size: 14px; color: #52525b; line-height: 1.6; }
+
+        /* TESTIMONIALS avec avatar */
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 56px; }
+        .testimonial-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; }
+        .testimonial-stars { color: #fbbf24; font-size: 14px; margin-bottom: 16px; }
+        .testimonial-text { font-size: 14px; color: #a1a1aa; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+        .testimonial-author { display: flex; align-items: center; gap: 12px; }
+        .testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: white; flex-shrink: 0; }
+        .testimonial-name { font-size: 14px; font-weight: 600; color: #fafafa; }
+        .testimonial-role { font-size: 12px; color: #52525b; font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+        /* PRICING */
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 56px; }
         .pricing-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 36px; position: relative; }
         .pricing-card.featured { border-color: rgba(99,102,241,0.5); background: rgba(99,102,241,0.08); }
@@ -142,16 +154,14 @@ export default function LandingPage() {
         .pricing-cta { display: block; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; }
         .pricing-cta.primary { background: #6366f1; color: white; }
         .pricing-cta.secondary { background: transparent; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1); }
-        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 56px; }
-        .testimonial-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; }
-        .testimonial-stars { color: #fbbf24; font-size: 14px; margin-bottom: 16px; }
-        .testimonial-text { font-size: 14px; color: #a1a1aa; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
-        .testimonial-name { font-size: 14px; font-weight: 600; color: #fafafa; }
-        .testimonial-role { font-size: 12px; color: #52525b; font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+        /* FAQ */
         .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 56px; }
         .faq-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; }
         .faq-q { font-size: 15px; font-weight: 600; color: #fafafa; margin-bottom: 10px; }
         .faq-a { font-size: 14px; color: #71717a; line-height: 1.7; }
+
+        /* FOOTER */
         .footer-main { border-top: 1px solid rgba(255,255,255,0.06); padding: 80px 48px 0; }
         .footer-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: 48px; padding-bottom: 64px; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .footer-brand p { font-size: 13px; color: #52525b; line-height: 1.7; max-width: 200px; margin: 16px 0 20px; }
@@ -171,6 +181,8 @@ export default function LandingPage() {
           .nav { padding: 0 20px; }
           .section { padding: 60px 20px; }
           .steps { grid-template-columns: 1fr; }
+          .agents-grid-2 { grid-template-columns: 1fr; }
+          .agent-features-row { grid-template-columns: 1fr; }
           .footer-grid { grid-template-columns: 1fr 1fr; }
           .hero-stats { gap: 24px; }
         }
@@ -233,93 +245,60 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* AGENTS */}
+        {/* AGENTS — 2 karta */}
         <section id="agents" className="section" aria-labelledby="agents-heading">
           <div className="section-label">Nos agents</div>
           <h2 id="agents-heading" className="section-title">Chaque agent, un expert métier</h2>
           <p className="section-sub">Spécialisés, précis, disponibles 24h/24.</p>
-          <div className="agents-grid">
+          <div className="agents-grid-2">
 
-            <a href={`${BASE_URL}/invoices`} className="agent-card">
+            {/* KARTA 1 — Live */}
+            <a href={`${BASE_URL}/invoices`} className="agent-card-2">
               <div className="agent-card-header">
-                <div className="agent-icon" style={{background:'rgba(99,102,241,0.2)',border:'1px solid rgba(99,102,241,0.3)'}}>📄</div>
+                <div className="agent-icons-row">
+                  <div className="agent-icon-sm" style={{background:'rgba(99,102,241,0.2)',border:'1px solid rgba(99,102,241,0.3)'}}>📄</div>
+                  <div className="agent-icon-sm" style={{background:'rgba(16,185,129,0.2)',border:'1px solid rgba(16,185,129,0.3)'}}>🏦</div>
+                  <div className="agent-icon-sm" style={{background:'rgba(139,92,246,0.2)',border:'1px solid rgba(139,92,246,0.3)'}}>📋</div>
+                </div>
                 <span className="agent-badge badge-live">● Live</span>
               </div>
-              <div>
-                <div className="agent-name">Agent Factures</div>
-                <div className="agent-desc">{"Extrait automatiquement les données de vos factures PDF et images en quelques secondes."}</div>
+              <div className="agent-title">Agents disponibles maintenant</div>
+              <div className="agent-desc">{"Factures, réconciliation bancaire et analyse de contrats — trois agents IA opérationnels, entraînés sur les normes comptables françaises."}</div>
+              <div className="agent-features-row">
+                <div className="agent-feature"><div className="feature-dot" />Extraction PDF — SIRET, TVA, montants</div>
+                <div className="agent-feature"><div className="feature-dot" />Matching bancaire CSV automatique</div>
+                <div className="agent-feature"><div className="feature-dot" />Clauses à risque dans vos contrats</div>
+                <div className="agent-feature"><div className="feature-dot" />Export FEC & CSV comptable</div>
+                <div className="agent-feature"><div className="feature-dot" />Alertes TVA et échéances</div>
+                <div className="agent-feature"><div className="feature-dot" />Conforme RGPD — données EU</div>
               </div>
-              <div className="agent-features">
-                <div className="agent-feature"><div className="feature-dot" />Extraction fournisseur, date, total, TVA</div>
-                <div className="agent-feature"><div className="feature-dot" />Détection des doublons</div>
-                <div className="agent-feature"><div className="feature-dot" />Export CSV compatible comptable</div>
-                <div className="agent-feature"><div className="feature-dot" />Reconnaissance SIRET automatique</div>
-              </div>
-              <div className="agent-footer">
-                <div className="agent-price">19€ <span>/ mois</span></div>
-                <div className="agent-cta">Essayer gratuitement</div>
+              <div className="agent-footer-2">
+                <div className="agent-price">Dès 19€ <span>/ mois</span></div>
+                <span className="agent-cta-btn">Essayer gratuitement →</span>
               </div>
             </a>
 
-            <a href={`${BASE_URL}/reconciliation`} className="agent-card">
+            {/* KARTA 2 — Bientôt */}
+            <div className="agent-card-2 soon">
               <div className="agent-card-header">
-                <div className="agent-icon" style={{background:'rgba(16,185,129,0.2)',border:'1px solid rgba(16,185,129,0.3)'}}>🏦</div>
-                <span className="agent-badge badge-live">● Live</span>
-              </div>
-              <div>
-                <div className="agent-name">Agent Réconciliation</div>
-                <div className="agent-desc">{"Importez votre relevé bancaire CSV. L'IA rapproche automatiquement transactions et factures."}</div>
-              </div>
-              <div className="agent-features">
-                <div className="agent-feature"><div className="feature-dot" />Matching automatique transaction ↔ facture</div>
-                <div className="agent-feature"><div className="feature-dot" />Score de confiance par correspondance</div>
-                <div className="agent-feature"><div className="feature-dot" />Alertes factures impayées</div>
-                <div className="agent-feature"><div className="feature-dot" />Rapport mensuel de réconciliation</div>
-              </div>
-              <div className="agent-footer">
-                <div className="agent-price">19€ <span>/ mois</span></div>
-                <div className="agent-cta">Essayer gratuitement</div>
-              </div>
-            </a>
-
-            <a href={`${BASE_URL}/dashboard`} className="agent-card">
-              <div className="agent-card-header">
-                <div className="agent-icon" style={{background:'rgba(139,92,246,0.2)',border:'1px solid rgba(139,92,246,0.3)'}}>📋</div>
-                <span className="agent-badge badge-live">● Live</span>
-              </div>
-              <div>
-                <div className="agent-name">Agent Contrats</div>
-                <div className="agent-desc">{"Détectez les clauses cachées et risques dans vos contrats fournisseurs avant de signer."}</div>
-              </div>
-              <div className="agent-features">
-                <div className="agent-feature"><div className="feature-dot" />Clauses à risque (haute/moyenne/basse)</div>
-                <div className="agent-feature"><div className="feature-dot" />Frais cachés identifiés</div>
-                <div className="agent-feature"><div className="feature-dot" />Dates échéance extraites</div>
-                <div className="agent-feature"><div className="feature-dot" />Résumé exécutif en 3 phrases</div>
-              </div>
-              <div className="agent-footer">
-                <div className="agent-price">29€ <span>/ mois</span></div>
-                <div className="agent-cta">Plan Pro</div>
-              </div>
-            </a>
-
-            <div className="agent-card" style={{opacity:0.5,cursor:'default'}}>
-              <div className="agent-card-header">
-                <div className="agent-icon" style={{background:'rgba(245,158,11,0.2)',border:'1px solid rgba(245,158,11,0.3)'}}>📊</div>
+                <div className="agent-icons-row">
+                  <div className="agent-icon-sm" style={{background:'rgba(245,158,11,0.2)',border:'1px solid rgba(245,158,11,0.3)'}}>📊</div>
+                  <div className="agent-icon-sm" style={{background:'rgba(245,158,11,0.2)',border:'1px solid rgba(245,158,11,0.3)'}}>🛍️</div>
+                  <div className="agent-icon-sm" style={{background:'rgba(245,158,11,0.2)',border:'1px solid rgba(245,158,11,0.3)'}}>🔗</div>
+                </div>
                 <span className="agent-badge badge-soon">Bientôt</span>
               </div>
-              <div>
-                <div className="agent-name">Agent Comptable</div>
-                <div className="agent-desc">{"Catégorise vos dépenses et génère des rapports mensuels pour votre comptable."}</div>
+              <div className="agent-title">Agents en cours de développement</div>
+              <div className="agent-desc">{"De nouveaux agents arrivent pour couvrir encore plus de tâches comptables et commerciales."}</div>
+              <div className="soon-features">
+                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Comptable — catégorisation & rapports</div>
+                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Shopify — descriptions SEO produits</div>
+                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent ERP — intégration Sage, Cegid</div>
+                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Fraude — détection anomalies</div>
               </div>
-              <div className="agent-features">
-                <div className="agent-feature"><div className="feature-dot" />Catégorisation automatique</div>
-                <div className="agent-feature"><div className="feature-dot" />Rapport mensuel PDF</div>
-                <div className="agent-feature"><div className="feature-dot" />Compatible FEC</div>
-              </div>
-              <div className="agent-footer">
-                <div className="agent-price">29€ <span>/ mois</span></div>
-                <div className="agent-cta">Bientôt disponible</div>
+              <div className="agent-footer-2">
+                <div className="agent-price" style={{color:'#52525b'}}>À venir</div>
+                <span style={{fontSize:13,color:'#52525b',fontFamily:"'DM Mono',monospace"}}>En développement</span>
               </div>
             </div>
 
@@ -359,26 +338,27 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* TESTIMONIALS */}
+        {/* TESTIMONIALS avec avatar rrumbullakët */}
         <section id="temoignages" className="section divider" aria-labelledby="testimonials-heading">
           <div className="section-label">Témoignages</div>
           <h2 id="testimonials-heading" className="section-title">Ce que disent nos utilisateurs</h2>
           <p className="section-sub">Plus de 500 PME et indépendants font confiance à AgentHub.</p>
           <div className="testimonials-grid">
             {[
-              { name: 'Sophie M.', role: 'Gérante, cabinet de conseil — Lyon', text: "J'avais 200 factures en retard. AgentHub les a toutes traitées en 20 minutes. L'export FEC pour mon comptable est parfait.", stars: 5 },
-              { name: 'Thomas B.', role: 'Artisan électricien — Bordeaux', text: "Je n'y connaissais rien en comptabilité. Maintenant j'importe mes factures chaque semaine et tout est prêt pour mon expert-comptable.", stars: 5 },
-              { name: 'Marie-Claire D.', role: 'DAF, PME industrielle — Nantes', text: "La réconciliation bancaire nous prenait 2 jours par mois. Avec AgentHub, c'est automatique. Le score de confiance est très utile.", stars: 5 },
+              { initials: 'SM', color: '#6366f1', name: 'Sophie M.', role: 'Gérante, cabinet de conseil — Lyon', text: "J'avais 200 factures en retard. AgentHub les a toutes traitées en 20 minutes. L'export FEC pour mon comptable est parfait.", stars: 5 },
+              { initials: 'TB', color: '#059669', name: 'Thomas B.', role: 'Artisan électricien — Bordeaux', text: "Je n'y connaissais rien en comptabilité. Maintenant j'importe mes factures chaque semaine et tout est prêt pour mon expert-comptable.", stars: 5 },
+              { initials: 'MD', color: '#7c3aed', name: 'Marie-Claire D.', role: 'DAF, PME industrielle — Nantes', text: "La réconciliation bancaire nous prenait 2 jours par mois. Avec AgentHub, c'est automatique. Le score de confiance est très utile.", stars: 5 },
             ].map((t) => (
               <article key={t.name} className="testimonial-card" aria-label={`Témoignage de ${t.name}`}>
                 <div className="testimonial-stars">{'★'.repeat(t.stars)}</div>
-                <blockquote>
-                  <p className="testimonial-text">"{t.text}"</p>
-                  <footer>
+                <p className="testimonial-text">"{t.text}"</p>
+                <div className="testimonial-author">
+                  <div className="testimonial-avatar" style={{background: t.color}}>{t.initials}</div>
+                  <div>
                     <div className="testimonial-name">{t.name}</div>
                     <div className="testimonial-role">{t.role}</div>
-                  </footer>
-                </blockquote>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
@@ -422,12 +402,12 @@ export default function LandingPage() {
           <p className="section-sub">Tout ce que vous devez savoir avant de commencer.</p>
           <div className="faq-list">
             {[
-              { q: "Comment fonctionne l'extraction de factures par IA ?", a: "Téléchargez votre facture PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, le numéro SIRET, les montants HT/TTC, la TVA et les dates d'échéance en moins de 5 secondes. Aucune saisie manuelle requise." },
-              { q: 'Comment marche la réconciliation bancaire CSV ?', a: "Exportez votre relevé bancaire au format CSV depuis votre banque (BNP, Société Générale, Crédit Agricole, LCL, etc.). Importez-le dans AgentHub. L'IA compare chaque transaction avec vos factures et identifie les correspondances avec un score de confiance." },
-              { q: 'AgentHub est-il conforme RGPD ?', a: "Oui. Toutes vos données sont hébergées sur des serveurs situés à Frankfurt, Allemagne (Union Européenne). Vos données ne sont jamais partagées avec des tiers. Vous pouvez demander la suppression complète à tout moment." },
-              { q: "L'IA peut-elle analyser mes contrats fournisseurs ?", a: "Oui, disponible dès le plan Pro. Téléchargez votre contrat PDF. L'IA identifie les clauses à risque, les frais cachés, les pénalités de retard et les dates d'échéance importantes." },
-              { q: 'AgentHub est-il compatible avec mon logiciel comptable ?', a: "AgentHub exporte vos données au format FEC (Fichier des Écritures Comptables), compatible avec Sage, EBP, Cegid et QuickBooks. L'export CSV est également disponible pour Excel." },
-              { q: 'Quel est le prix ?', a: "Plan gratuit : 5 factures/mois, sans carte bancaire. Starter : 19€/mois. Pro : 29€/mois (illimité + contrats). Business : 49€/mois pour cabinets comptables." },
+              { q: "Comment fonctionne l'extraction de factures par IA ?", a: "Téléchargez votre facture PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, le numéro SIRET, les montants HT/TTC, la TVA et les dates d'échéance en moins de 5 secondes." },
+              { q: 'Comment marche la réconciliation bancaire CSV ?', a: "Exportez votre relevé bancaire au format CSV depuis votre banque (BNP, Société Générale, Crédit Agricole, LCL, etc.). L'IA compare chaque transaction avec vos factures et identifie les correspondances avec un score de confiance." },
+              { q: 'AgentHub est-il conforme RGPD ?', a: "Oui. Toutes vos données sont hébergées à Frankfurt, Allemagne (Union Européenne). Jamais partagées avec des tiers. Suppression complète sur demande." },
+              { q: "L'IA peut-elle analyser mes contrats fournisseurs ?", a: "Oui, disponible dès le plan Pro. L'IA identifie les clauses à risque, les frais cachés, les pénalités de retard et les dates d'échéance importantes." },
+              { q: 'AgentHub est-il compatible avec mon logiciel comptable ?', a: "Export FEC natif compatible Sage, EBP, Cegid et QuickBooks. Export CSV disponible pour Excel." },
+              { q: 'Quel est le prix ?', a: "Plan gratuit : 5 factures/mois, sans carte bancaire. Starter : 19€/mois. Pro : 29€/mois. Business : 49€/mois pour cabinets comptables." },
             ].map((faq, i) => (
               <div key={i} className="faq-item">
                 <h3 className="faq-q">{faq.q}</h3>
@@ -452,7 +432,7 @@ export default function LandingPage() {
           <div className="footer-grid">
             <div className="footer-brand">
               <a href={BASE_URL} className="nav-logo" style={{textDecoration:'none'}}>
-                <div className="nav-logo-mark" style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)'}}>A</div>
+                <div className="nav-logo-mark">A</div>
                 <span style={{color:'#fafafa',fontSize:15,fontWeight:600}}>AgentHub</span>
               </a>
               <p>Automatisation comptable par IA pour PME et indépendants français.</p>
@@ -462,48 +442,35 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
             {[
-              {
-                title: 'Produits',
-                links: [
-                  { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
-                  { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
-                  { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
-                  { label: 'ERP Integration', href: '#', soon: true },
-                  { label: 'Fraud Detection', href: '#', soon: true },
-                ],
-              },
-              {
-                title: 'Industria',
-                links: [
-                  { label: 'FinTech', href: '#', soon: false },
-                  { label: 'Manufacturing', href: '#', soon: false },
-                  { label: 'Retail & eCommerce', href: '#', soon: false },
-                  { label: 'Healthcare', href: '#', soon: false },
-                  { label: 'Enterprise', href: '#', soon: false },
-                ],
-              },
-              {
-                title: 'Ressources',
-                links: [
-                  { label: 'Blog & Insights', href: '#', soon: false },
-                  { label: 'Case Studies', href: '#', soon: false },
-                  { label: 'Webinars', href: '#', soon: false },
-                  { label: 'API Documentation', href: '#', soon: false },
-                  { label: 'ROI Calculator', href: '#', soon: false },
-                ],
-              },
-              {
-                title: 'Contact & Légal',
-                links: [
-                  { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
-                  { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
-                  { label: 'Mentions légales', href: '#', soon: false },
-                  { label: 'Confidentialité', href: '#', soon: false },
-                  { label: 'CGU', href: '#', soon: false },
-                ],
-              },
+              { title: 'Produits', links: [
+                { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
+                { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
+                { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
+                { label: 'ERP Integration', href: '#', soon: true },
+                { label: 'Fraud Detection', href: '#', soon: true },
+              ]},
+              { title: 'Industria', links: [
+                { label: 'FinTech', href: '#', soon: false },
+                { label: 'Manufacturing', href: '#', soon: false },
+                { label: 'Retail & eCommerce', href: '#', soon: false },
+                { label: 'Healthcare', href: '#', soon: false },
+                { label: 'Enterprise', href: '#', soon: false },
+              ]},
+              { title: 'Ressources', links: [
+                { label: 'Blog & Insights', href: '#', soon: false },
+                { label: 'Case Studies', href: '#', soon: false },
+                { label: 'Webinars', href: '#', soon: false },
+                { label: 'API Documentation', href: '#', soon: false },
+                { label: 'ROI Calculator', href: '#', soon: false },
+              ]},
+              { title: 'Contact & Légal', links: [
+                { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
+                { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
+                { label: 'Mentions légales', href: '#', soon: false },
+                { label: 'Confidentialité', href: '#', soon: false },
+                { label: 'CGU', href: '#', soon: false },
+              ]},
             ].map((col) => (
               <div key={col.title} className="footer-col">
                 <h4>{col.title}</h4>
@@ -517,21 +484,14 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-
           <div className="footer-stats">
-            {[
-              { value: '500+', label: 'PME utilisatrices' },
-              { value: '98%', label: 'Précision extraction' },
-              { value: '10h', label: 'Gagnées / semaine' },
-              { value: '< 5s', label: "Temps d'analyse" },
-            ].map((s) => (
+            {[{ value: '500+', label: 'PME utilisatrices' }, { value: '98%', label: 'Précision extraction' }, { value: '10h', label: 'Gagnées / semaine' }, { value: '< 5s', label: "Temps d'analyse" }].map((s) => (
               <div key={s.label} style={{textAlign:'center'}}>
                 <div className="footer-stat-value">{s.value}</div>
                 <div className="footer-stat-label">{s.label}</div>
               </div>
             ))}
           </div>
-
           <div className="footer-bottom">
             <span>© 2026 AgentHub. Tous droits réservés. Fait avec soin en France.</span>
             <div className="footer-bottom-links">

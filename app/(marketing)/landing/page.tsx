@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 const BASE_URL = 'https://invoiceagent.fr'
 
 export const metadata: Metadata = {
-  title: 'AgentHub - Automatisation Factures IA | Reconciliation Bancaire | France',
+  title: 'InvoiceAgent - Automatisation Factures IA | Reconciliation Bancaire | France',
   description: 'Automatisez vos factures, reconciliation bancaire et analyse de contrats avec IA Gemini. Extraction PDF intelligente, import CSV bancaire. Plan gratuit disponible.',
   keywords: ['facture IA', 'reconciliation bancaire', 'automatisation comptable France', 'analyse contrat IA', 'extraction facture PDF', 'CSV bancaire PME'],
   openGraph: {
@@ -18,74 +18,33 @@ const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
-    {
-      '@type': 'Question',
-      name: "Comment fonctionne l'extraction de factures ?",
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Téléchargez votre PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, montant, TVA et SIRET en quelques secondes."
-      }
-    },
-    {
-      '@type': 'Question',
-      name: 'Comment marche la reconciliation bancaire ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Importez votre CSV bancaire. L'IA associe automatiquement les transactions aux factures correspondantes."
-      }
-    },
-    {
-      '@type': 'Question',
-      name: 'Est-ce que AgentHub est gratuit ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Oui, AgentHub propose un plan gratuit avec 5 factures par mois sans carte bancaire. Plans payants à partir de 19€/mois."
-      }
-    },
-    {
-      '@type': 'Question',
-      name: "L'IA analyse-t-elle les contrats ?",
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Oui, disponible dès le plan Pro. L'IA détecte les clauses à risque, frais cachés et dates importantes dans vos contrats PDF."
-      }
-    },
-    {
-      '@type': 'Question',
-      name: 'Mes données sont-elles sécurisées ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Vos données sont hébergées sur Supabase (Frankfurt, EU). Conformité RGPD. Jamais partagées avec des tiers."
-      }
-    }
+    { '@type': 'Question', name: "Comment fonctionne l'extraction de factures ?", acceptedAnswer: { '@type': 'Answer', text: "Téléchargez votre PDF ou photo. L'IA Gemini extrait automatiquement le fournisseur, montant, TVA et SIRET en quelques secondes." } },
+    { '@type': 'Question', name: 'Comment marche la reconciliation bancaire ?', acceptedAnswer: { '@type': 'Answer', text: "Importez votre CSV bancaire. L'IA associe automatiquement les transactions aux factures correspondantes." } },
+    { '@type': 'Question', name: 'Est-ce que InvoiceAgent est gratuit ?', acceptedAnswer: { '@type': 'Answer', text: "Oui, InvoiceAgent propose un plan gratuit avec 5 factures par mois sans carte bancaire. Plans payants à partir de 19€/mois." } },
+    { '@type': 'Question', name: "L'IA analyse-t-elle les contrats ?", acceptedAnswer: { '@type': 'Answer', text: "Oui, disponible dès le plan Pro. L'IA détecte les clauses à risque, frais cachés et dates importantes dans vos contrats PDF." } },
+    { '@type': 'Question', name: 'Mes données sont-elles sécurisées ?', acceptedAnswer: { '@type': 'Answer', text: "Vos données sont hébergées sur Supabase (Frankfurt, EU). Conformité RGPD. Jamais partagées avec des tiers." } }
   ]
 }
 
 const softwareSchema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'AgentHub',
+  name: 'InvoiceAgent',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web, SaaS',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'EUR',
-    description: 'Plan gratuit disponible'
-  },
-  featureList: [
-    'Extraction automatique factures PDF',
-    'Reconciliation bancaire CSV',
-    'Analyse contrats IA',
-    'Detection clauses risque',
-    'Alertes TVA automatiques'
-  ],
-  creator: {
-    '@type': 'Organization',
-    name: 'AgentHub',
-    url: BASE_URL
-  }
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR', description: 'Plan gratuit disponible' },
+  featureList: ['Extraction automatique factures PDF', 'Reconciliation bancaire CSV', 'Analyse contrats IA', 'Detection clauses risque', 'Alertes TVA automatiques'],
+  creator: { '@type': 'Organization', name: 'InvoiceAgent', url: BASE_URL }
 }
+
+const LogoSVG = ({ size = 36 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5"/>
+    <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="'DM Sans',sans-serif">I</text>
+    <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontFamily="'Instrument Serif',serif" fontStyle="italic">A</text>
+    <circle cx="28" cy="5" r="3" fill="#818cf8"/>
+  </svg>
+)
 
 export default function LandingPage() {
   return (
@@ -96,10 +55,10 @@ export default function LandingPage() {
       {/* NAVIGATION */}
       <nav style={{ backgroundColor: 'white', borderBottom: '1px solid #e2e8f0', padding: '1rem 0', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '40px', height: '40px', backgroundColor: '#2563eb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '20px' }}>A</div>
-            <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }}>AgentHub</span>
-          </div>
+          <a href={BASE_URL} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+            <LogoSVG size={36} />
+            <span style={{ fontSize: '22px', fontWeight: 700, color: '#1e293b', letterSpacing: '-0.3px' }}>InvoiceAgent</span>
+          </a>
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <a href="#features" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px' }}>Fonctionnalités</a>
             <a href="#tarifs" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px' }}>Tarifs</a>
@@ -123,12 +82,8 @@ export default function LandingPage() {
             {"L'IA extrait automatiquement vos factures, reconcilie votre banque CSV et analyse vos contrats. Gagnez 10 heures par semaine."}
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '32px', flexWrap: 'wrap' }}>
-            <a href={`${BASE_URL}/auth/login`} style={{ backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>
-              Commencer gratuitement →
-            </a>
-            <a href="#tarifs" style={{ backgroundColor: 'transparent', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>
-              Voir les tarifs
-            </a>
+            <a href={`${BASE_URL}/auth/login`} style={{ backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>Commencer gratuitement →</a>
+            <a href="#tarifs" style={{ backgroundColor: 'transparent', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>Voir les tarifs</a>
           </div>
           <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.8)', flexWrap: 'wrap' }}>
             <span>Sans carte bancaire</span>
@@ -141,12 +96,7 @@ export default function LandingPage() {
       {/* STATS */}
       <section style={{ backgroundColor: 'white', padding: '48px 20px', borderBottom: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', textAlign: 'center' }}>
-          {[
-            { value: '95%', label: 'Précision extraction' },
-            { value: '10h', label: 'Économisées/semaine' },
-            { value: '2min', label: 'Par facture' },
-            { value: '100%', label: 'Automatique' },
-          ].map((stat) => (
+          {[{ value: '95%', label: 'Précision extraction' }, { value: '10h', label: 'Économisées/semaine' }, { value: '2min', label: 'Par facture' }, { value: '100%', label: 'Automatique' }].map((stat) => (
             <div key={stat.label}>
               <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#2563eb' }}>{stat.value}</div>
               <div style={{ color: '#64748b', fontSize: '14px' }}>{stat.label}</div>
@@ -159,34 +109,14 @@ export default function LandingPage() {
       <section id="features" style={{ padding: '80px 20px', backgroundColor: '#f8fafc' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <h2 style={{ fontSize: '36px', fontWeight: 'bold', color: '#1e293b', marginBottom: '16px' }}>
-              Trois outils intelligents, une seule plateforme
-            </h2>
+            <h2 style={{ fontSize: '36px', fontWeight: 'bold', color: '#1e293b', marginBottom: '16px' }}>Trois outils intelligents, une seule plateforme</h2>
             <p style={{ color: '#64748b', fontSize: '18px' }}>Finissez avec les tâches manuelles répétitives</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
             {[
-              {
-                icon: '📄', bg: '#dbeafe',
-                title: 'Extraction Facture IA',
-                desc: "Téléchargez PDF ou photo. Gemini AI extrait automatiquement le fournisseur, montant TTC, TVA et numéro SIRET.",
-                items: ['Extraction en 2 secondes', 'Reconnaissance SIRET', 'Catégorisation auto', '95% de précision'],
-                link: `${BASE_URL}/invoices`, linkLabel: 'Importer une facture', color: '#2563eb'
-              },
-              {
-                icon: '🏦', bg: '#d1fae5',
-                title: 'Reconciliation Bancaire CSV',
-                desc: "Importez votre relevé bancaire CSV. L'IA associe automatiquement les transactions aux factures.",
-                items: ['Matching automatique', 'Détection paiements', 'Alertes retard', 'Export CSV/Rapport'],
-                link: `${BASE_URL}/reconciliation`, linkLabel: 'Reconciliation bancaire', color: '#059669'
-              },
-              {
-                icon: '📋', bg: '#f3e8ff',
-                title: 'Analyse Contrats IA',
-                desc: "Téléchargez un contrat PDF. L'IA détecte les clauses à risque, tarifs cachés et dates importantes.",
-                items: ['Clauses à risque', 'Tarifs cachés détectés', 'Dates échéance', 'Résumé intelligent'],
-                link: `${BASE_URL}/dashboard`, linkLabel: 'Analyser un contrat', color: '#7c3aed'
-              },
+              { icon: '📄', bg: '#dbeafe', title: 'Extraction Facture IA', desc: "Téléchargez PDF ou photo. Gemini AI extrait automatiquement le fournisseur, montant TTC, TVA et numéro SIRET.", items: ['Extraction en 2 secondes', 'Reconnaissance SIRET', 'Catégorisation auto', '95% de précision'], link: `${BASE_URL}/invoices`, linkLabel: 'Importer une facture', color: '#2563eb' },
+              { icon: '🏦', bg: '#d1fae5', title: 'Reconciliation Bancaire CSV', desc: "Importez votre relevé bancaire CSV. L'IA associe automatiquement les transactions aux factures.", items: ['Matching automatique', 'Détection paiements', 'Alertes retard', 'Export CSV/Rapport'], link: `${BASE_URL}/reconciliation`, linkLabel: 'Reconciliation bancaire', color: '#059669' },
+              { icon: '📋', bg: '#f3e8ff', title: 'Analyse Contrats IA', desc: "Téléchargez un contrat PDF. L'IA détecte les clauses à risque, tarifs cachés et dates importantes.", items: ['Clauses à risque', 'Tarifs cachés détectés', 'Dates échéance', 'Résumé intelligent'], link: `${BASE_URL}/dashboard`, linkLabel: 'Analyser un contrat', color: '#7c3aed' },
             ].map((f) => (
               <div key={f.title} style={{ backgroundColor: 'white', padding: '32px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                 <div style={{ width: '56px', height: '56px', backgroundColor: f.bg, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '16px' }}>{f.icon}</div>
@@ -236,9 +166,7 @@ export default function LandingPage() {
               { name: 'Business', price: '49€', desc: 'Pour cabinets', items: ['Tout Pro inclus', 'Contrats illimités', 'Clauses risque détectées', 'Frais cachés identifiés', 'Audit trail RGPD'], link: `${BASE_URL}/checkout?plan=business`, label: 'Choisir Business', featured: false },
             ].map((plan) => (
               <div key={plan.name} style={{ backgroundColor: plan.featured ? '#2563eb' : 'white', color: plan.featured ? 'white' : '#1e293b', padding: '28px', borderRadius: '16px', boxShadow: plan.featured ? '0 10px 25px rgba(37,99,235,0.3)' : '0 1px 3px rgba(0,0,0,0.1)', transform: plan.featured ? 'scale(1.05)' : 'none', position: 'relative' }}>
-                {plan.featured && (
-                  <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '4px 14px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>PLUS POPULAIRE</div>
-                )}
+                {plan.featured && <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '4px 14px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>PLUS POPULAIRE</div>}
                 <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>{plan.name}</h3>
                 <div style={{ fontSize: '32px', fontWeight: 'bold', margin: '12px 0 4px' }}>{plan.price}<span style={{ fontSize: '14px', opacity: 0.7 }}>/mois</span></div>
                 <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '16px' }}>{plan.desc}</p>
@@ -259,7 +187,7 @@ export default function LandingPage() {
           {[
             { q: "Comment fonctionne l'extraction de factures ?", a: "Téléchargez votre PDF ou photo de facture. L'IA Gemini extrait automatiquement le fournisseur, montant TTC, TVA et numéro SIRET en quelques secondes." },
             { q: 'Comment marche la reconciliation bancaire ?', a: "Importez votre relevé bancaire au format CSV. L'IA compare automatiquement les transactions avec vos factures et identifie les paiements reçus." },
-            { q: 'Est-ce que AgentHub est gratuit ?', a: "Oui, le plan gratuit donne accès à 5 factures par mois sans carte bancaire. Plans payants à partir de 19€/mois." },
+            { q: 'Est-ce que InvoiceAgent est gratuit ?', a: "Oui, le plan gratuit donne accès à 5 factures par mois sans carte bancaire. Plans payants à partir de 19€/mois." },
             { q: "L'IA analyse-t-elle les contrats ?", a: "Oui, disponible dès le plan Pro. L'IA détecte les clauses à risque, frais cachés et dates importantes dans vos contrats PDF." },
             { q: 'Mes données sont-elles sécurisées ?', a: "Vos données sont hébergées sur Supabase (Frankfurt, EU). Conformité RGPD. Jamais partagées avec des tiers." },
           ].map((faq, i) => (
@@ -275,9 +203,7 @@ export default function LandingPage() {
       <section style={{ background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: 'white', padding: '80px 20px', textAlign: 'center' }}>
         <h2 style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>Prêt à gagner 10 heures par semaine ?</h2>
         <p style={{ fontSize: '18px', marginBottom: '32px', opacity: 0.9 }}>Commencez gratuitement — aucune carte bancaire requise.</p>
-        <a href={`${BASE_URL}/auth/login`} style={{ display: 'inline-block', backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '16px 40px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>
-          Commencer gratuitement →
-        </a>
+        <a href={`${BASE_URL}/auth/login`} style={{ display: 'inline-block', backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '16px 40px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>Commencer gratuitement →</a>
         <p style={{ marginTop: '16px', opacity: 0.8, fontSize: '14px' }}>Sans engagement · Plan gratuit disponible · Setup en 2 minutes</p>
       </section>
 
@@ -285,11 +211,10 @@ export default function LandingPage() {
       <footer style={{ backgroundColor: '#0f172a', color: '#94a3b8', padding: '80px 20px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '48px', paddingBottom: '64px', borderBottom: '1px solid #1e293b' }}>
-
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '16px' }}>A</div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>AgentHub</span>
+                <LogoSVG size={32} />
+                <span style={{ fontSize: '18px', fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>InvoiceAgent</span>
               </div>
               <p style={{ fontSize: '13px', lineHeight: 1.8, color: '#64748b', maxWidth: '220px', marginBottom: '24px' }}>
                 Automatisation comptable par IA pour PME et indépendants français.
@@ -300,48 +225,11 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
             {[
-              {
-                title: 'Produits',
-                links: [
-                  { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
-                  { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
-                  { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
-                  { label: 'ERP Integration', href: '#', soon: true },
-                  { label: 'Fraud Detection', href: '#', soon: true },
-                ],
-              },
-              {
-                title: 'Industria',
-                links: [
-                  { label: 'FinTech', href: '#', soon: false },
-                  { label: 'Manufacturing', href: '#', soon: false },
-                  { label: 'Retail & eCommerce', href: '#', soon: false },
-                  { label: 'Healthcare', href: '#', soon: false },
-                  { label: 'Enterprise', href: '#', soon: false },
-                ],
-              },
-              {
-                title: 'Ressources',
-                links: [
-                  { label: 'Blog & Insights', href: '#', soon: false },
-                  { label: 'Case Studies', href: '#', soon: false },
-                  { label: 'Webinars', href: '#', soon: false },
-                  { label: 'API Documentation', href: '#', soon: false },
-                  { label: 'ROI Calculator', href: '#', soon: false },
-                ],
-              },
-              {
-                title: 'Contact & Légal',
-                links: [
-                  { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
-                  { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
-                  { label: 'Mentions légales', href: '#', soon: false },
-                  { label: 'Confidentialité', href: '#', soon: false },
-                  { label: 'CGU', href: '#', soon: false },
-                ],
-              },
+              { title: 'Produits', links: [{ label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false }, { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false }, { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false }, { label: 'ERP Integration', href: '#', soon: true }, { label: 'Fraud Detection', href: '#', soon: true }] },
+              { title: 'Industria', links: [{ label: 'FinTech', href: '#', soon: false }, { label: 'Manufacturing', href: '#', soon: false }, { label: 'Retail & eCommerce', href: '#', soon: false }, { label: 'Healthcare', href: '#', soon: false }, { label: 'Enterprise', href: '#', soon: false }] },
+              { title: 'Ressources', links: [{ label: 'Blog & Insights', href: '#', soon: false }, { label: 'Case Studies', href: '#', soon: false }, { label: 'Webinars', href: '#', soon: false }, { label: 'API Documentation', href: '#', soon: false }, { label: 'ROI Calculator', href: '#', soon: false }] },
+              { title: 'Contact & Légal', links: [{ label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false }, { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false }, { label: 'Mentions légales', href: '#', soon: false }, { label: 'Confidentialité', href: '#', soon: false }, { label: 'CGU', href: '#', soon: false }] },
             ].map((col) => (
               <div key={col.title}>
                 <h4 style={{ color: '#3b82f6', marginBottom: '20px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px' }}>{col.title}</h4>
@@ -355,23 +243,16 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-
           <div style={{ display: 'flex', justifyContent: 'center', gap: '56px', flexWrap: 'wrap', padding: '32px 0', borderBottom: '1px solid #1e293b' }}>
-            {[
-              { value: '500+', label: 'PME utilisatrices' },
-              { value: '98%', label: 'Précision extraction' },
-              { value: '10h', label: 'Gagnées / semaine' },
-              { value: '< 5s', label: "Temps d'analyse" },
-            ].map((stat) => (
+            {[{ value: '500+', label: 'PME utilisatrices' }, { value: '98%', label: 'Précision extraction' }, { value: '10h', label: 'Gagnées / semaine' }, { value: '< 5s', label: "Temps d'analyse" }].map((stat) => (
               <div key={stat.label} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '24px', fontWeight: 800, color: '#3b82f6' }}>{stat.value}</div>
                 <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
               </div>
             ))}
           </div>
-
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', padding: '24px 0', fontSize: '12px', color: '#475569' }}>
-            <p style={{ margin: 0 }}>© 2026 AgentHub. Tous droits réservés. Fait avec soin en France.</p>
+            <p style={{ margin: 0 }}>© 2026 InvoiceAgent. Tous droits réservés. Fait avec soin en France.</p>
             <div style={{ display: 'flex', gap: '24px' }}>
               {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((link) => (
                 <a key={link} href="#" style={{ color: '#475569', textDecoration: 'none' }}>{link}</a>

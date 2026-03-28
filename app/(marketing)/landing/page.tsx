@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 
-const BASE_URL = 'https://invoice-3yaa6gk8q-gentuar333-9946s-projects.vercel.app'
+const BASE_URL = const BASE_URL = 'https://invoiceagent.fr'
 
 export const metadata: Metadata = {
   title: 'AgentHub - Automatisation Factures IA | Reconciliation Bancaire | France',

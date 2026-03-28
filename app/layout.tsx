@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import NavbarClient from "@/components/NavbarClient";
 
 export const metadata: Metadata = {
-  title: "AgentHub",
-  description: "Agents IA pour automatiser votre comptabilite",
+  title: "InvoiceAgent",
+  description: "Agents IA pour automatiser votre comptabilité",
 };
 
 export default function RootLayout({
@@ -54,20 +53,9 @@ export default function RootLayout({
             color: #111827;
             letter-spacing: -0.02em;
           }
-          .page-content { min-height: calc(100vh - 58px); }
+          .page-content { min-height: 100vh; }
         `}</style>
-
-        <nav className="navbar">
-          <a href="/" className="navbar-logo">
-            <div className="navbar-logo-icon">🤖</div>
-            <span className="navbar-logo-text">AgentHub</span>
-          </a>
-          <NavbarClient />
-        </nav>
-
-        <div className="page-content">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

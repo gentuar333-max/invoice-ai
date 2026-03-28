@@ -1,4 +1,3 @@
- 
 import { Metadata } from 'next'
 
 const BASE_URL = 'https://invoice-3yaa6gk8q-gentuar333-9946s-projects.vercel.app'
@@ -282,86 +281,174 @@ export default function LandingPage() {
         <p style={{ marginTop: '16px', opacity: 0.8, fontSize: '14px' }}>Sans engagement · Plan gratuit disponible · Setup en 2 minutes</p>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ backgroundColor: '#1e293b', color: '#94a3b8', padding: '64px 20px 32px' }}>
+      {/* FOOTER — I RI */}
+      <footer style={{
+        backgroundColor: '#0f172a',
+        color: '#94a3b8',
+        padding: '80px 20px 0',
+      }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px', marginBottom: '48px' }}>
-            {/* Brand */}
+
+          {/* TOP GRID */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '48px',
+            paddingBottom: '64px',
+            borderBottom: '1px solid #1e293b',
+          }}>
+
+            {/* BRAND */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <div style={{ width: '32px', height: '32px', backgroundColor: '#2563eb', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>A</div>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'white' }}>AgentHub</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <div style={{
+                  width: '36px', height: '36px',
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontWeight: 800, fontSize: '16px',
+                }}>A</div>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>AgentHub</span>
               </div>
-              <p style={{ fontSize: '13px', lineHeight: 1.7, marginBottom: '16px' }}>Automatisation comptable par IA pour PME et indépendants français.</p>
-              <p style={{ fontSize: '12px' }}>Données hébergées en Europe (Frankfurt)</p>
+              <p style={{ fontSize: '13px', lineHeight: 1.8, color: '#64748b', maxWidth: '220px', marginBottom: '24px' }}>
+                Automatisation comptable par IA pour PME et indépendants français.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[
+                  'EU Données hébergées (Frankfurt)',
+                  'Conforme RGPD',
+                  'Propulsé par Gemini AI',
+                ].map((badge) => (
+                  <span key={badge} style={{
+                    fontSize: '11px', color: '#475569',
+                    backgroundColor: '#1e293b',
+                    padding: '4px 10px', borderRadius: '20px',
+                    display: 'inline-block', width: 'fit-content',
+                  }}>{badge}</span>
+                ))}
+              </div>
             </div>
 
-            {/* Produit */}
+            {/* PRODUITS */}
             <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '16px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Produit</h4>
+              <h4 style={{
+                color: '#3b82f6', marginBottom: '20px',
+                fontSize: '11px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '2px',
+              }}>Produits</h4>
               {[
-                { label: 'Traitement factures IA', href: `${BASE_URL}/invoices` },
-                { label: 'Gestion contrats', href: `${BASE_URL}/dashboard` },
-                { label: 'Analyse CSV bancaire', href: `${BASE_URL}/reconciliation` },
-                { label: 'Détection fraudes', href: `${BASE_URL}/dashboard` },
-                { label: 'Tarifs', href: `${BASE_URL}/pricing` },
+                { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
+                { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
+                { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
+                { label: 'ERP Integration', href: '#', soon: true },
+                { label: 'Fraud Detection', href: '#', soon: true },
               ].map((link) => (
-                <a key={link.label} href={link.href} style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '10px', transition: 'color 0.2s' }}>{link.label}</a>
+                <div key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ color: link.soon ? '#334155' : '#3b82f6', fontSize: '13px' }}>&#8594;</span>
+                  <a href={link.href} style={{
+                    color: link.soon ? '#475569' : '#94a3b8',
+                    textDecoration: 'none', fontSize: '13px', flex: 1,
+                    pointerEvents: link.soon ? 'none' : 'auto',
+                  }}>{link.label}</a>
+                  {link.soon && (
+                    <span style={{
+                      fontSize: '9px', fontWeight: 700,
+                      backgroundColor: '#1e3a5f', color: '#60a5fa',
+                      padding: '2px 6px', borderRadius: '4px',
+                      textTransform: 'uppercase', letterSpacing: '0.5px',
+                    }}>Bientôt</span>
+                  )}
+                </div>
               ))}
             </div>
 
-            {/* Secteurs */}
+            {/* INDUSTRIA */}
             <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '16px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Secteurs</h4>
-              {[
-                { label: 'PME & TPE', href: '#' },
-                { label: 'Cabinets comptables', href: '#' },
-                { label: 'Commerce & Retail', href: '#' },
-                { label: 'Artisans', href: '#' },
-                { label: 'Indépendants', href: '#' },
-              ].map((link) => (
-                <a key={link.label} href={link.href} style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '10px' }}>{link.label}</a>
+              <h4 style={{
+                color: '#3b82f6', marginBottom: '20px',
+                fontSize: '11px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '2px',
+              }}>Industria</h4>
+              {['FinTech', 'Manufacturing', 'Retail & eCommerce', 'Healthcare', 'Enterprise'].map((label) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ color: '#3b82f6', fontSize: '13px' }}>&#8594;</span>
+                  <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '13px' }}>{label}</a>
+                </div>
               ))}
             </div>
 
-            {/* Ressources */}
+            {/* RESSOURCES */}
             <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '16px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Ressources</h4>
-              {[
-                { label: 'Documentation', href: '#' },
-                { label: 'Guide démarrage', href: `${BASE_URL}/auth/login` },
-                { label: 'Calculateur ROI', href: '#' },
-                { label: 'Blog', href: '#' },
-                { label: 'Support', href: '#' },
-              ].map((link) => (
-                <a key={link.label} href={link.href} style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '10px' }}>{link.label}</a>
+              <h4 style={{
+                color: '#3b82f6', marginBottom: '20px',
+                fontSize: '11px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '2px',
+              }}>Ressources</h4>
+              {['Blog & Insights', 'Case Studies', 'Webinars', 'API Documentation', 'ROI Calculator'].map((label) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ color: '#3b82f6', fontSize: '13px' }}>&#8594;</span>
+                  <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '13px' }}>{label}</a>
+                </div>
               ))}
             </div>
 
-            {/* Contact & Legal */}
+            {/* CONTACT & LEGAL */}
             <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '16px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Contact & Légal</h4>
+              <h4 style={{
+                color: '#3b82f6', marginBottom: '20px',
+                fontSize: '11px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '2px',
+              }}>Contact & Légal</h4>
               {[
                 { label: 'Connexion', href: `${BASE_URL}/auth/login` },
                 { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login` },
                 { label: 'Mentions légales', href: '#' },
-                { label: 'Politique de confidentialité', href: '#' },
+                { label: 'Confidentialité', href: '#' },
                 { label: 'CGU', href: '#' },
               ].map((link) => (
-                <a key={link.label} href={link.href} style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '10px' }}>{link.label}</a>
+                <div key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ color: '#3b82f6', fontSize: '13px' }}>&#8594;</span>
+                  <a href={link.href} style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '13px' }}>{link.label}</a>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Bottom */}
-          <div style={{ borderTop: '1px solid #334155', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
-            <p>© 2025 AgentHub. Tous droits réservés.</p>
+          {/* STATS BAR */}
+          <div style={{
+            display: 'flex', justifyContent: 'center',
+            gap: '56px', flexWrap: 'wrap',
+            padding: '32px 0',
+            borderBottom: '1px solid #1e293b',
+          }}>
+            {[
+              { value: '500+', label: 'PME utilisatrices' },
+              { value: '98%', label: 'Précision extraction' },
+              { value: '10h', label: 'Gagnées / semaine' },
+              { value: '< 5s', label: "Temps d'analyse" },
+            ].map((stat) => (
+              <div key={stat.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#3b82f6' }}>{stat.value}</div>
+                <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* BOTTOM BAR */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between',
+            alignItems: 'center', flexWrap: 'wrap',
+            gap: '16px', padding: '24px 0',
+            fontSize: '12px', color: '#475569',
+          }}>
+            <p style={{ margin: 0 }}>© 2026 AgentHub. Tous droits réservés. Fait avec soin en France.</p>
             <div style={{ display: 'flex', gap: '24px' }}>
-              <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</a>
-              <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</a>
-              <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Sécurité</a>
+              {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((link) => (
+                <a key={link} href="#" style={{ color: '#475569', textDecoration: 'none' }}>{link}</a>
+              ))}
             </div>
           </div>
+
         </div>
       </footer>
     </>

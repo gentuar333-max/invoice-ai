@@ -1,7 +1,6 @@
- 
 import { Metadata } from 'next'
 
-const BASE_URL = 'https://invoice-3yaa6gk8q-gentuar333-9946s-projects.vercel.app'
+const BASE_URL = 'https://invoiceagent.fr'
 
 export const metadata: Metadata = {
   title: 'Logiciel Facturation PME Gratuit | AgentHub IA - Automatisation Factures',
@@ -56,7 +55,7 @@ export default function LogicielFacturationPage() {
             Le logiciel de facturation <span style={{ color: '#fbbf24' }}>intelligent</span> pour PME
           </h1>
           <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.9)', marginBottom: '40px', lineHeight: 1.6 }}>
-            Importez vos factures PDF — l'IA extrait automatiquement tous les champs. TVA calculée, doublons détectés, export comptable en 1 clic.
+            {"Importez vos factures PDF — l'IA extrait automatiquement tous les champs. TVA calculée, doublons détectés, export comptable en 1 clic."}
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '28px', flexWrap: 'wrap' }}>
             <a href={`${BASE_URL}/invoices`} style={{ backgroundColor: '#fbbf24', color: '#1e3a8a', padding: '16px 32px', borderRadius: '12px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none' }}>
@@ -67,7 +66,7 @@ export default function LogicielFacturationPage() {
             </a>
           </div>
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.8)', flexWrap: 'wrap' }}>
-            <span>✓ Gratuit jusqu'à 5 factures/mois</span>
+            <span>{"✓ Gratuit jusqu'à 5 factures/mois"}</span>
             <span>✓ Sans carte bancaire</span>
             <span>✓ RGPD — données en France</span>
           </div>
@@ -132,7 +131,7 @@ export default function LogicielFacturationPage() {
             {[
               { icon: '🏢', title: 'PME', desc: 'Automatisez la comptabilité sans embaucher un comptable à plein temps.' },
               { icon: '💼', title: 'Freelances', desc: 'Gérez vos factures clients et fournisseurs en quelques minutes par mois.' },
-              { icon: '🔨', title: 'Artisans', desc: 'Scannez vos reçus et factures — l'IA fait le reste automatiquement.' },
+              { icon: '🔨', title: 'Artisans', desc: "Scannez vos reçus et factures — l'IA fait le reste automatiquement." },
               { icon: '📒', title: 'Comptables', desc: 'Gagnez du temps sur la saisie et concentrez-vous sur le conseil.' },
             ].map((p) => (
               <div key={p.title} style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
@@ -204,48 +203,89 @@ export default function LogicielFacturationPage() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ backgroundColor: '#1e293b', color: '#94a3b8', padding: '48px 20px 28px' }}>
+      <footer style={{ backgroundColor: '#0f172a', color: '#94a3b8', padding: '80px 20px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '32px', marginBottom: '40px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '48px', paddingBottom: '64px', borderBottom: '1px solid #1e293b' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <div style={{ width: '30px', height: '30px', backgroundColor: '#2563eb', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '14px' }}>A</div>
-                <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'white' }}>AgentHub</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <div style={{ width: '36px', height: '36px', background: '#2563eb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '16px' }}>A</div>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: 'white' }}>AgentHub</span>
               </div>
-              <p style={{ fontSize: '12px', lineHeight: 1.7 }}>Logiciel de facturation IA pour PME et freelances français.</p>
+              <p style={{ fontSize: '13px', lineHeight: 1.8, color: '#64748b', maxWidth: '220px', marginBottom: '24px' }}>Logiciel de facturation IA pour PME et freelances français.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {['EU Données hébergées (Frankfurt)', 'Conforme RGPD', 'Propulsé par Gemini AI'].map((badge) => (
+                  <span key={badge} style={{ fontSize: '11px', color: '#475569', backgroundColor: '#1e293b', padding: '4px 10px', borderRadius: '20px', display: 'inline-block', width: 'fit-content' }}>{badge}</span>
+                ))}
+              </div>
             </div>
-            <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '12px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Produit</h4>
-              {[
-                { label: 'Importer une facture', href: `${BASE_URL}/invoices` },
-                { label: 'Reconciliation bancaire', href: `${BASE_URL}/reconciliation` },
-                { label: 'Analyse contrats', href: `${BASE_URL}/dashboard` },
-                { label: 'Tarifs', href: `${BASE_URL}/pricing` },
-              ].map((l) => <a key={l.label} href={l.href} style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '8px' }}>{l.label}</a>)}
-            </div>
-            <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '12px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Secteurs</h4>
-              {['PME & TPE', 'Freelances', 'Artisans', 'Cabinets comptables'].map((l) => <a key={l} href="#" style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '8px' }}>{l}</a>)}
-            </div>
-            <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '12px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Compte</h4>
-              {[
-                { label: 'Connexion', href: `${BASE_URL}/auth/login` },
-                { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login` },
-                { label: 'Dashboard', href: `${BASE_URL}/dashboard` },
-              ].map((l) => <a key={l.label} href={l.href} style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '8px' }}>{l.label}</a>)}
-            </div>
-            <div>
-              <h4 style={{ color: '#fbbf24', marginBottom: '12px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Légal</h4>
-              {['Mentions légales', 'Confidentialité', 'CGU', 'Sécurité'].map((l) => <a key={l} href="#" style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', fontSize: '13px', marginBottom: '8px' }}>{l}</a>)}
-            </div>
+            {[
+              {
+                title: 'Produits',
+                links: [
+                  { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
+                  { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
+                  { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
+                  { label: 'ERP Integration', href: '#', soon: true },
+                  { label: 'Fraud Detection', href: '#', soon: true },
+                ],
+              },
+              {
+                title: 'Industria',
+                links: [
+                  { label: 'FinTech', href: '#', soon: false },
+                  { label: 'Manufacturing', href: '#', soon: false },
+                  { label: 'Retail & eCommerce', href: '#', soon: false },
+                  { label: 'Healthcare', href: '#', soon: false },
+                  { label: 'Enterprise', href: '#', soon: false },
+                ],
+              },
+              {
+                title: 'Ressources',
+                links: [
+                  { label: 'Blog & Insights', href: '#', soon: false },
+                  { label: 'Case Studies', href: '#', soon: false },
+                  { label: 'Webinars', href: '#', soon: false },
+                  { label: 'API Documentation', href: '#', soon: false },
+                  { label: 'ROI Calculator', href: '#', soon: false },
+                ],
+              },
+              {
+                title: 'Contact & Légal',
+                links: [
+                  { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
+                  { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
+                  { label: 'Mentions légales', href: '#', soon: false },
+                  { label: 'Confidentialité', href: '#', soon: false },
+                  { label: 'CGU', href: '#', soon: false },
+                ],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 style={{ color: '#3b82f6', marginBottom: '20px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px' }}>{col.title}</h4>
+                {col.links.map((link) => (
+                  <div key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ color: link.soon ? '#334155' : '#3b82f6', fontSize: '13px' }}>&#8594;</span>
+                    <a href={link.href} style={{ color: link.soon ? '#475569' : '#94a3b8', textDecoration: 'none', fontSize: '13px', flex: 1, pointerEvents: link.soon ? 'none' : 'auto' }}>{link.label}</a>
+                    {link.soon && <span style={{ fontSize: '9px', fontWeight: 700, backgroundColor: '#1e3a5f', color: '#60a5fa', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>Bientôt</span>}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
-          <div style={{ borderTop: '1px solid #334155', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', fontSize: '12px' }}>
-            <p>© 2025 AgentHub. Tous droits réservés.</p>
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</a>
-              <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</a>
-              <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Sécurité</a>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '56px', flexWrap: 'wrap', padding: '32px 0', borderBottom: '1px solid #1e293b' }}>
+            {[{ value: '500+', label: 'PME utilisatrices' }, { value: '98%', label: 'Précision extraction' }, { value: '10h', label: 'Gagnées / semaine' }, { value: '< 5s', label: "Temps d'analyse" }].map((stat) => (
+              <div key={stat.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#3b82f6' }}>{stat.value}</div>
+                <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', padding: '24px 0', fontSize: '12px', color: '#475569' }}>
+            <p style={{ margin: 0 }}>© 2026 AgentHub. Tous droits réservés. Fait avec soin en France.</p>
+            <div style={{ display: 'flex', gap: '24px' }}>
+              {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((link) => (
+                <a key={link} href="#" style={{ color: '#475569', textDecoration: 'none' }}>{link}</a>
+              ))}
             </div>
           </div>
         </div>

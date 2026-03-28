@@ -3,5 +3,5 @@ export default function MarketingLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return <div style={{margin:0,padding:0}}>{children}</div>
 }

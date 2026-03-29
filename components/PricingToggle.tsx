@@ -17,7 +17,7 @@ type Plan = {
 const defaultPlans: Plan[] = [
   { name: 'Gratuit', monthly: 0, desc: 'Pour tester', items: ['5 factures/mois', '1 analyse contrat', 'Export PDF'], link: `${BASE_URL}/auth/login`, cta: 'Commencer', featured: false },
   { name: 'Starter', monthly: 19, desc: 'TPE & Freelances', items: ['100 factures/mois', 'Réconciliation CSV', 'Alertes TVA', 'Export CSV+PDF'], link: `${BASE_URL}/checkout?plan=starter`, cta: 'Choisir Starter', featured: false },
-  { name: 'Pro', monthly: 29, desc: 'PME & Comptables', items: ['Factures illimitées', '5 analyses contrats', 'Frais cachés détectés', 'Export FEC natif'], link: `${BASE_URL}/checkout?plan=pro`, cta: 'Essai gratuit 14 jours', featured: true },
+  { name: 'Pro', monthly: 29, desc: 'PME & Comptables', items: ['Factures illimitées', '5 analyses contrats', 'Frais cachés détectés', 'Export FEC natif'], link: `${BASE_URL}/checkout?plan=pro`, cta: 'Choisir Pro', featured: true },
   { name: 'Business', monthly: 49, desc: 'Cabinets', items: ['Tout Pro inclus', 'Contrats illimités', 'Multi-clients', 'Support dédié'], link: `${BASE_URL}/checkout?plan=business`, cta: 'Choisir Business', featured: false },
 ]
 

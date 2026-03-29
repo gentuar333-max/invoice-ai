@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import NavbarClient from "@/components/NavbarClient";
 
 export const metadata: Metadata = {
   title: "InvoiceAgent",
@@ -40,25 +41,29 @@ export default function RootLayout({
             gap: 10px;
             text-decoration: none;
           }
-          .navbar-logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-          }
           .navbar-logo-text {
             font-size: 15px;
             font-weight: 700;
             color: #111827;
             letter-spacing: -0.02em;
           }
-          .page-content { min-height: 100vh; }
+          .page-content { min-height: calc(100vh - 58px); }
         `}</style>
-        {children}
+        <nav className="navbar">
+          <a href="/" className="navbar-logo">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5"/>
+              <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="'DM Sans',sans-serif">I</text>
+              <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontFamily="'Instrument Serif',serif" fontStyle="italic">A</text>
+              <circle cx="28" cy="5" r="3" fill="#818cf8"/>
+            </svg>
+            <span className="navbar-logo-text">InvoiceAgent</span>
+          </a>
+          <NavbarClient />
+        </nav>
+        <div className="page-content">
+          {children}
+        </div>
       </body>
     </html>
   );

@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "InvoiceAgent",
   description: "Agents IA pour automatiser votre comptabilité",
+  verification: {
+    google: "LeC_eM_ljGwGHtXKOyKwXlC7AXxcw2FiE9UYLgLKpT8",
+  },
 };
 
 export default function RootLayout({

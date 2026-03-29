@@ -12,8 +12,8 @@ export default function SharedNav() {
           <span style={{ fontSize: '22px', fontWeight: 700, color: '#1e293b', letterSpacing: '-0.3px' }}>InvoiceAgent</span>
         </a>
         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <a href="#fonctionnalites" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px' }}>Fonctionnalités</a>
-          <a href="#tarifs" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px' }}>Tarifs</a>
+          <a href={`${BASE_URL}/logiciel-facturation-ia`} style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px' }}>Fonctionnalités</a>
+          <a href={`${BASE_URL}/pricing`} style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px' }}>Tarifs</a>
           <a href={`${BASE_URL}/auth/login`} style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 500, fontSize: '14px' }}>Connexion</a>
           <a href={`${BASE_URL}/auth/login`} style={{ backgroundColor: '#2563eb', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '14px' }}>Essai gratuit</a>
         </div>

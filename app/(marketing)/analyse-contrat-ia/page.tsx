@@ -11,10 +11,51 @@ const PAGE_URL = `${BASE_URL}/analyse-contrat-ia`
 function PricingSection() {
   const [annual, setAnnual] = useState(false)
   const plans = [
-    { name: 'Gratuit', monthly: 0, desc: 'Pour découvrir', items: ['5 factures/mois', '1 analyse contrat', 'Dashboard complet', 'Export PDF'], link: `${BASE_URL}/auth/login`, cta: 'Commencer gratuitement', featured: false },
-    { name: 'Starter', monthly: 19, desc: 'Freelances & TPE', items: ['100 factures/mois', 'Import CSV bancaire', 'Rapprochement auto', 'Alertes TVA', 'Export CSV + PDF'], link: `${BASE_URL}/checkout?plan=starter`, cta: 'Choisir Starter', featured: false },
-    { name: 'Pro', monthly: 29, desc: 'PME & Comptables', items: ['Tout Starter inclus', '5 analyses contrats/mois', 'Clauses à risque détectées', 'Frais cachés identifiés', 'Export FEC natif'], link: `${BASE_URL}/checkout?plan=pro`, cta: 'Essai gratuit 14 jours', featured: true },
-    { name: 'Business', monthly: 49, desc: 'Cabinets & DAF', items: ['Tout Pro inclus', 'Contrats illimités', 'Analyse multi-pages', 'Audit trail RGPD', 'Support prioritaire'], link: `${BASE_URL}/checkout?plan=business`, cta: 'Choisir Business', featured: false },
+    {
+      name: 'Gratuit', monthly: 0, desc: 'Pour découvrir',
+      items: [
+        '5 extractions de factures PDF/mois',
+        '1 analyse de contrat offerte',
+        'Détection des montants HT, TVA, TTC',
+        'Dashboard et export PDF',
+      ],
+      link: `${BASE_URL}/auth/login`, cta: 'Commencer gratuitement', featured: false
+    },
+    {
+      name: 'Starter', monthly: 19, desc: 'Freelances & TPE',
+      items: [
+        '100 factures/mois extraites par IA',
+        'Réconciliation bancaire CSV automatique',
+        'Alertes TVA et factures impayées',
+        'Détection des pénalités de retard',
+        'Export CSV + PDF pour comptable',
+      ],
+      link: `${BASE_URL}/checkout?plan=starter`, cta: 'Choisir Starter', featured: false
+    },
+    {
+      name: 'Pro', monthly: 29, desc: 'PME & Comptables',
+      items: [
+        'Tout Starter inclus',
+        '5 analyses de contrats PDF/mois',
+        'Clauses à risque classées Haut / Moyen / Faible',
+        'Frais cachés et pénalités identifiés',
+        'Dates de reconduction tacite détectées',
+        'Export FEC natif — compatible Sage, EBP',
+      ],
+      link: `${BASE_URL}/checkout?plan=pro`, cta: 'Essai gratuit 14 jours', featured: true
+    },
+    {
+      name: 'Business', monthly: 49, desc: 'Cabinets & DAF',
+      items: [
+        'Tout Pro inclus',
+        'Analyses de contrats illimitées',
+        'Contrats jusqu\'à 100 pages analysés',
+        'Rapport exportable par client',
+        'Audit trail RGPD complet',
+        'Support prioritaire dédié',
+      ],
+      link: `${BASE_URL}/checkout?plan=business`, cta: 'Choisir Business', featured: false
+    },
   ]
   return (
     <section id="tarifs" style={{ padding: '80px 20px', backgroundColor: '#faf5ff' }}>

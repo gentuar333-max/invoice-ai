@@ -12,13 +12,13 @@ export const metadata: Metadata = {
     title: 'InvoiceAgent — Agent IA pour vos Factures et votre Comptabilité',
     description: "Extrayez, catégorisez et réconciliez vos factures automatiquement. IA Gemini, conforme RGPD, export FEC.",
     url: BASE_URL, siteName: 'InvoiceAgent', locale: 'fr_FR', type: 'website',
-    images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: 'InvoiceAgent — Automatisation comptable par IA' }],
+    images: [{ url: `${BASE_URL}/opengraph-image`, width: 1200, height: 630, alt: 'InvoiceAgent — Automatisation comptable par IA' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'InvoiceAgent — Agent IA Factures & Comptabilité',
     description: "Automatisez vos factures, réconciliation bancaire et contrats avec l'IA Gemini.",
-    images: [`${BASE_URL}/og-image.png`],
+    images: [`${BASE_URL}/opengraph-image`],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' } },
 }
@@ -73,8 +73,6 @@ export default function LandingPage() {
         .trust-label { font-size: 12px; font-family: 'DM Mono', monospace; color: #52525b; text-transform: uppercase; letter-spacing: 0.1em; }
         .trust-logos { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
         .trust-logo { font-size: 13px; font-family: 'DM Mono', monospace; color: #52525b; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; }
-
-        /* AGENTS */
         .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .agent-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 36px; text-decoration: none; color: inherit; transition: all 0.25s; display: flex; flex-direction: column; gap: 20px; }
         .agent-card:hover { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.06); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
@@ -94,7 +92,6 @@ export default function LandingPage() {
         .agent-price { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: #fafafa; }
         .agent-price span { font-size: 13px; color: #52525b; }
         .agent-cta { font-size: 13px; color: #6366f1; font-weight: 600; padding: 6px 14px; border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; }
-
         .try-section { background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.15); border-radius: 20px; padding: 48px; text-align: center; }
         .try-title { font-family: 'Instrument Serif', serif; font-size: 36px; color: #fafafa; margin-bottom: 12px; }
         .try-sub { font-size: 15px; color: #71717a; margin-bottom: 32px; }
@@ -104,18 +101,6 @@ export default function LandingPage() {
         .step-number { font-family: 'DM Mono', monospace; font-size: 11px; color: #52525b; }
         .step-title { font-size: 16px; font-weight: 600; color: #fafafa; }
         .step-desc { font-size: 14px; color: #52525b; line-height: 1.6; }
-
-        /* TESTIMONIALS */
-        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 56px; }
-        .testimonial-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; }
-        .testimonial-stars { color: #fbbf24; font-size: 14px; margin-bottom: 16px; }
-        .testimonial-text { font-size: 14px; color: #a1a1aa; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
-        .testimonial-author { display: flex; align-items: center; gap: 12px; }
-        .testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1); }
-        .testimonial-name { font-size: 14px; font-weight: 600; color: #fafafa; }
-        .testimonial-role { font-size: 12px; color: #52525b; font-family: 'DM Mono', monospace; margin-top: 2px; }
-
-        /* PRICING */
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 56px; }
         .pricing-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 36px; position: relative; }
         .pricing-card.featured { border-color: rgba(99,102,241,0.5); background: rgba(99,102,241,0.08); }
@@ -129,14 +114,10 @@ export default function LandingPage() {
         .pricing-cta { display: block; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; }
         .pricing-cta.primary { background: #6366f1; color: white; }
         .pricing-cta.secondary { background: transparent; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1); }
-
-        /* FAQ */
         .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 56px; }
         .faq-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; }
         .faq-q { font-size: 15px; font-weight: 600; color: #fafafa; margin-bottom: 10px; }
         .faq-a { font-size: 14px; color: #71717a; line-height: 1.7; }
-
-        /* FOOTER */
         .footer-main { border-top: 1px solid rgba(255,255,255,0.06); padding: 80px 48px 0; }
         .footer-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: 48px; padding-bottom: 64px; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .footer-brand p { font-size: 13px; color: #52525b; line-height: 1.7; max-width: 200px; margin: 16px 0 20px; }
@@ -176,7 +157,7 @@ export default function LandingPage() {
           <div className="nav-links">
             <a href="#agents" className="nav-link">Agents</a>
             <a href="#how" className="nav-link">Comment ça marche</a>
-            <a href="#tarifs" className="nav-link">Tarifs</a>
+            <a href={`${BASE_URL}/tarifs`} className="nav-link">Tarifs</a>
             <a href="#faq" className="nav-link">FAQ</a>
           </div>
           <a href={`${BASE_URL}/invoices`} className="nav-cta">Essayer gratuitement</a>
@@ -200,7 +181,7 @@ export default function LandingPage() {
             <a href={`${BASE_URL}/invoices`} className="btn-primary">Scanner une facture gratuitement</a>
             <a href="#agents" className="btn-secondary">Voir les agents</a>
           </div>
-          <p className="hero-note">14 jours gratuits, pas de carte bancaire requise</p>
+          <p className="hero-note">Gratuit jusqu'à 5 factures — sans carte bancaire</p>
           <div className="hero-stats">
             <div className="stat"><span className="stat-number">+500</span><div className="stat-label">factures analysées</div></div>
             <div className="stat"><span className="stat-number">+120</span><div className="stat-label">entreprises</div></div>
@@ -220,14 +201,11 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* AGENTS — karta origjinale e vogël, 2 karta */}
         <section id="agents" className="section" aria-labelledby="agents-heading">
           <div className="section-label">Nos agents</div>
           <h2 id="agents-heading" className="section-title">Chaque agent, un expert métier</h2>
           <p className="section-sub">Spécialisés, précis, disponibles 24h/24.</p>
           <div className="agents-grid">
-
-            {/* Karta 1 — Live */}
             <a href={`${BASE_URL}/invoices`} className="agent-card">
               <div className="agent-card-header">
                 <div className="agent-icon" style={{background:'rgba(99,102,241,0.2)',border:'1px solid rgba(99,102,241,0.3)'}}>🤖</div>
@@ -248,8 +226,6 @@ export default function LandingPage() {
                 <div className="agent-cta">Essayer gratuitement</div>
               </div>
             </a>
-
-            {/* Karta 2 — Bientôt */}
             <div className="agent-card soon">
               <div className="agent-card-header">
                 <div className="agent-icon" style={{background:'rgba(245,158,11,0.2)',border:'1px solid rgba(245,158,11,0.3)'}}>⏳</div>
@@ -257,7 +233,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <div className="agent-name">Agents en développement</div>
-                <div className="agent-desc">{"De nouveaux agents arrivent pour automatiser encore plus de tâches."}</div>
+                <div className="agent-desc">De nouveaux agents arrivent pour automatiser encore plus de tâches.</div>
               </div>
               <div className="agent-features">
                 <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Comptable — rapports mensuels</div>
@@ -270,7 +246,6 @@ export default function LandingPage() {
                 <div style={{fontSize:12,color:'#3f3f46',fontFamily:"'DM Mono',monospace"}}>En développement</div>
               </div>
             </div>
-
           </div>
         </section>
 
@@ -290,8 +265,8 @@ export default function LandingPage() {
             </div>
             <div className="step">
               <div className="step-number">02</div>
-              <div className="step-title">{"L'IA analyse en 5 secondes"}</div>
-              <div className="step-desc">{"Notre agent extrait fournisseur, date, montants et SIRET avec 98% de précision."}</div>
+              <div className="step-title">L'IA analyse en 5 secondes</div>
+              <div className="step-desc">Notre agent extrait fournisseur, date, montants et SIRET avec 98% de précision.</div>
             </div>
             <div className="step">
               <div className="step-number">03</div>
@@ -301,8 +276,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-
-
         <section id="tarifs" className="section divider" aria-labelledby="pricing-heading">
           <div className="section-label">Tarifs</div>
           <h2 id="pricing-heading" className="section-title">Transparent, sans surprise</h2>
@@ -311,7 +284,7 @@ export default function LandingPage() {
             {[
               { name: 'Gratuit', amount: '0', period: '€/mois', desc: 'Pour découvrir', items: ['5 factures/mois', '1 analyse IA', 'Dashboard complet', 'Export PDF'], link: `${BASE_URL}/auth/login`, cta: 'Commencer gratuitement', featured: false },
               { name: 'Starter', amount: '19', period: '€/mois', desc: 'Freelances & TPE', items: ['100 factures/mois', 'Import CSV bancaire', 'Rapprochement auto', 'Alertes TVA', 'Export CSV + PDF'], link: `${BASE_URL}/checkout?plan=starter`, cta: 'Choisir Starter', featured: false },
-              { name: 'Pro', amount: '29', period: '€/mois', desc: 'PME & Comptables', items: ['Tout Starter inclus', 'IA matching bancaire', 'Score de confiance', '5 analyses contrats/mois', 'Export FEC'], link: `${BASE_URL}/checkout?plan=pro`, cta: 'Essai gratuit 14 jours', featured: true },
+              { name: 'Pro', amount: '29', period: '€/mois', desc: 'PME & Comptables', items: ['Tout Starter inclus', 'IA matching bancaire', 'Score de confiance', '5 analyses contrats/mois', 'Export FEC'], link: `${BASE_URL}/checkout?plan=pro`, cta: 'Choisir Pro', featured: true },
               { name: 'Business', amount: '49', period: '€/mois', desc: 'Cabinets', items: ['Tout Pro inclus', 'Contrats illimités', 'Clauses risque détectées', 'Frais cachés identifiés', 'Audit trail RGPD'], link: `${BASE_URL}/checkout?plan=business`, cta: 'Choisir Business', featured: false },
             ].map((plan) => (
               <div key={plan.name} className={`pricing-card${plan.featured ? ' featured' : ''}`}>
@@ -331,6 +304,9 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+          <p style={{textAlign:'center',marginTop:24,fontSize:13,color:'#3f3f46',fontFamily:"'DM Mono',monospace"}}>
+            <a href={`${BASE_URL}/tarifs`} style={{color:'#6366f1',textDecoration:'none'}}>Voir la comparaison détaillée des plans →</a>
+          </p>
         </section>
 
         <section id="faq" className="section divider" aria-labelledby="faq-heading">
@@ -390,19 +366,19 @@ export default function LandingPage() {
                 { label: 'ERP Integration', href: '#', soon: true },
                 { label: 'Fraud Detection', href: '#', soon: true },
               ]},
-              { title: 'Industria', links: [
-                { label: 'FinTech', href: '#', soon: false },
-                { label: 'Manufacturing', href: '#', soon: false },
-                { label: 'Retail & eCommerce', href: '#', soon: false },
-                { label: 'Healthcare', href: '#', soon: false },
-                { label: 'Enterprise', href: '#', soon: false },
-              ]},
               { title: 'Ressources', links: [
-                { label: 'Blog & Insights', href: '#', soon: false },
-                { label: 'Case Studies', href: '#', soon: false },
-                { label: 'Webinars', href: '#', soon: false },
-                { label: 'API Documentation', href: '#', soon: false },
-                { label: 'ROI Calculator', href: '#', soon: false },
+                { label: 'Extraction facture PDF', href: `${BASE_URL}/extraction-facture-pdf`, soon: false },
+                { label: 'Réconciliation bancaire', href: `${BASE_URL}/reconciliation-bancaire-csv`, soon: false },
+                { label: 'Analyse contrats IA', href: `${BASE_URL}/analyse-contrat-ia`, soon: false },
+                { label: 'Export FEC comptable', href: `${BASE_URL}/export-fec-comptable`, soon: false },
+                { label: 'TVA automatique PME', href: `${BASE_URL}/tva-automatique-pme`, soon: false },
+              ]},
+              { title: 'Villes', links: [
+                { label: 'Facturation Paris', href: `${BASE_URL}/logiciel-facturation-paris`, soon: false },
+                { label: 'Facturation Lyon', href: `${BASE_URL}/logiciel-facturation-lyon`, soon: false },
+                { label: 'Facturation Marseille', href: `${BASE_URL}/logiciel-facturation-marseille`, soon: false },
+                { label: 'Facturation Bordeaux', href: `${BASE_URL}/logiciel-facturation-bordeaux`, soon: false },
+                { label: 'Facturation Toulouse', href: `${BASE_URL}/logiciel-facturation-toulouse`, soon: false },
               ]},
               { title: 'Contact & Légal', links: [
                 { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },

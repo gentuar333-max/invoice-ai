@@ -1,10 +1,10 @@
- 
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = "AgentHub <onboarding@resend.dev>";
+const FROM = "InvoiceAgent <noreply@premiumartisan.fr>";
+const BASE = "https://invoiceagent.fr";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,19 +14,50 @@ export async function POST(request: NextRequest) {
     let html = "";
 
     if (type === "welcome") {
-      subject = "Bienvenue sur AgentHub 🤖";
+      subject = "Bienvenue sur InvoiceAgent — votre compte est prêt";
       html = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0f1923; color: #ffffff; padding: 40px; border-radius: 8px;">
-          <h1 style="color: #e8b84b; font-size: 24px; margin-bottom: 16px;">Bienvenue sur AgentHub</h1>
-          <p style="color: #a8c4d8; font-size: 15px; line-height: 1.6;">
-            Votre compte a été créé avec succès. Vous pouvez maintenant importer vos factures et automatiser votre comptabilité.
+        <div style="font-family:'DM Sans',sans-serif; max-width:600px; margin:0 auto; background:#09090b; color:#fafafa; padding:48px 40px; border-radius:12px; border:1px solid rgba(99,102,241,0.2);">
+          
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:40px;">
+            <div style="width:36px; height:36px; background:#09090b; border:1.5px solid #6366f1; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#6366f1; font-family:monospace;">IA</div>
+            <span style="font-size:16px; font-weight:700; color:#fafafa; letter-spacing:-0.3px;">InvoiceAgent</span>
+          </div>
+
+          <h1 style="font-size:26px; font-weight:700; color:#fafafa; margin:0 0 12px;">Bienvenue sur InvoiceAgent 👋</h1>
+          <p style="color:#71717a; font-size:15px; line-height:1.7; margin:0 0 32px;">
+            Votre compte est créé et prêt à utiliser. Commencez dès maintenant à automatiser votre comptabilité avec l'IA Gemini.
           </p>
-          <a href="https://invoice-ai-y2lf.vercel.app/dashboard" style="display: inline-block; background: #e8b84b; color: #0f1923; padding: 12px 28px; border-radius: 4px; text-decoration: none; font-weight: 700; margin-top: 24px; font-size: 13px; letter-spacing: 1px;">
-            ACCEDER AU DASHBOARD
+
+          <div style="background:#18181b; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:24px; margin-bottom:32px;">
+            <p style="color:#a1a1aa; font-size:13px; margin:0 0 16px; text-transform:uppercase; letter-spacing:0.08em;">3 premières étapes</p>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:24px; height:24px; background:rgba(99,102,241,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#818cf8; flex-shrink:0;">1</div>
+                <p style="color:#e4e4e7; font-size:14px; margin:0; line-height:1.5;"><strong>Importez une facture PDF</strong> — l'IA extrait fournisseur, TVA et montants en moins de 5 secondes.</p>
+              </div>
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:24px; height:24px; background:rgba(99,102,241,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#818cf8; flex-shrink:0;">2</div>
+                <p style="color:#e4e4e7; font-size:14px; margin:0; line-height:1.5;"><strong>Importez votre relevé CSV</strong> — réconciliation bancaire automatique avec vos factures.</p>
+              </div>
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:24px; height:24px; background:rgba(99,102,241,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#818cf8; flex-shrink:0;">3</div>
+                <p style="color:#e4e4e7; font-size:14px; margin:0; line-height:1.5;"><strong>Exportez votre FEC</strong> — fichier comptable conforme DGFiP prêt pour votre comptable.</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="${BASE}/invoices" style="display:inline-block; background:#6366f1; color:#ffffff; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:700; font-size:15px; margin-bottom:32px;">
+            Importer ma première facture →
           </a>
-          <p style="color: #4a6a85; font-size: 12px; margin-top: 32px;">
-            <a href="https://invoice-ai-y2lf.vercel.app/unsubscribe?email=${to}" style="color: #4a6a85;">Se désabonner</a>
-          </p>
+
+          <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:24px;">
+            <p style="color:#3f3f46; font-size:12px; margin:0 0 8px;">Plan gratuit actif — 5 factures/mois, sans carte bancaire.</p>
+            <p style="color:#3f3f46; font-size:12px; margin:0;">
+              <a href="${BASE}/tarifs" style="color:#6366f1; text-decoration:none;">Voir les plans payants</a> · 
+              <a href="${BASE}/unsubscribe?email=${to}" style="color:#3f3f46; text-decoration:none;">Se désabonner</a>
+            </p>
+          </div>
+
         </div>
       `;
     }
@@ -34,20 +65,23 @@ export async function POST(request: NextRequest) {
     else if (type === "payment_confirmed") {
       subject = `Paiement confirmé — Plan ${data?.plan?.toUpperCase()} ✅`;
       html = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0f1923; color: #ffffff; padding: 40px; border-radius: 8px;">
-          <h1 style="color: #4ade80; font-size: 24px; margin-bottom: 16px;">Paiement confirmé</h1>
-          <p style="color: #a8c4d8; font-size: 15px; line-height: 1.6;">
-            Votre abonnement <strong style="color: #e8b84b;">${data?.plan?.toUpperCase()}</strong> est maintenant actif.
-          </p>
-          <div style="background: #1e2d40; border: 1px solid #2e4058; border-radius: 4px; padding: 20px; margin: 24px 0;">
-            <p style="color: #a8c4d8; margin: 0; font-size: 14px;">Plan: <strong style="color: #ffffff;">${data?.plan?.toUpperCase()}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Montant: <strong style="color: #e8b84b;">${data?.amount}</strong></p>
+        <div style="font-family:'DM Sans',sans-serif; max-width:600px; margin:0 auto; background:#09090b; color:#fafafa; padding:48px 40px; border-radius:12px; border:1px solid rgba(99,102,241,0.2);">
+          <div style="margin-bottom:32px;">
+            <span style="font-size:16px; font-weight:700; color:#fafafa;">InvoiceAgent</span>
           </div>
-          <a href="https://invoice-ai-y2lf.vercel.app/dashboard" style="display: inline-block; background: #e8b84b; color: #0f1923; padding: 12px 28px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: 1px;">
-            ACCEDER AU DASHBOARD
+          <h1 style="font-size:26px; font-weight:700; color:#4ade80; margin:0 0 12px;">Paiement confirmé ✅</h1>
+          <p style="color:#71717a; font-size:15px; line-height:1.7; margin:0 0 24px;">
+            Votre abonnement <strong style="color:#fafafa;">${data?.plan?.toUpperCase()}</strong> est maintenant actif.
+          </p>
+          <div style="background:#18181b; border:1px solid rgba(74,222,128,0.2); border-radius:10px; padding:24px; margin-bottom:32px;">
+            <p style="color:#a1a1aa; margin:0; font-size:14px;">Plan: <strong style="color:#fafafa;">${data?.plan?.toUpperCase()}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Montant: <strong style="color:#4ade80;">${data?.amount}</strong></p>
+          </div>
+          <a href="${BASE}/dashboard" style="display:inline-block; background:#6366f1; color:#ffffff; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:700; font-size:15px;">
+            Accéder au dashboard →
           </a>
-          <p style="color: #4a6a85; font-size: 12px; margin-top: 32px;">
-            <a href="https://invoice-ai-y2lf.vercel.app/unsubscribe?email=${to}" style="color: #4a6a85;">Se désabonner</a>
+          <p style="color:#3f3f46; font-size:12px; margin-top:32px;">
+            <a href="${BASE}/unsubscribe?email=${to}" style="color:#3f3f46; text-decoration:none;">Se désabonner</a>
           </p>
         </div>
       `;
@@ -56,21 +90,24 @@ export async function POST(request: NextRequest) {
     else if (type === "invoice_unpaid") {
       subject = `Facture non payée — ${data?.vendor_name} ${data?.amount}`;
       html = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0f1923; color: #ffffff; padding: 40px; border-radius: 8px;">
-          <h1 style="color: #ef4444; font-size: 24px; margin-bottom: 16px;">Facture non payée</h1>
-          <p style="color: #a8c4d8; font-size: 15px; line-height: 1.6;">
+        <div style="font-family:'DM Sans',sans-serif; max-width:600px; margin:0 auto; background:#09090b; color:#fafafa; padding:48px 40px; border-radius:12px; border:1px solid rgba(99,102,241,0.2);">
+          <div style="margin-bottom:32px;">
+            <span style="font-size:16px; font-weight:700; color:#fafafa;">InvoiceAgent</span>
+          </div>
+          <h1 style="font-size:26px; font-weight:700; color:#ef4444; margin:0 0 12px;">Facture non payée ⚠️</h1>
+          <p style="color:#71717a; font-size:15px; line-height:1.7; margin:0 0 24px;">
             La facture suivante n'a pas encore été réglée:
           </p>
-          <div style="background: #1e2d40; border: 1px solid #ef444440; border-radius: 4px; padding: 20px; margin: 24px 0;">
-            <p style="color: #a8c4d8; margin: 0; font-size: 14px;">Fournisseur: <strong style="color: #ffffff;">${data?.vendor_name}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Montant: <strong style="color: #ef4444;">${data?.amount}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Date: <strong style="color: #ffffff;">${data?.date}</strong></p>
+          <div style="background:#18181b; border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:24px; margin-bottom:32px;">
+            <p style="color:#a1a1aa; margin:0; font-size:14px;">Fournisseur: <strong style="color:#fafafa;">${data?.vendor_name}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Montant: <strong style="color:#ef4444;">${data?.amount}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Date: <strong style="color:#fafafa;">${data?.date}</strong></p>
           </div>
-          <a href="https://invoice-ai-y2lf.vercel.app/dashboard" style="display: inline-block; background: #ef4444; color: #ffffff; padding: 12px 28px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: 1px;">
-            VOIR LA FACTURE
+          <a href="${BASE}/dashboard" style="display:inline-block; background:#ef4444; color:#ffffff; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:700; font-size:15px;">
+            Voir la facture →
           </a>
-          <p style="color: #4a6a85; font-size: 12px; margin-top: 32px;">
-            <a href="https://invoice-ai-y2lf.vercel.app/unsubscribe?email=${to}" style="color: #4a6a85;">Se désabonner</a>
+          <p style="color:#3f3f46; font-size:12px; margin-top:32px;">
+            <a href="${BASE}/unsubscribe?email=${to}" style="color:#3f3f46; text-decoration:none;">Se désabonner</a>
           </p>
         </div>
       `;
@@ -79,42 +116,48 @@ export async function POST(request: NextRequest) {
     else if (type === "tva_reminder") {
       subject = `TVA à déclarer avant le ${data?.deadline} — ${data?.amount}`;
       html = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0f1923; color: #ffffff; padding: 40px; border-radius: 8px;">
-          <h1 style="color: #f59e0b; font-size: 24px; margin-bottom: 16px;">Rappel TVA</h1>
-          <p style="color: #a8c4d8; font-size: 15px; line-height: 1.6;">
-            N'oubliez pas de déclarer votre TVA avant le <strong style="color: #f59e0b;">${data?.deadline}</strong>.
-          </p>
-          <div style="background: #1e2d40; border: 1px solid #f59e0b40; border-radius: 4px; padding: 20px; margin: 24px 0;">
-            <p style="color: #a8c4d8; margin: 0; font-size: 14px;">TVA à déclarer: <strong style="color: #f59e0b;">${data?.amount}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Échéance: <strong style="color: #ffffff;">${data?.deadline}</strong></p>
+        <div style="font-family:'DM Sans',sans-serif; max-width:600px; margin:0 auto; background:#09090b; color:#fafafa; padding:48px 40px; border-radius:12px; border:1px solid rgba(99,102,241,0.2);">
+          <div style="margin-bottom:32px;">
+            <span style="font-size:16px; font-weight:700; color:#fafafa;">InvoiceAgent</span>
           </div>
-          <a href="https://invoice-ai-y2lf.vercel.app/dashboard" style="display: inline-block; background: #f59e0b; color: #0f1923; padding: 12px 28px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: 1px;">
-            VOIR LE DASHBOARD
+          <h1 style="font-size:26px; font-weight:700; color:#f59e0b; margin:0 0 12px;">Rappel TVA 📅</h1>
+          <p style="color:#71717a; font-size:15px; line-height:1.7; margin:0 0 24px;">
+            N'oubliez pas de déclarer votre TVA avant le <strong style="color:#f59e0b;">${data?.deadline}</strong>.
+          </p>
+          <div style="background:#18181b; border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:24px; margin-bottom:32px;">
+            <p style="color:#a1a1aa; margin:0; font-size:14px;">TVA à déclarer: <strong style="color:#f59e0b;">${data?.amount}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Échéance: <strong style="color:#fafafa;">${data?.deadline}</strong></p>
+          </div>
+          <a href="${BASE}/dashboard" style="display:inline-block; background:#f59e0b; color:#09090b; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:700; font-size:15px;">
+            Voir le dashboard →
           </a>
-          <p style="color: #4a6a85; font-size: 12px; margin-top: 32px;">
-            <a href="https://invoice-ai-y2lf.vercel.app/unsubscribe?email=${to}" style="color: #4a6a85;">Se désabonner</a>
+          <p style="color:#3f3f46; font-size:12px; margin-top:32px;">
+            <a href="${BASE}/unsubscribe?email=${to}" style="color:#3f3f46; text-decoration:none;">Se désabonner</a>
           </p>
         </div>
       `;
     }
 
     else if (type === "monthly_report") {
-      subject = `Rapport mensuel — ${data?.month}`;
+      subject = `Rapport mensuel InvoiceAgent — ${data?.month}`;
       html = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0f1923; color: #ffffff; padding: 40px; border-radius: 8px;">
-          <h1 style="color: #60a5fa; font-size: 24px; margin-bottom: 16px;">Rapport mensuel — ${data?.month}</h1>
-          <div style="background: #1e2d40; border: 1px solid #2e4058; border-radius: 4px; padding: 20px; margin: 24px 0;">
-            <p style="color: #a8c4d8; margin: 0; font-size: 14px;">Total factures: <strong style="color: #ffffff;">${data?.total_invoices}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Montant TTC: <strong style="color: #4ade80;">${data?.total_amount}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">TVA: <strong style="color: #f59e0b;">${data?.tva}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Factures payées: <strong style="color: #4ade80;">${data?.paid}</strong></p>
-            <p style="color: #a8c4d8; margin: 8px 0 0; font-size: 14px;">Factures en attente: <strong style="color: #ef4444;">${data?.unpaid}</strong></p>
+        <div style="font-family:'DM Sans',sans-serif; max-width:600px; margin:0 auto; background:#09090b; color:#fafafa; padding:48px 40px; border-radius:12px; border:1px solid rgba(99,102,241,0.2);">
+          <div style="margin-bottom:32px;">
+            <span style="font-size:16px; font-weight:700; color:#fafafa;">InvoiceAgent</span>
           </div>
-          <a href="https://invoice-ai-y2lf.vercel.app/dashboard" style="display: inline-block; background: #60a5fa; color: #0f1923; padding: 12px 28px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: 1px;">
-            VOIR LE RAPPORT COMPLET
+          <h1 style="font-size:26px; font-weight:700; color:#60a5fa; margin:0 0 12px;">Rapport mensuel — ${data?.month}</h1>
+          <div style="background:#18181b; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:24px; margin-bottom:32px;">
+            <p style="color:#a1a1aa; margin:0; font-size:14px;">Total factures: <strong style="color:#fafafa;">${data?.total_invoices}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Montant TTC: <strong style="color:#4ade80;">${data?.total_amount}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">TVA: <strong style="color:#f59e0b;">${data?.tva}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Factures payées: <strong style="color:#4ade80;">${data?.paid}</strong></p>
+            <p style="color:#a1a1aa; margin:8px 0 0; font-size:14px;">Factures en attente: <strong style="color:#ef4444;">${data?.unpaid}</strong></p>
+          </div>
+          <a href="${BASE}/dashboard" style="display:inline-block; background:#6366f1; color:#ffffff; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:700; font-size:15px;">
+            Voir le rapport complet →
           </a>
-          <p style="color: #4a6a85; font-size: 12px; margin-top: 32px;">
-            <a href="https://invoice-ai-y2lf.vercel.app/unsubscribe?email=${to}" style="color: #4a6a85;">Se désabonner</a>
+          <p style="color:#3f3f46; font-size:12px; margin-top:32px;">
+            <a href="${BASE}/unsubscribe?email=${to}" style="color:#3f3f46; text-decoration:none;">Se désabonner</a>
           </p>
         </div>
       `;

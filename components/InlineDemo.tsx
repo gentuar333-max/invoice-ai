@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 
-const BASE_URL = 'https://invoiceagent.fr'
+const LOGIN_URL = 'https://invoiceagent.fr/auth/login'
 
 type Mode = 'facture' | 'contrat'
 type State = 'idle' | 'loading' | 'result' | 'error' | 'limit'
@@ -29,7 +29,7 @@ export default function InlineDemo() {
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const endpoint = mode === 'facture' ? `${BASE_URL}/api/invoices/extract` : `${BASE_URL}/api/contracts`
+      const endpoint = mode === 'facture' ? `/api/invoices/extract` : `/api/contracts`
       const res = await fetch(endpoint, { method: 'POST', body: formData })
       const json = await res.json()
       if (!json.success) throw new Error(json.error || 'Erreur')
@@ -118,7 +118,7 @@ export default function InlineDemo() {
           </div>
           <div style={{ fontSize: 16, color: '#1e293b', fontWeight: 700, marginBottom: 8 }}>Limite de la demo atteinte</div>
           <div style={{ fontSize: 14, color: '#64748b', marginBottom: 24 }}>Creez un compte gratuit pour analyser jusqu'a 5 factures par mois.</div>
-          <a href={`${BASE_URL}/auth/login`} style={{ display: 'inline-block', background: '#2563eb', color: 'white', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+          <a href={LOGIN_URL} style={{ display: 'inline-block', background: '#2563eb', color: 'white', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
             Creer un compte gratuit
           </a>
         </div>
@@ -152,7 +152,7 @@ export default function InlineDemo() {
             <div style={{ marginTop: 12, fontSize: 12, color: '#d97706', fontWeight: 500 }}>Champs manquants : {result.missing_fields.join(', ')}</div>
           )}
           <div style={{ marginTop: 24, textAlign: 'center' }}>
-            <a href={`${BASE_URL}/auth/login`} style={{ display: 'inline-block', background: '#2563eb', color: 'white', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            <a href={LOGIN_URL} style={{ display: 'inline-block', background: '#2563eb', color: 'white', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
               Sauvegarder et continuer
             </a>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
@@ -192,7 +192,7 @@ export default function InlineDemo() {
             </div>
           )}
           <div style={{ marginTop: 24, textAlign: 'center' }}>
-            <a href={`${BASE_URL}/auth/login`} style={{ display: 'inline-block', background: '#2563eb', color: 'white', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            <a href={LOGIN_URL} style={{ display: 'inline-block', background: '#2563eb', color: 'white', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
               Voir l'analyse complete
             </a>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>

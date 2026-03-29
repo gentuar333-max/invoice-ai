@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/analyse-contrat-ia', 0.9],
     ['/logiciel-comptabilite-pme', 0.9],
     ['/logiciel-facturation-ia', 0.9],
+    ['/tarifs', 0.9],
     ['/facturation-freelance', 0.8],
     ['/facturation-artisan', 0.8],
     ['/facturation-cabinet-comptable', 0.8],

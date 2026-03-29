@@ -105,12 +105,12 @@ export default function AnalyseContratIAPage() {
           </div>
         </section>
 
-        {/* DEMO — orange vif pour se démarquer */}
-        <section id="demo" style={{ padding: '80px 20px', background: 'linear-gradient(135deg, #431407 0%, #ea580c 100%)' }}>
+        {/* DEMO — dark indigo pour se démarquer */}
+        <section id="demo" style={{ padding: '80px 20px', background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
               <div style={{ display: 'inline-block', backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px', textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.3)' }}>
-                ✦ Démo gratuite — sans inscription
+                Demo gratuite — sans inscription
               </div>
               <h2 style={{ fontSize: '36px', fontWeight: 'bold', color: 'white', marginBottom: '12px' }}>
                 Analysez votre contrat maintenant
@@ -132,14 +132,13 @@ export default function AnalyseContratIAPage() {
             <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '64px', fontSize: '16px' }}>Trois étapes. Dix secondes. Zéro risque ignoré.</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
               {[
-                { n: '01', color: '#7c3aed', title: 'Importez votre contrat PDF', desc: "Téléchargez votre contrat fournisseur, bail commercial, CGV ou tout autre accord PDF. InvoiceAgent accepte les contrats jusqu'à 50 pages.", icon: '📋' },
-                { n: '02', color: '#dc2626', title: "L'IA identifie les risques", desc: "L'IA Gemini analyse chaque clause et identifie : clauses pénalisantes, frais cachés, conditions de résiliation abusives, reconductions tacites et dates critiques.", icon: '🔍' },
-                { n: '03', color: '#059669', title: 'Recevez votre rapport', desc: "Un rapport clair avec toutes les clauses à risque classées par niveau (Haut, Moyen, Faible), un résumé exécutif et les dates d'échéance à surveiller.", icon: '📊' },
+                { n: '01', color: '#7c3aed', title: 'Importez votre contrat PDF', desc: "Téléchargez votre contrat fournisseur, bail commercial, CGV ou tout autre accord PDF. InvoiceAgent accepte les contrats jusqu'à 50 pages." },
+                { n: '02', color: '#dc2626', title: "L'IA identifie les risques", desc: "L'IA Gemini analyse chaque clause et identifie : clauses pénalisantes, frais cachés, conditions de résiliation abusives, reconductions tacites et dates critiques." },
+                { n: '03', color: '#059669', title: 'Recevez votre rapport', desc: "Un rapport clair avec toutes les clauses à risque classées par niveau (Haut, Moyen, Faible), un résumé exécutif et les dates d'échéance à surveiller." },
               ].map((step) => (
                 <article key={step.n} style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '32px', border: '1px solid #e2e8f0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                     <div style={{ width: '40px', height: '40px', backgroundColor: step.color, color: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: '13px', fontWeight: 700, flexShrink: 0 }}>{step.n}</div>
-                    <span style={{ fontSize: '24px' }}>{step.icon}</span>
                   </div>
                   <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', marginBottom: '12px' }}>{step.title}</h3>
                   <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.7 }}>{step.desc}</p>
@@ -158,10 +157,10 @@ export default function AnalyseContratIAPage() {
             </header>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
               {[
-                { category: 'Risque élevé 🔴', color: '#dc2626', bg: '#fff1f2', border: '#fecaca', fields: ['Clause pénalité de retard excessive', 'Reconduction tacite sans préavis', 'Résiliation abusive unilatérale', 'Exclusivité non négociée'] },
-                { category: 'Risque moyen 🟡', color: '#d97706', bg: '#fffbeb', border: '#fde68a', fields: ['Frais cachés en annexe', 'Indexation prix non plafonnée', 'Limitation de responsabilité', 'Clause de révision tarifaire'] },
-                { category: 'Risque faible 🟢', color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', fields: ['Conditions de paiement standards', 'Durée initiale du contrat', 'Clause de confidentialité', 'Droit applicable et juridiction'] },
-                { category: 'Dates critiques 📅', color: '#7c3aed', bg: '#faf5ff', border: '#ddd6fe', fields: ["Date de début et fin du contrat", "Préavis de résiliation", "Reconduction automatique", "Échéances de paiement"] },
+                { category: 'Risque élevé', color: '#dc2626', bg: '#fff1f2', border: '#fecaca', fields: ['Clause pénalité de retard excessive', 'Reconduction tacite sans préavis', 'Résiliation abusive unilatérale', 'Exclusivité non négociée'] },
+                { category: 'Risque moyen', color: '#d97706', bg: '#fffbeb', border: '#fde68a', fields: ['Frais cachés en annexe', 'Indexation prix non plafonnée', 'Limitation de responsabilité', 'Clause de révision tarifaire'] },
+                { category: 'Risque faible', color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', fields: ['Conditions de paiement standards', 'Durée initiale du contrat', 'Clause de confidentialité', 'Droit applicable et juridiction'] },
+                { category: 'Dates critiques', color: '#7c3aed', bg: '#faf5ff', border: '#ddd6fe', fields: ["Date de début et fin du contrat", "Préavis de résiliation", "Reconduction automatique", "Échéances de paiement"] },
               ].map((cat) => (
                 <article key={cat.category} style={{ backgroundColor: cat.bg, borderRadius: '14px', padding: '28px', border: `1px solid ${cat.border}` }}>
                   <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: cat.color, marginBottom: '16px' }}>{cat.category}</h3>
@@ -187,13 +186,12 @@ export default function AnalyseContratIAPage() {
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
               {[
-                { icon: '🏢', title: 'Dirigeants PME', desc: "Vérifiez vos contrats fournisseurs avant signature sans attendre votre avocat." },
-                { icon: '💼', title: 'DAF & Juristes', desc: "Pré-analysez les contrats et gagnez du temps sur la revue juridique." },
-                { icon: '🔨', title: 'Artisans & TPE', desc: "Comprenez vos contrats de sous-traitance et évitez les mauvaises surprises." },
-                { icon: '📒', title: 'Experts-comptables', desc: "Analysez les contrats de vos clients et identifiez les risques financiers." },
+                { title: 'Dirigeants PME', desc: "Vérifiez vos contrats fournisseurs avant signature sans attendre votre avocat." },
+                { title: 'DAF & Juristes', desc: "Pré-analysez les contrats et gagnez du temps sur la revue juridique." },
+                { title: 'Artisans & TPE', desc: "Comprenez vos contrats de sous-traitance et évitez les mauvaises surprises." },
+                { title: 'Experts-comptables', desc: "Analysez les contrats de vos clients et identifiez les risques financiers." },
               ].map((p) => (
                 <div key={p.title} style={{ backgroundColor: '#faf5ff', padding: '28px', borderRadius: '12px', border: '1px solid #ede9fe' }}>
-                  <div style={{ fontSize: '36px', marginBottom: '12px' }}>{p.icon}</div>
                   <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', marginBottom: '8px' }}>{p.title}</h3>
                   <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6 }}>{p.desc}</p>
                 </div>

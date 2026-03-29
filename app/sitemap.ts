@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const BASE = 'https://invoiceagent.fr'
-  const pages = [
+  const pages: [string, number][] = [
     ['', 1.0],
     ['/extraction-facture-pdf', 0.9],
     ['/reconciliation-bancaire-csv', 0.9],
@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return pages.map(([url, priority]) => ({
     url: `${BASE}${url}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: priority as number,
+    changeFrequency: 'weekly' as const,
+    priority,
   }))
 }

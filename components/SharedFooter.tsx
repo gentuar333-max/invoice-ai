@@ -28,9 +28,9 @@ const footerCols = [
   { title: 'Contact & Légal', links: [
     { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
     { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
-    { label: 'Mentions légales', href: '#', soon: false },
-    { label: 'Confidentialité', href: '#', soon: false },
-    { label: 'CGU', href: '#', soon: false },
+    { label: 'Mentions légales', href: `${BASE_URL}/mentions-legales`, soon: false },
+    { label: 'Confidentialité', href: `${BASE_URL}/confidentialite`, soon: false },
+    { label: 'CGU', href: `${BASE_URL}/cgu`, soon: false },
   ]},
 ]
 
@@ -85,8 +85,12 @@ export default function SharedFooter() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', padding: '24px 0', fontSize: '12px', color: '#475569' }}>
           <p style={{ margin: 0 }}>© 2026 InvoiceAgent. Tous droits réservés. Fait avec soin en France.</p>
           <div style={{ display: 'flex', gap: '24px' }}>
-            {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((link) => (
-              <a key={link} href="#" style={{ color: '#475569', textDecoration: 'none' }}>{link}</a>
+            {[
+              { label: 'Mentions légales', href: `${BASE_URL}/mentions-legales` },
+              { label: 'Confidentialité', href: `${BASE_URL}/confidentialite` },
+              { label: 'CGU', href: `${BASE_URL}/cgu` },
+            ].map((link) => (
+              <a key={link.label} href={link.href} style={{ color: '#475569', textDecoration: 'none' }}>{link.label}</a>
             ))}
           </div>
         </div>

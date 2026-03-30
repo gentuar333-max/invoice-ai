@@ -383,9 +383,9 @@ export default function LandingPage() {
               { title: 'Contact & Légal', links: [
                 { label: 'Connexion', href: `${BASE_URL}/auth/login`, soon: false },
                 { label: "S'inscrire gratuitement", href: `${BASE_URL}/auth/login`, soon: false },
-                { label: 'Mentions légales', href: '#', soon: false },
-                { label: 'Confidentialité', href: '#', soon: false },
-                { label: 'CGU', href: '#', soon: false },
+                { label: 'Mentions légales', href: `${BASE_URL}/mentions-legales`, soon: false },
+                { label: 'Confidentialité', href: `${BASE_URL}/confidentialite`, soon: false },
+                { label: 'CGU', href: `${BASE_URL}/cgu`, soon: false },
               ]},
             ].map((col) => (
               <div key={col.title} className="footer-col">
@@ -411,8 +411,12 @@ export default function LandingPage() {
           <div className="footer-bottom">
             <span>© 2026 InvoiceAgent. Tous droits réservés. Fait avec soin en France.</span>
             <div className="footer-bottom-links">
-              {['Privacy Policy', 'Terms of Service', 'Sécurité', 'Status'].map((l) => (
-                <a key={l} href="#" className="footer-bottom-link">{l}</a>
+              {[
+                { label: 'Mentions légales', href: `${BASE_URL}/mentions-legales` },
+                { label: 'Confidentialité', href: `${BASE_URL}/confidentialite` },
+                { label: 'CGU', href: `${BASE_URL}/cgu` },
+              ].map((l) => (
+                <a key={l.label} href={l.href} className="footer-bottom-link">{l.label}</a>
               ))}
             </div>
           </div>

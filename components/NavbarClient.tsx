@@ -1,6 +1,7 @@
 "use client";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const links = [
   { href: "/invoices", label: "Importer" },
@@ -8,6 +9,30 @@ const links = [
   { href: "/reconciliation", label: "Banque" },
   { href: "/pricing", label: "Tarifs" },
 ];
+
+const marketingPaths = [
+  '/blog',
+  '/tarifs',
+  '/mentions-legales',
+  '/cgu',
+  '/confidentialite',
+  '/extraction-facture-pdf',
+  '/reconciliation-bancaire-csv',
+  '/analyse-contrat-ia',
+  '/logiciel-comptabilite-pme',
+  '/facturation-freelance',
+  '/facturation-artisan',
+  '/facturation-cabinet-comptable',
+  '/export-fec-comptable',
+  '/tva-automatique-pme',
+  '/logiciel-facturation-ia',
+  '/logiciel-facturation-paris',
+  '/logiciel-facturation-lyon',
+  '/logiciel-facturation-marseille',
+  '/logiciel-facturation-bordeaux',
+  '/logiciel-facturation-toulouse',
+  '/landing',
+]
 
 export default function NavbarClient() {
   const pathname = usePathname();
@@ -44,7 +69,8 @@ export default function NavbarClient() {
     } catch {}
   }
 
-  if (pathname === "/") return null;
+  // Fshih navbar te homepage dhe te gjitha faqet marketing
+  if (pathname === "/" || marketingPaths.some(p => pathname?.startsWith(p))) return null;
 
   if (isMobile) {
     return (

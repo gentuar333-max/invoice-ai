@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         })
         .eq("email", email);
 
-      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "https://invoice-ai-y2lf.vercel.app"}/api/email`, {
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "https://invoiceagent.fr"}/api/email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { logAudit } from "@/lib/audit";
 import { FeedbackWidget } from "@/app/feedback/page";
+import InsightsTab from "@/components/InsightsTab";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -50,7 +51,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("all");
   const [showFeedback, setShowFeedback] = useState(false);
-  const [activeTab, setActiveTab] = useState<"factures" | "contrats">("factures");
+  const [activeTab, setActiveTab] = useState<"factures" | "contrats" | "insights">("factures");
   const [contracts, setContracts] = useState<any[]>([]);
   const [contractLoading, setContractLoading] = useState(false);
   const [contractResult, setContractResult] = useState<any>(null);
@@ -244,7 +245,9 @@ export default function DashboardPage() {
         <p style={{ color: MUTED, fontSize: 12, letterSpacing: 2, textTransform: "uppercase" }}>CHARGEMENT...</p>
       </div>
     );
-  }return (
+  }
+
+  return (
     <div style={{ minHeight: "100vh", background: BG, padding: isMobile ? "16px 12px" : "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
 
@@ -277,16 +280,20 @@ export default function DashboardPage() {
           {[
             { key: "factures", label: "FACTURES", count: filtered.length },
             { key: "contrats", label: "CONTRATS", count: contracts.length },
+            { key: "insights", label: isMobile ? "⚡" : "INSIGHTS ⚡", count: null },
           ].map((tab) => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: isMobile ? "8px 16px" : "10px 24px", border: "none", fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? GOLD : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: isMobile ? "8px 14px" : "10px 24px", border: "none", fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? (tab.key === "insights" ? "#4ade80" : GOLD) : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
               {tab.label}
-              <span style={{ background: activeTab === tab.key ? "#0f192320" : BORDER, color: activeTab === tab.key ? "#0f1923" : MUTED, fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10 }}>
-                {tab.count}
-              </span>
+              {tab.count !== null && (
+                <span style={{ background: activeTab === tab.key ? "#0f192320" : BORDER, color: activeTab === tab.key ? "#0f1923" : MUTED, fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10 }}>
+                  {tab.count}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
+        {/* TAB: FACTURES */}
         {activeTab === "factures" && (
           <>
             {filtered.length > 0 && (
@@ -513,6 +520,7 @@ export default function DashboardPage() {
           </>
         )}
 
+        {/* TAB: CONTRATS */}
         {activeTab === "contrats" && (
           <div>
             <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "20px 16px" : "32px 24px", marginBottom: 20, textAlign: "center" }}>
@@ -626,6 +634,11 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* TAB: INSIGHTS */}
+        {activeTab === "insights" && (
+          <InsightsTab isMobile={isMobile} />
         )}
 
       </div>

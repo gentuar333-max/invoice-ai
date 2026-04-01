@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@/lib/supabase-server";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { user_id } = await request.json();
 
-    if (!user) {
-      return NextResponse.json({ success: false, error: "Non autorisé" }, { status: 401 });
+    if (!user_id) {
+      return NextResponse.json({ success: false, error: "user_id manquant" }, { status: 400 });
     }
 
-    const admin = createAdminClient(
+    const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
@@ -22,14 +20,14 @@ export async function GET(request: NextRequest) {
     const { data: invoices } = await admin
       .from("invoices")
       .select("vendor_name, invoice_number, invoice_date, due_date, total_amount, tax_amount, status, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", user_id)
       .order("created_at", { ascending: false })
       .limit(50);
 
     const { data: contracts } = await admin
       .from("contracts")
       .select("vendor_name, payment_terms, risk_clauses, hidden_fees, summary, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", user_id)
       .limit(20);
 
     if (!invoices || invoices.length === 0) {
@@ -55,7 +53,7 @@ ${contractSummary}
 
 INSTRUCTIONS:
 - Identifie les risques financiers concrets avec montants en euros
-- Détecte les anomalies (doublons, retards habituels, frais cachés)
+- Détecte les anomalies comme doublons retards habituels frais cachés
 - Donne des recommandations pratiques et immédiates
 - Priorise par impact financier du plus grand au plus petit
 - Maximum 5 insights
@@ -147,7 +145,7 @@ function buildContractSummary(contracts: any[]): string {
     if (contract.risk_clauses?.length > 0) {
       const high = contract.risk_clauses.filter((c: any) => c.severity === "high");
       summary += `  Clauses risque: ${contract.risk_clauses.length} (${high.length} élevées)\n`;
-      high.forEach((c: any) => summary += `    → ${c.clause}\n`);
+      high.forEach((c: any) => summary += `    ${c.clause}\n`);
     }
     if (contract.hidden_fees?.length > 0) {
       contract.hidden_fees.forEach((f: any) => summary += `  Frais caché: ${f.description}: ${f.amount || "?"}\n`);

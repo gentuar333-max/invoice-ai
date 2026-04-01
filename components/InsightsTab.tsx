@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
 
 const CARD = "#1e2d40";
 const BORDER = "#2e4058";
@@ -95,7 +96,20 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
     setError("");
     setMessage("");
     try {
-      const res = await fetch("/api/insights");
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        setError("Non connecté — rechargez la page");
+        return;
+      }
+
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+
       const json = await res.json();
 
       if (!json.success) {
@@ -131,7 +145,7 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
         </p>
         <p style={{ fontSize: 12, color: MUTED, marginBottom: 20 }}>Analyse de vos factures, contrats et mouvements bancaires</p>
         <div style={{ height: 4, background: "#0f1923", borderRadius: 2, margin: "0 auto", maxWidth: 300, overflow: "hidden" }}>
-          <div style={{ height: "100%", background: GOLD, borderRadius: 2, width: "70%", transition: "width 2s ease" }} />
+          <div style={{ height: "100%", background: GOLD, borderRadius: 2, width: "70%" }} />
         </div>
       </div>
     );
@@ -167,6 +181,7 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
   if (message) {
     return (
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>📊</div>
         <p style={{ color: MUTED, fontSize: 13 }}>{message}</p>
         <p style={{ color: MUTED, fontSize: 12, marginTop: 8 }}>Importez vos premières factures pour commencer.</p>
       </div>

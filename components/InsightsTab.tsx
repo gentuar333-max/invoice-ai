@@ -78,8 +78,10 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [lastGenerated, setLastGenerated] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Load cached insights
     try {
       const cached = localStorage.getItem("insights_cache");
       if (cached) {
@@ -89,26 +91,52 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
         setLastGenerated(timestamp);
       }
     } catch {}
+
+    // Get user ID
+    async function loadUser() {
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id) {
+          setUserId(session.user.id);
+        }
+      } catch {}
+    }
+    loadUser();
   }, []);
 
   async function generateInsights() {
     setLoading(true);
     setError("");
     setMessage("");
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
 
-      if (!user) {
+    try {
+      let uid = userId;
+
+      // Try again if not set
+      if (!uid) {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        uid = session?.user?.id || null;
+      }
+
+      if (!uid) {
         setError("Non connecté — rechargez la page");
+        setLoading(false);
         return;
       }
 
       const res = await fetch("/api/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: user.id }),
+        body: JSON.stringify({ user_id: uid }),
       });
+
+      if (!res.ok) {
+        const text = await res.text();
+        setError(`Erreur serveur (${res.status}): ${text.substring(0, 100)}`);
+        return;
+      }
 
       const json = await res.json();
 
@@ -231,7 +259,7 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
                       <span style={{ fontSize: 10, fontWeight: 800, color: config.color, letterSpacing: 1.5, textTransform: "uppercase", background: `${config.color}20`, padding: "2px 8px", borderRadius: 2 }}>
                         {config.label}
                       </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: priorityColor[insight.priority] || MUTED, letterSpacing: 1 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: priorityColor[insight.priority] || MUTED }}>
                         {(insight.priority || "").toUpperCase()}
                       </span>
                       <span style={{ fontSize: 11, color: MUTED }}>{insight.vendor}</span>

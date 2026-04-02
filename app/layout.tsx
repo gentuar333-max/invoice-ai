@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NavbarClient from "@/components/NavbarClient";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "InvoiceAgent",
@@ -16,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" className={cn("font-sans", geist.variable)}>
       <body style={{ margin: 0, padding: 0, background: "#f8fafc" }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');

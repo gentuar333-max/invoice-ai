@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const CARD = "#1e2d40";
 const BORDER = "#2e4058";
@@ -69,118 +69,41 @@ function HealthScore({ score }: { score: number }) {
   );
 }
 
-export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; userId: string | null }) {
-  const [loading, setLoading] = useState(false);
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+type Props = {
+  isMobile: boolean;
+  userId: string | null;
+  insightsData: any;
+  insightsLoading: boolean;
+  insightsError: string;
+  onGenerate: () => void;
+};
+
+export default function InsightsTab({ isMobile, insightsData, insightsLoading, insightsError, onGenerate }: Props) {
   const [lastGenerated, setLastGenerated] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const cached = localStorage.getItem("insights_cache");
       if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        if (data?.insights) setInsights(data.insights);
-        if (data?.summary) setSummary(data.summary);
+        const { timestamp } = JSON.parse(cached);
         setLastGenerated(timestamp);
       }
     } catch {}
   }, []);
 
-  async function getUserId(): Promise<string | null> {
-    // 1. Use prop if available
-    if (userId) return userId;
-
-    // 2. Try Supabase
-    try {
-      const { createClient } = await import("@/lib/supabase");
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.id) return user.id;
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id) return session.user.id;
-    } catch {}
-
-    // 3. Try localStorage — scan all keys
-    try {
-      for (const key of Object.keys(localStorage)) {
-        try {
-          const raw = localStorage.getItem(key);
-          if (!raw) continue;
-          const parsed = JSON.parse(raw);
-          // Direct user.id
-          if (parsed?.user?.id) return parsed.user.id;
-          if (parsed?.[0]?.user?.id) return parsed[0].user.id;
-          if (parsed?.session?.user?.id) return parsed.session.user.id;
-          // JWT decode
-          const token = parsed?.access_token || parsed?.[0]?.access_token;
-          if (token) {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            if (payload?.sub) return payload.sub;
-          }
-        } catch {}
-      }
-    } catch {}
-
-    return null;
-  }
-
-  async function generateInsights() {
-    setLoading(true);
-    setError("");
-    setMessage("");
-    try {
-      const uid = await getUserId();
-      if (!uid) {
-        setError("Session expirée — déconnectez-vous et reconnectez-vous");
-        setLoading(false);
-        return;
-      }
-    setLoading(true);
-    setError("");
-    setMessage("");
-    try {
-      const res = await fetch("/api/insights", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: uid }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        setError(`Erreur ${res.status}: ${text.substring(0, 150)}`);
-        return;
-      }
-
-      const json = await res.json();
-
-      if (!json.success) {
-        setError(json.error || "Erreur lors de la génération");
-        return;
-      }
-
-      if (json.message) {
-        setMessage(json.message);
-        return;
-      }
-
-      if (json.data?.insights) {
-        setInsights(json.data.insights);
-        setSummary(json.data.summary || null);
-        const timestamp = new Date().toLocaleString("fr-FR");
-        setLastGenerated(timestamp);
-        localStorage.setItem("insights_cache", JSON.stringify({ data: json.data, timestamp }));
-      }
-    } catch (err: any) {
-      setError(err.message || "Erreur inconnue");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (insightsData) {
+      setLastGenerated(new Date().toLocaleString("fr-FR"));
     }
-  }
+  }, [insightsData]);
 
-  if (loading) {
+  const insights: Insight[] = insightsData?.insights || [];
+  const summary: Summary | null = insightsData?.summary || null;
+  const message: string = Array.isArray(insightsData) && insightsData.length === 0
+    ? "Importez des factures pour générer des insights."
+    : "";
+
+  if (insightsLoading) {
     return (
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
         <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
@@ -193,25 +116,25 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
     );
   }
 
-  if (insights.length === 0 && !message) {
+  if (!insightsData && !insightsLoading) {
     return (
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>⚡</div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>INSIGHTS & RISQUES IA</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>ANALYSE RISQUES & OPPORTUNITÉS</h3>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 8, lineHeight: 1.6 }}>
-          L'IA analyse vos factures, contrats et données bancaires pour détecter les risques financiers et économies possibles.
+          L'IA analyse vos factures et contrats pour détecter les risques financiers et économies possibles.
         </p>
         <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 24 }}>
           {["Risques fournisseurs", "Doublons détectés", "Économies possibles", "Clauses dangereuses"].map((tag) => (
             <span key={tag} style={{ background: `${GOLD}15`, color: GOLD, border: `1px solid ${GOLD}30`, padding: "4px 10px", borderRadius: 20, fontSize: 11 }}>{tag}</span>
           ))}
         </div>
-        {error && (
+        {insightsError && (
           <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "10px 14px", color: "#ef4444", fontSize: 12, marginBottom: 16 }}>
-            ⚠ {error}
+            ⚠ {insightsError}
           </div>
         )}
-        <button onClick={generateInsights} style={{ background: GOLD, color: "#0f1923", border: "none", padding: "12px 32px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: "pointer", letterSpacing: 2, textTransform: "uppercase" }}>
+        <button onClick={onGenerate} style={{ background: GOLD, color: "#0f1923", border: "none", padding: "12px 32px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: "pointer", letterSpacing: 2, textTransform: "uppercase" }}>
           GÉNÉRER MES INSIGHTS
         </button>
       </div>
@@ -222,8 +145,7 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
     return (
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
         <div style={{ fontSize: 40, marginBottom: 16 }}>📊</div>
-        <p style={{ color: MUTED, fontSize: 13 }}>{message}</p>
-        <p style={{ color: MUTED, fontSize: 12, marginTop: 8 }}>Importez vos premières factures pour commencer.</p>
+        <p style={{ color: MUTED, fontSize: 13 }}>Importez des factures pour générer des insights.</p>
       </div>
     );
   }
@@ -252,9 +174,9 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
         </div>
       )}
 
-      {error && (
+      {insightsError && (
         <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 3, padding: "12px 16px", color: "#ef4444", fontSize: 12, marginBottom: 12 }}>
-          ⚠ {error}
+          ⚠ {insightsError}
         </div>
       )}
 
@@ -293,8 +215,8 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <button onClick={generateInsights} style={{ background: "transparent", color: GOLD, border: `1px solid ${GOLD}40`, padding: "8px 24px", borderRadius: 3, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 2, textTransform: "uppercase" }}>
-          ↻ ACTUALISER LES INSIGHTS
+        <button onClick={onGenerate} style={{ background: "transparent", color: GOLD, border: `1px solid ${GOLD}40`, padding: "8px 24px", borderRadius: 3, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 2, textTransform: "uppercase" }}>
+          ↻ ACTUALISER
         </button>
       </div>
     </div>

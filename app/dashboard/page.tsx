@@ -57,6 +57,32 @@ export default function DashboardPage() {
   const [contractResult, setContractResult] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [insightsData, setInsightsData] = useState<any>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insightsError, setInsightsError] = useState("");
+
+  async function fetchInsights(uid: string) {
+    setInsightsLoading(true);
+    setInsightsError("");
+    try {
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: uid }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setInsightsData(json.data);
+        localStorage.setItem("insights_cache", JSON.stringify({ data: json.data, timestamp: new Date().toLocaleString("fr-FR") }));
+      } else {
+        setInsightsError(json.error || "Erreur");
+      }
+    } catch (e: any) {
+      setInsightsError(e.message);
+    } finally {
+      setInsightsLoading(false);
+    }
+  }
 
   useEffect(() => {
     function checkMobile() { setIsMobile(window.innerWidth < 768); }
@@ -662,7 +688,14 @@ export default function DashboardPage() {
 
         {/* TAB: INSIGHTS */}
         {activeTab === "insights" && (
-          <InsightsTab isMobile={isMobile} userId={currentUserId} />
+          <InsightsTab
+            isMobile={isMobile}
+            userId={currentUserId}
+            insightsData={insightsData}
+            insightsLoading={insightsLoading}
+            insightsError={insightsError}
+            onGenerate={() => currentUserId && fetchInsights(currentUserId)}
+          />
         )}
 
       </div>

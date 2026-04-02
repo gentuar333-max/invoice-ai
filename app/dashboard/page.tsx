@@ -91,13 +91,25 @@ export default function DashboardPage() {
 
   async function loadInvoices() {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user?.id) setCurrentUserId(user.id);
+    
+    // Get user
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.id) setCurrentUserId(user.id);
+    } catch {}
+
     const { data, error } = await supabase
       .from("invoices")
-      .select("id, vendor_name, invoice_number, invoice_date, due_date, subtotal, tax_amount, total_amount, created_at, status")
+      .select("id, vendor_name, invoice_number, invoice_date, due_date, subtotal, tax_amount, total_amount, created_at, status, user_id")
       .order("created_at", { ascending: false });
-    if (!error && data) setInvoices(data);
+    
+    if (!error && data) {
+      setInvoices(data);
+      // Extract user_id from first invoice as fallback
+      if (!currentUserId && data[0]?.user_id) {
+        setCurrentUserId(data[0].user_id);
+      }
+    }
     setLoading(false);
   }
 

@@ -92,33 +92,44 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
   async function generateInsights() {
     let uid = userId;
 
-    // Fallback — read from localStorage if userId prop is null
+    // Fallback — try to read from all storage options
     if (!uid) {
       try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (!key) continue;
-          const val = localStorage.getItem(key);
-          if (!val) continue;
-          if (key.includes("supabase") || key.includes("auth")) {
-            try {
-              const parsed = JSON.parse(val);
-              const id = parsed?.user?.id
-                || parsed?.[0]?.user?.id
-                || parsed?.session?.user?.id
-                || parsed?.access_token && JSON.parse(atob(parsed.access_token.split(".")[1]))?.sub;
-              if (id && typeof id === "string" && id.length > 10) {
-                uid = id;
-                break;
-              }
-            } catch {}
-          }
+        // Try localStorage
+        const keys = Object.keys(localStorage);
+        for (const key of keys) {
+          try {
+            const val = localStorage.getItem(key);
+            if (!val) continue;
+            const parsed = JSON.parse(val);
+            // Supabase stores session as array or object
+            const candidates = [
+              parsed?.user?.id,
+              parsed?.[0]?.user?.id,
+              parsed?.session?.user?.id,
+            ];
+            const found = candidates.find((c) => c && typeof c === "string" && c.length > 10);
+            if (found) { uid = found; break; }
+            // Try JWT decode from access_token
+            if (parsed?.access_token) {
+              try {
+                const payload = JSON.parse(atob(parsed.access_token.split(".")[1]));
+                if (payload?.sub) { uid = payload.sub; break; }
+              } catch {}
+            }
+            if (Array.isArray(parsed) && parsed[0]?.access_token) {
+              try {
+                const payload = JSON.parse(atob(parsed[0].access_token.split(".")[1]));
+                if (payload?.sub) { uid = payload.sub; break; }
+              } catch {}
+            }
+          } catch {}
         }
       } catch {}
     }
 
     if (!uid) {
-      setError("Session expirée — rechargez la page");
+      setError("Session expirée — déconnectez-vous et reconnectez-vous");
       return;
     }
     setLoading(true);

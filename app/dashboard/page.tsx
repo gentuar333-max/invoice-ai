@@ -91,6 +91,8 @@ export default function DashboardPage() {
 
   async function loadInvoices() {
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.id) setCurrentUserId(user.id);
     const { data, error } = await supabase
       .from("invoices")
       .select("id, vendor_name, invoice_number, invoice_date, due_date, subtotal, tax_amount, total_amount, created_at, status")

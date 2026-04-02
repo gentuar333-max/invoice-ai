@@ -89,49 +89,55 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
     } catch {}
   }, []);
 
+  async function getUserId(): Promise<string | null> {
+    // 1. Use prop if available
+    if (userId) return userId;
+
+    // 2. Try Supabase
+    try {
+      const { createClient } = await import("@/lib/supabase");
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.id) return user.id;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) return session.user.id;
+    } catch {}
+
+    // 3. Try localStorage — scan all keys
+    try {
+      for (const key of Object.keys(localStorage)) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          const parsed = JSON.parse(raw);
+          // Direct user.id
+          if (parsed?.user?.id) return parsed.user.id;
+          if (parsed?.[0]?.user?.id) return parsed[0].user.id;
+          if (parsed?.session?.user?.id) return parsed.session.user.id;
+          // JWT decode
+          const token = parsed?.access_token || parsed?.[0]?.access_token;
+          if (token) {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            if (payload?.sub) return payload.sub;
+          }
+        } catch {}
+      }
+    } catch {}
+
+    return null;
+  }
+
   async function generateInsights() {
-    let uid = userId;
-
-    // Fallback — try to read from all storage options
-    if (!uid) {
-      try {
-        // Try localStorage
-        const keys = Object.keys(localStorage);
-        for (const key of keys) {
-          try {
-            const val = localStorage.getItem(key);
-            if (!val) continue;
-            const parsed = JSON.parse(val);
-            // Supabase stores session as array or object
-            const candidates = [
-              parsed?.user?.id,
-              parsed?.[0]?.user?.id,
-              parsed?.session?.user?.id,
-            ];
-            const found = candidates.find((c) => c && typeof c === "string" && c.length > 10);
-            if (found) { uid = found; break; }
-            // Try JWT decode from access_token
-            if (parsed?.access_token) {
-              try {
-                const payload = JSON.parse(atob(parsed.access_token.split(".")[1]));
-                if (payload?.sub) { uid = payload.sub; break; }
-              } catch {}
-            }
-            if (Array.isArray(parsed) && parsed[0]?.access_token) {
-              try {
-                const payload = JSON.parse(atob(parsed[0].access_token.split(".")[1]));
-                if (payload?.sub) { uid = payload.sub; break; }
-              } catch {}
-            }
-          } catch {}
-        }
-      } catch {}
-    }
-
-    if (!uid) {
-      setError("Session expirée — déconnectez-vous et reconnectez-vous");
-      return;
-    }
+    setLoading(true);
+    setError("");
+    setMessage("");
+    try {
+      const uid = await getUserId();
+      if (!uid) {
+        setError("Session expirée — déconnectez-vous et reconnectez-vous");
+        setLoading(false);
+        return;
+      }
     setLoading(true);
     setError("");
     setMessage("");

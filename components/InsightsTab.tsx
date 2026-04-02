@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase";
 
 const CARD = "#1e2d40";
 const BORDER = "#2e4058";
@@ -51,7 +50,6 @@ function HealthScore({ score }: { score: number }) {
   const label = score >= 70 ? "BON" : score >= 40 ? "MOYEN" : "CRITIQUE";
   const circumference = 2 * Math.PI * 32;
   const dash = (score / 100) * circumference;
-
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <div style={{ position: "relative", width: 80, height: 80 }}>
@@ -71,17 +69,15 @@ function HealthScore({ score }: { score: number }) {
   );
 }
 
-export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
+export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; userId: string | null }) {
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [lastGenerated, setLastGenerated] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load cached insights
     try {
       const cached = localStorage.getItem("insights_cache");
       if (cached) {
@@ -91,50 +87,26 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
         setLastGenerated(timestamp);
       }
     } catch {}
-
-    // Get user ID
-    async function loadUser() {
-      try {
-        const supabase = createClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user?.id) {
-          setUserId(session.user.id);
-        }
-      } catch {}
-    }
-    loadUser();
   }, []);
 
   async function generateInsights() {
+    if (!userId) {
+      setError("Session expirée — rechargez la page");
+      return;
+    }
     setLoading(true);
     setError("");
     setMessage("");
-
     try {
-      let uid = userId;
-
-      // Try again if not set
-      if (!uid) {
-        const supabase = createClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        uid = session?.user?.id || null;
-      }
-
-      if (!uid) {
-        setError("Non connecté — rechargez la page");
-        setLoading(false);
-        return;
-      }
-
       const res = await fetch("/api/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: uid }),
+        body: JSON.stringify({ user_id: userId }),
       });
 
       if (!res.ok) {
         const text = await res.text();
-        setError(`Erreur serveur (${res.status}): ${text.substring(0, 100)}`);
+        setError(`Erreur ${res.status}: ${text.substring(0, 150)}`);
         return;
       }
 
@@ -168,9 +140,7 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
     return (
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
         <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
-        <p style={{ fontSize: 13, fontWeight: 700, color: GOLD, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
-          ANALYSE IA EN COURS...
-        </p>
+        <p style={{ fontSize: 13, fontWeight: 700, color: GOLD, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>ANALYSE IA EN COURS...</p>
         <p style={{ fontSize: 12, color: MUTED, marginBottom: 20 }}>Analyse de vos factures, contrats et mouvements bancaires</p>
         <div style={{ height: 4, background: "#0f1923", borderRadius: 2, margin: "0 auto", maxWidth: 300, overflow: "hidden" }}>
           <div style={{ height: "100%", background: GOLD, borderRadius: 2, width: "70%" }} />
@@ -183,9 +153,7 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
     return (
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>⚡</div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
-          INSIGHTS & RISQUES IA
-        </h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>INSIGHTS & RISQUES IA</h3>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 8, lineHeight: 1.6 }}>
           L'IA analyse vos factures, contrats et données bancaires pour détecter les risques financiers et économies possibles.
         </p>
@@ -256,12 +224,8 @@ export default function InsightsTab({ isMobile }: { isMobile: boolean }) {
                   <span style={{ fontSize: 20 }}>{config.icon}</span>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: config.color, letterSpacing: 1.5, textTransform: "uppercase", background: `${config.color}20`, padding: "2px 8px", borderRadius: 2 }}>
-                        {config.label}
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: priorityColor[insight.priority] || MUTED }}>
-                        {(insight.priority || "").toUpperCase()}
-                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: config.color, letterSpacing: 1.5, textTransform: "uppercase", background: `${config.color}20`, padding: "2px 8px", borderRadius: 2 }}>{config.label}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: priorityColor[insight.priority] || MUTED }}>{(insight.priority || "").toUpperCase()}</span>
                       <span style={{ fontSize: 11, color: MUTED }}>{insight.vendor}</span>
                     </div>
                     <p style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: TEXT, marginTop: 4, lineHeight: 1.3 }}>{insight.title}</p>

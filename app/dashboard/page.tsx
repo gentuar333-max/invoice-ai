@@ -56,6 +56,7 @@ export default function DashboardPage() {
   const [contractLoading, setContractLoading] = useState(false);
   const [contractResult, setContractResult] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     function checkMobile() { setIsMobile(window.innerWidth < 768); }
@@ -65,6 +66,15 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => { loadInvoices(); loadContracts(); }, []);
+
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) setCurrentUserId(session.user.id);
+    }
+    loadUser();
+  }, []);
 
   useEffect(() => {
     if (invoices.length >= 0) filterByPeriod(invoices, period);
@@ -282,7 +292,7 @@ export default function DashboardPage() {
             { key: "contrats", label: "CONTRATS", count: contracts.length },
             { key: "insights", label: isMobile ? "⚡" : "INSIGHTS ⚡", count: null },
           ].map((tab) => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: isMobile ? "8px 14px" : "10px 24px", border: "none", fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? (tab.key === "insights" ? "#4ade80" : GOLD) : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: isMobile ? "8px 14px" : "10px 24px", border: "none", fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? (tab.key === "insights" ? "#f59e0b" : GOLD) : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
               {tab.label}
               {tab.count !== null && (
                 <span style={{ background: activeTab === tab.key ? "#0f192320" : BORDER, color: activeTab === tab.key ? "#0f1923" : MUTED, fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10 }}>
@@ -638,7 +648,7 @@ export default function DashboardPage() {
 
         {/* TAB: INSIGHTS */}
         {activeTab === "insights" && (
-          <InsightsTab isMobile={isMobile} />
+          <InsightsTab isMobile={isMobile} userId={currentUserId} />
         )}
 
       </div>

@@ -90,7 +90,34 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
   }, []);
 
   async function generateInsights() {
-    if (!userId) {
+    let uid = userId;
+
+    // Fallback — read from localStorage if userId prop is null
+    if (!uid) {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key) continue;
+          const val = localStorage.getItem(key);
+          if (!val) continue;
+          if (key.includes("supabase") || key.includes("auth")) {
+            try {
+              const parsed = JSON.parse(val);
+              const id = parsed?.user?.id
+                || parsed?.[0]?.user?.id
+                || parsed?.session?.user?.id
+                || parsed?.access_token && JSON.parse(atob(parsed.access_token.split(".")[1]))?.sub;
+              if (id && typeof id === "string" && id.length > 10) {
+                uid = id;
+                break;
+              }
+            } catch {}
+          }
+        }
+      } catch {}
+    }
+
+    if (!uid) {
       setError("Session expirée — rechargez la page");
       return;
     }
@@ -101,7 +128,7 @@ export default function InsightsTab({ isMobile, userId }: { isMobile: boolean; u
       const res = await fetch("/api/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: uid }),
       });
 
       if (!res.ok) {

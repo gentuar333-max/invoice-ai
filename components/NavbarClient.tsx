@@ -26,10 +26,12 @@ const marketingPaths = [
 function Logo() {
   return (
     <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
-      <div style={{ width: 34, height: 34, borderRadius: 8, background: CARD, border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-        <span style={{ fontSize: 13, fontWeight: 800, color: GOLD, fontFamily: "DM Sans, sans-serif", letterSpacing: -1 }}>IA</span>
-        <div style={{ position: "absolute", top: 3, right: 3, width: 5, height: 5, borderRadius: "50%", background: "#818cf8" }} />
-      </div>
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5" />
+        <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="DM Sans">I</text>
+        <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontStyle="italic">A</text>
+        <circle cx="28" cy="5" r="3" fill="#818cf8" />
+      </svg>
       <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, letterSpacing: -0.3 }}>InvoiceAgent</span>
     </a>
   );

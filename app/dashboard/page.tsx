@@ -1,8 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { logAudit } from "@/lib/audit";
+import { FeedbackWidget } from "@/app/feedback/page";
+import InsightsTab from "@/components/InsightsTab";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+
+const BG = "#131f2e";
+const CARD = "#1e2d40";
+const BORDER = "#2e4058";
+const GOLD = "#e8b84b";
+const TEXT = "#ffffff";
+const MUTED = "#a8c4d8";
 
 type Invoice = {
   id: string;
@@ -14,27 +24,148 @@ type Invoice = {
   tax_amount: number;
   total_amount: number;
   created_at: string;
+  status: string;
 };
 
 type Period = "month" | "quarter" | "halfyear" | "all";
+
+function fmt(value: number): string {
+  return value.toFixed(2).replace(".", ",") + " €";
+}
+
+function getStatus(inv: Invoice): string {
+  if (inv.status === "paid") return "paid";
+  if (inv.status === "rapproche") return "rapproche";
+  if (inv.status === "suggestion_ai") return "suggestion_ai";
+  if (inv.status === "correspondance_partielle") return "correspondance_partielle";
+  if (!inv.due_date) return "pending";
+  const due = new Date(inv.due_date);
+  const now = new Date();
+  if (due < now) return "overdue";
+  return "pending";
+}
 
 export default function DashboardPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filtered, setFiltered] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("all");
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [activeTab, setActiveTab] = useState<"factures" | "contrats" | "insights">("factures");
+  const [contracts, setContracts] = useState<any[]>([]);
+  const [contractLoading, setContractLoading] = useState(false);
+  const [contractResult, setContractResult] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [insightsData, setInsightsData] = useState<any>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insightsError, setInsightsError] = useState("");
 
-  useEffect(() => { loadInvoices(); }, []);
-  useEffect(() => { filterByPeriod(invoices, period); }, [invoices, period]);
+  async function fetchInsights(uid: string) {
+    setInsightsLoading(true);
+    setInsightsError("");
+    try {
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: uid }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setInsightsData(json.data);
+        localStorage.setItem("insights_cache", JSON.stringify({ data: json.data, timestamp: new Date().toLocaleString("fr-FR") }));
+      } else {
+        setInsightsError(json.error || "Erreur");
+      }
+    } catch (e: any) {
+      setInsightsError(e.message);
+    } finally {
+      setInsightsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    function checkMobile() { setIsMobile(window.innerWidth < 768); }
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => { loadInvoices(); loadContracts(); }, []);
+
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) setCurrentUserId(session.user.id);
+    }
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    if (invoices.length >= 0) filterByPeriod(invoices, period);
+  }, [invoices, period]);
+
+  useEffect(() => {
+    if (invoices.length >= 5 && !localStorage.getItem("feedback_shown")) {
+      setTimeout(() => {
+        setShowFeedback(true);
+        localStorage.setItem("feedback_shown", "true");
+      }, 3000);
+    }
+  }, [invoices]);
 
   async function loadInvoices() {
     const supabase = createClient();
+    
+    // Get user
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.id) setCurrentUserId(user.id);
+    } catch {}
+
     const { data, error } = await supabase
       .from("invoices")
-      .select("id, vendor_name, invoice_number, invoice_date, due_date, subtotal, tax_amount, total_amount, created_at")
+      .select("id, vendor_name, invoice_number, invoice_date, due_date, subtotal, tax_amount, total_amount, created_at, status, user_id")
       .order("created_at", { ascending: false });
-    if (!error && data) setInvoices(data);
+    
+    if (!error && data) {
+      setInvoices(data);
+      // Extract user_id from first invoice as fallback
+      if (!currentUserId && data[0]?.user_id) {
+        setCurrentUserId(data[0].user_id);
+      }
+    }
     setLoading(false);
+  }
+
+  async function loadContracts() {
+    try {
+      const res = await fetch("/api/contracts");
+      const json = await res.json();
+      if (json.success) setContracts(json.data);
+    } catch {}
+  }
+
+  async function handleContractUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setContractLoading(true);
+    setContractResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/contracts", { method: "POST", body: formData });
+      const json = await res.json();
+      if (json.success) {
+        setContractResult(json.data);
+        await loadContracts();
+      }
+    } catch {}
+    finally {
+      setContractLoading(false);
+      e.target.value = "";
+    }
   }
 
   function filterByPeriod(data: Invoice[], p: Period) {
@@ -44,21 +175,25 @@ export default function DashboardPage() {
     const cutoff = new Date(now.getFullYear(), now.getMonth() - months + 1, 1);
     setFiltered(data.filter((inv) => {
       const d = new Date(inv.invoice_date || inv.created_at);
+      if (isNaN(d.getTime())) return false;
       return d >= cutoff;
     }));
   }
 
   async function deleteInvoice(id: string) {
     const supabase = createClient();
+    const inv = invoices.find((i) => i.id === id);
     await supabase.from("invoices").delete().eq("id", id);
     setInvoices((prev) => prev.filter((inv) => inv.id !== id));
+    await logAudit({ action: "DELETE", entity: "invoice", entity_id: id, old_data: inv });
   }
 
-  function getStatus(inv: Invoice): "pending" | "overdue" {
-    if (!inv.due_date) return "pending";
-    const due = new Date(inv.due_date);
-    const now = new Date();
-    return due < now ? "overdue" : "pending";
+  async function confirmPayment(id: string) {
+    const supabase = createClient();
+    const inv = invoices.find((i) => i.id === id);
+    await supabase.from("invoices").update({ status: "paid" }).eq("id", id);
+    setInvoices((prev) => prev.map((i) => i.id === id ? { ...i, status: "paid" } : i));
+    await logAudit({ action: "CONFIRM_PAYMENT", entity: "invoice", entity_id: id, old_data: { status: inv?.status }, new_data: { status: "paid" } });
   }
 
   function getChartData() {
@@ -71,80 +206,50 @@ export default function DashboardPage() {
       const key = `${year}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       map[key] = (map[key] || 0) + (inv.total_amount || 0);
     });
-    return Object.entries(map)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([month, total]) => ({ month, total: parseFloat(total.toFixed(2)) }));
+    return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).map(([month, total]) => ({ month, total: parseFloat(total.toFixed(2)) }));
   }
 
   async function generatePDF() {
     const { default: jsPDF } = await import("jspdf");
     const doc = new jsPDF();
     const now = new Date();
-
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.text("Rapport de factures", 20, 20);
-
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`Genere le: ${now.toLocaleDateString("fr-FR")}`, 20, 30);
-    doc.text(`Periode: ${period === "month" ? "Ce mois" : period === "quarter" ? "3 derniers mois" : period === "halfyear" ? "6 derniers mois" : "Toutes les factures"}`, 20, 38);
-
-    doc.setFontSize(12);
+    doc.text(`Total: ${filtered.length} factures`, 20, 42);
+    doc.text(`HT: ${totalSubtotal.toFixed(2)} EUR`, 20, 50);
+    doc.text(`TVA: ${totalTax.toFixed(2)} EUR`, 20, 58);
+    doc.text(`TTC: ${totalAmount.toFixed(2)} EUR`, 20, 66);
     doc.setFont("helvetica", "bold");
-    doc.text("Resume", 20, 52);
+    doc.text("Fournisseur", 20, 82);
+    doc.text("Date", 90, 82);
+    doc.text("HT", 130, 82);
+    doc.text("TVA", 150, 82);
+    doc.text("TTC", 170, 82);
+    doc.setDrawColor(180, 180, 180);
+    doc.line(20, 85, 195, 85);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text(`Total factures: ${filtered.length}`, 20, 62);
-    doc.text(`Montant HT total: ${totalSubtotal.toFixed(2)} EUR`, 20, 70);
-    doc.text(`TVA totale: ${totalTax.toFixed(2)} EUR`, 20, 78);
-    doc.text(`Montant TTC total: ${totalAmount.toFixed(2)} EUR`, 20, 86);
-    doc.text(`Moyenne par facture: ${avgAmount.toFixed(2)} EUR`, 20, 94);
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Fournisseur", 20, 110);
-    doc.text("N Facture", 75, 110);
-    doc.text("Date", 120, 110);
-    doc.text("HT", 148, 110);
-    doc.text("TVA", 163, 110);
-    doc.text("TTC", 178, 110);
-
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, 113, 195, 113);
-
-    doc.setFont("helvetica", "normal");
-    let y = 120;
+    let y = 92;
     filtered.forEach((inv) => {
       if (y > 270) { doc.addPage(); y = 20; }
-      doc.text((inv.vendor_name || "").substring(0, 22), 20, y);
-      doc.text((inv.invoice_number || "").substring(0, 18), 75, y);
-      doc.text(inv.invoice_date || "", 120, y);
-      doc.text(inv.subtotal ? `${Number(inv.subtotal).toFixed(2)}` : "", 148, y);
-      doc.text(inv.tax_amount ? `${Number(inv.tax_amount).toFixed(2)}` : "", 163, y);
-      doc.text(inv.total_amount ? `${Number(inv.total_amount).toFixed(2)}` : "", 178, y);
-      y += 8;
+      doc.text((inv.vendor_name || "").substring(0, 25), 20, y);
+      doc.text(inv.invoice_date || "", 90, y);
+      doc.text(inv.subtotal ? Number(inv.subtotal).toFixed(2) : "", 130, y);
+      doc.text(inv.tax_amount ? Number(inv.tax_amount).toFixed(2) : "", 150, y);
+      doc.text(inv.total_amount ? Number(inv.total_amount).toFixed(2) : "", 170, y);
+      y += 7;
     });
-
-    doc.line(20, y + 2, 195, y + 2);
-    doc.setFont("helvetica", "bold");
-    doc.text("TOTAL", 20, y + 10);
-    doc.text(totalSubtotal.toFixed(2), 148, y + 10);
-    doc.text(totalTax.toFixed(2), 163, y + 10);
-    doc.text(totalAmount.toFixed(2), 178, y + 10);
-
-    doc.save(`rapport_factures_${now.toISOString().split("T")[0]}.pdf`);
+    doc.save(`rapport_${now.toISOString().split("T")[0]}.pdf`);
   }
 
   function exportCSV() {
     if (!filtered.length) return;
-    const headers = ["vendor_name","invoice_number","invoice_date","due_date","subtotal","tax_amount","total_amount","statut"];
-    const rows = filtered.map((inv) => [
-      inv.vendor_name||"", inv.invoice_number||"", inv.invoice_date||"",
-      inv.due_date||"", inv.subtotal??"", inv.tax_amount??"",
-      inv.total_amount??"", getStatus(inv),
-    ]);
-    const csv = [headers,...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const headers = ["vendor_name","invoice_number","invoice_date","subtotal","tax_amount","total_amount","statut"];
+    const rows = filtered.map((inv) => [inv.vendor_name||"",inv.invoice_number||"",inv.invoice_date||"",inv.subtotal??"",inv.tax_amount??"",inv.total_amount??"",getStatus(inv)]);
+    const csv = [headers,...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -154,193 +259,449 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url);
   }
 
+  const now = new Date();
+  const nextMonth = now.getMonth() + 2 > 12 ? 1 : now.getMonth() + 2;
+  const tvaYear = now.getMonth() + 2 > 12 ? now.getFullYear() + 1 : now.getFullYear();
+
   const totalAmount = filtered.reduce((acc, inv) => acc + (inv.total_amount || 0), 0);
   const totalTax = filtered.reduce((acc, inv) => acc + (inv.tax_amount || 0), 0);
   const totalSubtotal = filtered.reduce((acc, inv) => acc + (inv.subtotal || 0), 0);
   const avgAmount = filtered.length ? totalAmount / filtered.length : 0;
+  const paidCount = filtered.filter((inv) => getStatus(inv) === "paid").length;
   const overdueCount = filtered.filter((inv) => getStatus(inv) === "overdue").length;
   const pendingCount = filtered.filter((inv) => getStatus(inv) === "pending").length;
+  const unpaidTotal = filtered.filter((inv) => !["paid","rapproche"].includes(getStatus(inv))).reduce((acc, inv) => acc + (inv.total_amount || 0), 0);
   const chartData = getChartData();
 
   const periods: { key: Period; label: string }[] = [
-    { key: "month", label: "Ce mois" },
-    { key: "quarter", label: "3 mois" },
-    { key: "halfyear", label: "6 mois" },
-    { key: "all", label: "Tout" },
+    { key: "month", label: "CE MOIS" },
+    { key: "quarter", label: "3 MOIS" },
+    { key: "halfyear", label: "6 MOIS" },
+    { key: "all", label: "TOUT" },
   ];
 
-  const statusColor: Record<string, string> = { pending: "#f59e0b", overdue: "#ef4444" };
-  const statusLabel: Record<string, string> = { pending: "En attente", overdue: "En retard" };
+  const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
+    paid: { label: "PAYE", color: "#4ade80", bg: "#4ade8020" },
+    rapproche: { label: "RAPPROCHE", color: "#4ade80", bg: "#4ade8020" },
+    suggestion_ai: { label: "SUGGESTION AI", color: "#e8b84b", bg: "#e8b84b20" },
+    correspondance_partielle: { label: "PARTIEL", color: "#fb923c", bg: "#fb923c20" },
+    pending: { label: "EN ATTENTE", color: "#fb923c", bg: "#fb923c20" },
+    overdue: { label: "EN RETARD", color: "#ef4444", bg: "#ef444420" },
+  };
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 24px" }}>
-        <p style={{ color: "#9ca3af", fontSize: 14 }}>Chargement...</p>
+      <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: MUTED, fontSize: 12, letterSpacing: 2, textTransform: "uppercase" }}>CHARGEMENT...</p>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto", padding: "24px 16px" }}>
+    <div style={{ minHeight: "100vh", background: BG, padding: isMobile ? "16px 12px" : "28px 20px", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
 
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: "#111827", marginBottom: 4, letterSpacing: -0.5 }}>
-            Mes factures
-          </h1>
-          <p style={{ color: "#9ca3af", fontSize: 14 }}>
-            {filtered.length} facture{filtered.length !== 1 ? "s" : ""} enregistree{filtered.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <Link href="/invoices" style={{ background: "#6366f1", color: "white", padding: "9px 18px", borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
-            + Nouvelle facture
-          </Link>
-          <Link href="/reconciliation" style={{ background: "#3b82f6", color: "white", padding: "9px 18px", borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
-            + CSV bancaire
-          </Link>
-          {filtered.length > 0 && (
-            <>
-              <button onClick={exportCSV} style={{ background: "#10b981", color: "white", border: "none", padding: "9px 18px", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                Export CSV
-              </button>
-              <button onClick={generatePDF} style={{ background: "#f59e0b", color: "white", border: "none", padding: "9px 18px", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                Rapport PDF
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div style={{ display: "flex", gap: 6, marginBottom: 24, background: "white", border: "1px solid #e5e7eb", borderRadius: 10, padding: 4, width: "fit-content" }}>
-        {periods.map((p) => (
-          <button key={p.key} onClick={() => setPeriod(p.key)} style={{ padding: "7px 16px", borderRadius: 7, border: "none", fontSize: 13, fontWeight: period === p.key ? 600 : 400, color: period === p.key ? "white" : "#6b7280", background: period === p.key ? "#6366f1" : "transparent", cursor: "pointer", transition: "all 0.15s" }}>
-            {p.label}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: 12 }}>
-        {[
-          { label: "Total factures", value: filtered.length, suffix: "", color: "#6366f1" },
-          { label: "Montant total TTC", value: totalAmount.toFixed(2), suffix: " EUR", color: "#10b981" },
-          { label: "TVA totale", value: totalTax.toFixed(2), suffix: " EUR", color: "#f59e0b" },
-          { label: "Moyenne par facture", value: avgAmount.toFixed(2), suffix: " EUR", color: "#8b5cf6" },
-        ].map((s) => (
-          <div key={s.label} style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, padding: "18px 20px" }}>
-            <p style={{ fontSize: 11, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{s.label}</p>
-            <p style={{ fontSize: 28, fontWeight: 700, color: s.color }}>{s.value}{s.suffix}</p>
+        {/* Header */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+            <div>
+              <h1 style={{ fontSize: isMobile ? 16 : 20, fontWeight: 600, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>MES DOCUMENTS</h1>
+              <p style={{ color: MUTED, fontSize: 11, letterSpacing: 1 }}>{filtered.length} FACTURE{filtered.length !== 1 ? "S" : ""} · {paidCount} PAYEE{paidCount !== 1 ? "S" : ""}</p>
+            </div>
           </div>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
-        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, background: "#dcfce7", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>✓</div>
-          <div>
-            <p style={{ fontSize: 11, color: "#166534", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>HT total</p>
-            <p style={{ fontSize: 18, fontWeight: 700, color: "#166534" }}>{totalSubtotal.toFixed(2)} EUR</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Link href="/invoices" style={{ background: GOLD, color: "#0f1923", padding: isMobile ? "8px 14px" : "10px 22px", borderRadius: 3, fontSize: isMobile ? 10 : 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
+              + NOUVELLE FACTURE
+            </Link>
+            <Link href="/reconciliation" style={{ background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, padding: isMobile ? "8px 14px" : "10px 22px", borderRadius: 3, fontSize: isMobile ? 10 : 11, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
+              + CSV BANCAIRE
+            </Link>
+            {!isMobile && filtered.length > 0 && (
+              <>
+                <button onClick={exportCSV} style={{ background: "transparent", color: TEXT, border: `1px solid ${BORDER}`, padding: "10px 18px", borderRadius: 3, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase" }}>EXPORT CSV</button>
+                <button onClick={generatePDF} style={{ background: "transparent", color: TEXT, border: `1px solid ${BORDER}`, padding: "10px 18px", borderRadius: 3, fontSize: 11, fontWeight: 600, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase" }}>RAPPORT PDF</button>
+              </>
+            )}
           </div>
         </div>
-        <div style={{ background: overdueCount > 0 ? "#fef2f2" : "#fffbeb", border: `1px solid ${overdueCount > 0 ? "#fecaca" : "#fde68a"}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, background: overdueCount > 0 ? "#fee2e2" : "#fef3c7", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            {overdueCount > 0 ? "⚠" : "⏳"}
-          </div>
-          <div>
-            <p style={{ fontSize: 11, color: overdueCount > 0 ? "#991b1b" : "#92400e", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>
-              {overdueCount > 0 ? "En retard" : "En attente"}
-            </p>
-            <p style={{ fontSize: 18, fontWeight: 700, color: overdueCount > 0 ? "#dc2626" : "#d97706" }}>
-              {overdueCount > 0 ? overdueCount : pendingCount} facture{(overdueCount || pendingCount) !== 1 ? "s" : ""}
-            </p>
-          </div>
-        </div>
-        <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, background: "#dbeafe", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📊</div>
-          <div>
-            <p style={{ fontSize: 11, color: "#1e40af", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>TVA a declarer</p>
-            <p style={{ fontSize: 18, fontWeight: 700, color: "#1d4ed8" }}>{totalTax.toFixed(2)} EUR</p>
-          </div>
-        </div>
-      </div>
 
-      {chartData.length > 0 && (
-        <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, padding: "20px 24px", marginBottom: 24 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 16 }}>Depenses par mois (EUR)</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ fontSize: 12, border: "1px solid #e5e7eb", borderRadius: 8 }} formatter={(value: any) => [`${value} EUR`, "Total TTC"]} />
-              <Bar dataKey="total" fill="#6366f1" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* TABS */}
+        <div style={{ display: "flex", gap: 0, marginBottom: 20, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", width: "fit-content" }}>
+          {[
+            { key: "factures", label: "FACTURES", count: filtered.length },
+            { key: "contrats", label: "CONTRATS", count: contracts.length },
+            { key: "insights", label: isMobile ? "⚡" : "INSIGHTS ⚡", count: null },
+          ].map((tab) => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{ padding: isMobile ? "8px 14px" : "10px 24px", border: "none", fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: 1.5, color: activeTab === tab.key ? "#0f1923" : MUTED, background: activeTab === tab.key ? (tab.key === "insights" ? "#f59e0b" : GOLD) : "transparent", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}>
+              {tab.label}
+              {tab.count !== null && (
+                <span style={{ background: activeTab === tab.key ? "#0f192320" : BORDER, color: activeTab === tab.key ? "#0f1923" : MUTED, fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10 }}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
-      )}
 
-      <div style={{ background: "linear-gradient(135deg, #eff6ff, #f0f9ff)", border: "1px solid #bfdbfe", borderRadius: 12, padding: "18px 24px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-        <div>
-          <p style={{ fontSize: 14, fontWeight: 600, color: "#1d4ed8", marginBottom: 4 }}>Rapprochement bancaire automatique</p>
-          <p style={{ fontSize: 13, color: "#3b82f6" }}>Importez le CSV de votre banque — l'IA rapproche vos factures automatiquement</p>
-        </div>
-        <Link href="/reconciliation" style={{ background: "#3b82f6", color: "white", padding: "10px 20px", borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
-          + Importer CSV bancaire
-        </Link>
-      </div>
+        {/* TAB: FACTURES */}
+        {activeTab === "factures" && (
+          <>
+            {filtered.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                {(overdueCount + pendingCount) > 0 && (
+                  <div style={{ background: "#ef444415", border: "1px solid #ef444440", borderRadius: 4, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444", flexShrink: 0 }} />
+                      <div>
+                        <p style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: "#ef4444", letterSpacing: 1, textTransform: "uppercase" }}>
+                          {overdueCount + pendingCount} FACTURE{(overdueCount + pendingCount) > 1 ? "S" : ""} NON PAYEE{(overdueCount + pendingCount) > 1 ? "S" : ""}
+                        </p>
+                        <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Montant en attente: {fmt(unpaidTotal)}</p>
+                      </div>
+                    </div>
+                    <Link href="/reconciliation" style={{ background: "#ef444420", color: "#ef4444", border: "1px solid #ef444440", padding: "5px 12px", borderRadius: 3, fontSize: 10, fontWeight: 700, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                      RAPPROCHER
+                    </Link>
+                  </div>
+                )}
+                {totalTax > 0 && (
+                  <div style={{ background: "#f59e0b15", border: "1px solid #f59e0b40", borderRadius: 4, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />
+                      <div>
+                        <p style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: "#f59e0b", letterSpacing: 1, textTransform: "uppercase" }}>TVA A DECLARER</p>
+                        <p style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Avant le 20/{String(nextMonth).padStart(2, "0")}/{tvaYear}</p>
+                      </div>
+                    </div>
+                    <span style={{ background: "#f59e0b20", color: "#f59e0b", border: "1px solid #f59e0b40", padding: "5px 12px", borderRadius: 3, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
+                      {fmt(totalTax)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
-      {filtered.length === 0 ? (
-        <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, padding: "60px 32px", textAlign: "center" }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>📄</div>
-          <p style={{ color: "#9ca3af", fontSize: 14, marginBottom: 20 }}>Aucune facture pour cette periode</p>
-          <Link href="/invoices" style={{ background: "#6366f1", color: "white", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
-            Importer une facture
-          </Link>
-        </div>
-      ) : (
-        <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse", minWidth: 600 }}>
-              <thead style={{ background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
-                <tr>
-                  {["Fournisseur","N Facture","Date","Sous-total","TVA","Total TTC","Statut",""].map((h) => (
-                    <th key={h} style={{ textAlign: ["Sous-total","TVA","Total TTC",""].includes(h) ? "right" : "left", padding: "12px 16px", fontSize: 11, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 1, fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((inv, i) => {
+            {filtered.length > 0 && (
+              <div style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: isMobile ? "12px 14px" : "18px 22px", marginBottom: 16 }}>
+                <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>MONTANT NON ENCAISSE</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                  <p style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: GOLD }}>{fmt(unpaidTotal)}</p>
+                  <div style={{ display: "flex", gap: isMobile ? 16 : 20 }}>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>NON PAYEES</p>
+                      <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "#ef4444" }}>{overdueCount + pendingCount}</p>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>EN RETARD</p>
+                      <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "#ef4444" }}>{overdueCount}</p>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>PAYEES</p>
+                      <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "#4ade80" }}>{paidCount}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: 2, marginBottom: 16, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 3, padding: 3, width: "fit-content" }}>
+              {periods.map((p) => (
+                <button key={p.key} onClick={() => setPeriod(p.key)} style={{ padding: isMobile ? "5px 10px" : "7px 18px", borderRadius: 2, border: "none", fontSize: isMobile ? 9 : 10, fontWeight: 800, letterSpacing: 1.5, color: period === p.key ? "#0f1923" : MUTED, background: period === p.key ? GOLD : "transparent", cursor: "pointer", transition: "all 0.15s" }}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+              {[
+                { label: "TOTAL FACTURES", value: filtered.length, color: GOLD },
+                { label: "MONTANT TOTAL TTC", value: fmt(totalAmount), color: "#4ade80" },
+                { label: "TVA TOTALE", value: fmt(totalTax), color: "#fb923c" },
+                { label: "MOYENNE / FACTURE", value: fmt(avgAmount), color: "#60a5fa" },
+              ].map((s) => (
+                <div key={s.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "10px 12px" : "16px 20px" }}>
+                  <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1.5, marginBottom: 4, textTransform: "uppercase" }}>{s.label}</p>
+                  <p style={{ fontSize: isMobile ? 16 : 24, fontWeight: 700, color: s.color }}>{s.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "8px 10px" : "14px 18px" }}>
+                <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>MONTANT HT</p>
+                <p style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#4ade80" }}>{fmt(totalSubtotal)}</p>
+              </div>
+              <div style={{ background: CARD, border: `1px solid ${overdueCount > 0 ? "#ef444450" : BORDER}`, borderRadius: 4, padding: isMobile ? "8px 10px" : "14px 18px" }}>
+                <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>
+                  {overdueCount > 0 ? "EN RETARD" : "EN ATTENTE"}
+                </p>
+                <p style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: overdueCount > 0 ? "#ef4444" : "#fb923c" }}>
+                  {overdueCount > 0 ? overdueCount : pendingCount} FAC.
+                </p>
+              </div>
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "8px 10px" : "14px 18px" }}>
+                <p style={{ fontSize: 9, color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>TVA</p>
+                <p style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#60a5fa" }}>{fmt(totalTax)}</p>
+              </div>
+            </div>
+
+            {!isMobile && chartData.length > 0 && (
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "18px 20px", marginBottom: 16 }}>
+                <p style={{ fontSize: 10, color: MUTED, letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>DEPENSES PAR MOIS</p>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2a3a50" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: MUTED }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: MUTED }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 3, fontSize: 11, color: TEXT }} formatter={(value: any) => [`${String(value).replace(".", ",")} €`, "TTC"]} />
+                    <Bar dataKey="total" fill={GOLD} radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            <div style={{ background: CARD, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: isMobile ? "10px 12px" : "16px 20px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+              <div>
+                <p style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: GOLD, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 2 }}>RAPPROCHEMENT BANCAIRE</p>
+                {!isMobile && <p style={{ fontSize: 12, color: MUTED }}>Importez le CSV de votre banque</p>}
+              </div>
+              <Link href="/reconciliation" style={{ background: GOLD, color: "#0f1923", padding: isMobile ? "7px 12px" : "10px 22px", borderRadius: 3, fontSize: isMobile ? 10 : 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                + IMPORTER CSV
+              </Link>
+            </div>
+
+            {filtered.length === 0 ? (
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "48px 32px", textAlign: "center" }}>
+                <p style={{ color: MUTED, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 20 }}>AUCUNE FACTURE</p>
+                <Link href="/invoices" style={{ background: GOLD, color: "#0f1923", padding: "10px 24px", borderRadius: 3, fontSize: 11, fontWeight: 800, textDecoration: "none", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  + NOUVELLE FACTURE
+                </Link>
+              </div>
+            ) : isMobile ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {filtered.map((inv) => {
                   const status = getStatus(inv);
+                  const sc = statusConfig[status] || statusConfig["pending"];
+                  const canConfirm = status === "suggestion_ai" || status === "correspondance_partielle";
                   return (
-                    <tr key={inv.id} style={{ borderBottom: i < filtered.length - 1 ? "1px solid #f3f4f6" : "none" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "#fafafa")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
-                    >
-                      <td style={{ padding: "13px 16px", fontWeight: 600, color: "#111827" }}>{inv.vendor_name || "—"}</td>
-                      <td style={{ padding: "13px 16px", color: "#6b7280", fontFamily: "monospace", fontSize: 12 }}>{inv.invoice_number || "—"}</td>
-                      <td style={{ padding: "13px 16px", color: "#6b7280", whiteSpace: "nowrap" }}>{inv.invoice_date || "—"}</td>
-                      <td style={{ padding: "13px 16px", textAlign: "right", color: "#374151", whiteSpace: "nowrap" }}>{inv.subtotal ? `${Number(inv.subtotal).toFixed(2)} EUR` : "—"}</td>
-                      <td style={{ padding: "13px 16px", textAlign: "right", color: "#374151", whiteSpace: "nowrap" }}>{inv.tax_amount ? `${Number(inv.tax_amount).toFixed(2)} EUR` : "—"}</td>
-                      <td style={{ padding: "13px 16px", textAlign: "right", fontWeight: 700, color: "#111827", whiteSpace: "nowrap" }}>{inv.total_amount ? `${Number(inv.total_amount).toFixed(2)} EUR` : "—"}</td>
-                      <td style={{ padding: "13px 16px" }}>
-                        <span style={{ background: `${statusColor[status]}15`, color: statusColor[status], padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>
-                          {status === "overdue" ? "⚠" : "⏳"} {statusLabel[status]}
+                    <div key={inv.id} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "10px 12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                        <div>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: TEXT, marginBottom: 2 }}>{inv.vendor_name || "—"}</p>
+                          <p style={{ fontSize: 10, color: MUTED }}>{inv.invoice_date || "—"}</p>
+                        </div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: GOLD }}>{inv.total_amount ? fmt(Number(inv.total_amount)) : "—"}</p>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ background: sc.bg, color: sc.color, padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                          {sc.label}
                         </span>
-                      </td>
-                      <td style={{ padding: "13px 16px", textAlign: "right" }}>
-                        <button onClick={() => deleteInvoice(inv.id)}
-                          style={{ background: "none", border: "none", color: "#d1d5db", cursor: "pointer", fontSize: 18, lineHeight: 1 }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = "#d1d5db")}
-                        >×</button>
-                      </td>
-                    </tr>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {canConfirm && (
+                            <button onClick={() => confirmPayment(inv.id)} style={{ background: "#4ade8015", color: "#4ade80", border: "1px solid #4ade8040", padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase" }}>
+                              CONFIRMER
+                            </button>
+                          )}
+                          <button onClick={() => deleteInvoice(inv.id)} style={{ background: "none", border: "none", color: BORDER, cursor: "pointer", fontSize: 16 }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = BORDER)}
+                          >×</button>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
+              </div>
+            ) : (
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse", minWidth: 600 }}>
+                    <thead>
+                      <tr style={{ background: "#151f2e", borderBottom: `1px solid ${BORDER}` }}>
+                        {["FOURNISSEUR","N FACTURE","DATE","SOUS-TOTAL","TVA","TOTAL TTC","STATUT",""].map((h) => (
+                          <th key={h} style={{ textAlign: ["SOUS-TOTAL","TVA","TOTAL TTC",""].includes(h) ? "right" : "left", padding: "10px 14px", fontSize: 10, color: MUTED, letterSpacing: 1.5, fontWeight: 600, whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((inv, i) => {
+                        const status = getStatus(inv);
+                        const sc = statusConfig[status] || statusConfig["pending"];
+                        const canConfirm = status === "suggestion_ai" || status === "correspondance_partielle";
+                        return (
+                          <tr key={inv.id}
+                            style={{ borderBottom: i < filtered.length - 1 ? `1px solid ${BORDER}` : "none" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#1f2f45")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                          >
+                            <td style={{ padding: "11px 14px", fontWeight: 600, color: TEXT }}>{inv.vendor_name || "—"}</td>
+                            <td style={{ padding: "11px 14px", color: MUTED, fontFamily: "monospace", fontSize: 11 }}>{inv.invoice_number || "—"}</td>
+                            <td style={{ padding: "11px 14px", color: MUTED, whiteSpace: "nowrap", fontSize: 11 }}>{inv.invoice_date || "—"}</td>
+                            <td style={{ padding: "11px 14px", textAlign: "right", color: TEXT, whiteSpace: "nowrap" }}>{inv.subtotal ? fmt(Number(inv.subtotal)) : "—"}</td>
+                            <td style={{ padding: "11px 14px", textAlign: "right", color: MUTED, whiteSpace: "nowrap" }}>{inv.tax_amount ? fmt(Number(inv.tax_amount)) : "—"}</td>
+                            <td style={{ padding: "11px 14px", textAlign: "right", fontWeight: 700, color: GOLD, whiteSpace: "nowrap" }}>{inv.total_amount ? fmt(Number(inv.total_amount)) : "—"}</td>
+                            <td style={{ padding: "11px 14px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                <span style={{ background: sc.bg, color: sc.color, padding: "3px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                                  {sc.label}
+                                </span>
+                                {canConfirm && (
+                                  <button onClick={() => confirmPayment(inv.id)} style={{ background: "#4ade8015", color: "#4ade80", border: "1px solid #4ade8040", padding: "3px 10px", borderRadius: 2, fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                                    CONFIRMER
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                            <td style={{ padding: "11px 14px", textAlign: "right" }}>
+                              <button onClick={() => deleteInvoice(inv.id)}
+                                style={{ background: "none", border: "none", color: BORDER, cursor: "pointer", fontSize: 16 }}
+                                onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
+                                onMouseLeave={(e) => (e.currentTarget.style.color = BORDER)}
+                              >×</button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* TAB: CONTRATS */}
+        {activeTab === "contrats" && (
+          <div>
+            <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "20px 16px" : "32px 24px", marginBottom: 20, textAlign: "center" }}>
+              <h3 style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: TEXT, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
+                ANALYSER UN CONTRAT
+              </h3>
+              <p style={{ fontSize: 12, color: MUTED, marginBottom: isMobile ? 12 : 16, lineHeight: 1.6 }}>
+                L'IA analyse votre contrat et detecte les clauses importantes, les frais caches et les risques.
+              </p>
+              {!isMobile && (
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+                  {["Conditions de paiement", "Clauses a risque", "Frais caches", "Dates cles"].map((tag) => (
+                    <span key={tag} style={{ background: `${GOLD}15`, color: GOLD, border: `1px solid ${GOLD}30`, padding: "4px 10px", borderRadius: 20, fontSize: 11 }}>{tag}</span>
+                  ))}
+                </div>
+              )}
+              <label style={{ background: contractLoading ? BORDER : GOLD, color: "#0f1923", padding: isMobile ? "10px 20px" : "11px 28px", borderRadius: 3, cursor: contractLoading ? "not-allowed" : "pointer", fontSize: isMobile ? 10 : 11, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", display: "inline-block" }}>
+                {contractLoading ? "ANALYSE EN COURS..." : "IMPORTER UN CONTRAT (PDF)"}
+                <input type="file" accept=".pdf" style={{ display: "none" }} onChange={handleContractUpload} disabled={contractLoading} />
+              </label>
+            </div>
+
+            {contractResult && (
+              <div style={{ background: CARD, border: `1px solid ${GOLD}40`, borderRadius: 4, padding: isMobile ? "16px" : "24px", marginBottom: 20 }}>
+                <p style={{ fontSize: 10, color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>RESULTAT DE L'ANALYSE IA</p>
+                {contractResult.summary && (
+                  <div style={{ background: "#0f1923", borderRadius: 3, padding: "14px 16px", marginBottom: 16 }}>
+                    <p style={{ fontSize: 11, color: GOLD, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>RESUME</p>
+                    <p style={{ fontSize: 13, color: TEXT, lineHeight: 1.7 }}>{contractResult.summary}</p>
+                  </div>
+                )}
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                  {contractResult.vendor_name && (
+                    <div style={{ background: "#0f1923", borderRadius: 3, padding: "12px 14px" }}>
+                      <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>FOURNISSEUR</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: TEXT }}>{contractResult.vendor_name}</p>
+                    </div>
+                  )}
+                  {contractResult.payment_terms && (
+                    <div style={{ background: "#0f1923", borderRadius: 3, padding: "12px 14px" }}>
+                      <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>CONDITIONS DE PAIEMENT</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "#4ade80" }}>{contractResult.payment_terms}</p>
+                    </div>
+                  )}
+                </div>
+                {contractResult.hidden_fees && contractResult.hidden_fees.length > 0 && (
+                  <div style={{ background: "#ef444410", border: "1px solid #ef444430", borderRadius: 3, padding: "14px 16px", marginBottom: 12 }}>
+                    <p style={{ fontSize: 11, color: "#ef4444", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>FRAIS CACHES DETECTES</p>
+                    {contractResult.hidden_fees.map((fee: any, i: number) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <p style={{ fontSize: 12, color: TEXT }}>{fee.description}</p>
+                        {fee.amount && <span style={{ fontSize: 12, fontWeight: 700, color: "#ef4444" }}>{fee.amount}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {contractResult.risk_clauses && contractResult.risk_clauses.length > 0 && (
+                  <div style={{ background: "#f59e0b10", border: "1px solid #f59e0b30", borderRadius: 3, padding: "14px 16px", marginBottom: 12 }}>
+                    <p style={{ fontSize: 11, color: "#f59e0b", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>CLAUSES A RISQUE</p>
+                    {contractResult.risk_clauses.map((clause: any, i: number) => (
+                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: clause.severity === "high" ? "#ef4444" : clause.severity === "medium" ? "#f59e0b" : MUTED, background: clause.severity === "high" ? "#ef444420" : "#f59e0b20", padding: "2px 6px", borderRadius: 2, whiteSpace: "nowrap", marginTop: 2 }}>
+                          {clause.severity?.toUpperCase()}
+                        </span>
+                        <p style={{ fontSize: 12, color: TEXT, lineHeight: 1.5 }}>{clause.clause}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {contractResult.key_dates && contractResult.key_dates.length > 0 && (
+                  <div style={{ background: "#0f1923", borderRadius: 3, padding: "12px 14px" }}>
+                    <p style={{ fontSize: 10, color: MUTED, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>DATES CLES</p>
+                    {contractResult.key_dates.map((d: any, i: number) => (
+                      <div key={i} style={{ display: "flex", gap: 12, marginBottom: 6, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 12, color: GOLD, fontWeight: 700, whiteSpace: "nowrap" }}>{d.date}</span>
+                        <span style={{ fontSize: 12, color: TEXT }}>{d.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {contracts.length > 0 && (
+              <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ padding: "12px 16px", borderBottom: `1px solid ${BORDER}`, background: "#151f2e" }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: TEXT, letterSpacing: 1.5, textTransform: "uppercase" }}>{contracts.length} CONTRAT{contracts.length > 1 ? "S" : ""} ANALYSE{contracts.length > 1 ? "S" : ""}</p>
+                </div>
+                <div>
+                  {contracts.map((contract, i) => (
+                    <div key={contract.id} style={{ padding: isMobile ? "10px 12px" : "14px 18px", borderBottom: i < contracts.length - 1 ? `1px solid ${BORDER}` : "none", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                      <div>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: TEXT, marginBottom: 2 }}>{contract.vendor_name || contract.filename}</p>
+                        <p style={{ fontSize: 10, color: MUTED }}>{contract.payment_terms || "—"} · {new Date(contract.created_at).toLocaleDateString("fr-FR")}</p>
+                      </div>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {contract.risk_clauses && contract.risk_clauses.length > 0 && (
+                          <span style={{ background: "#f59e0b20", color: "#f59e0b", padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700 }}>
+                            {contract.risk_clauses.length} RISQUE{contract.risk_clauses.length > 1 ? "S" : ""}
+                          </span>
+                        )}
+                        {contract.hidden_fees && contract.hidden_fees.length > 0 && (
+                          <span style={{ background: "#ef444420", color: "#ef4444", padding: "2px 8px", borderRadius: 2, fontSize: 10, fontWeight: 700 }}>
+                            {contract.hidden_fees.length} FRAIS
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* TAB: INSIGHTS */}
+        {activeTab === "insights" && (
+          <InsightsTab
+            isMobile={isMobile}
+            userId={currentUserId}
+            insightsData={insightsData}
+            insightsLoading={insightsLoading}
+            insightsError={insightsError}
+            onGenerate={() => currentUserId && fetchInsights(currentUserId)}
+          />
+        )}
+
+      </div>
+
+      {showFeedback && (
+        <FeedbackWidget trigger="auto" onClose={() => setShowFeedback(false)} />
       )}
 
     </div>

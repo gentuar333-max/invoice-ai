@@ -356,9 +356,34 @@ export default function InlineDemoV2() {
       <AnimatePresence mode="wait">
         {step === 'idle' && (
           <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
-              onDragLeave={() => setIsDragging(false)}
+            {/* Detection badges */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className={`rounded-xl p-3 border transition-all ${mode === 'facture' ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-100'}`}>
+          <p className="text-xs font-bold text-violet-700 mb-2 uppercase tracking-wide">📄 Facture — IA détecte</p>
+          <ul className="space-y-1">
+            {['Nom & SIRET fournisseur', 'Montants HT / TVA / TTC', 'N° facture & dates', 'Lignes de facturation', 'Catégorie dépense', 'Doublons potentiels'].map((item) => (
+              <li key={item} className="flex items-center gap-1.5 text-xs text-slate-600">
+                <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className={`rounded-xl p-3 border transition-all ${mode === 'contrat' ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-100'}`}>
+          <p className="text-xs font-bold text-violet-700 mb-2 uppercase tracking-wide">📋 Contrat — IA détecte</p>
+          <ul className="space-y-1">
+            {['Clauses à risque élevé', 'Frais cachés & pénalités', 'Conditions de résiliation', 'Révisions tarifaires auto', 'Dates clés & échéances', 'Résumé intelligent'].map((item) => (
+              <li key={item} className="flex items-center gap-1.5 text-xs text-slate-600">
+                <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}              onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileRef.current?.click()}
               className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${isDragging ? 'border-violet-500 bg-violet-50' : 'border-slate-200 hover:border-violet-300 hover:bg-violet-50/50'}`}

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import SharedFooter from '@/components/SharedFooter';
-import InlineDemo from '@/components/InlineDemo';
+import InlineDemoV2 from '@/components/InlineDemoV2';
 
 const BASE_URL = 'https://invoiceagent.fr';
 const PAGE_URL = `${BASE_URL}/facturation-coach`;
@@ -234,7 +234,7 @@ function DemoSection() {
           transition={{ duration: 0.7 }}
           className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 lg:p-8"
         >
-          <InlineDemo />
+          <InlineDemoV2 />
         </motion.div>
         <div className="grid grid-cols-3 gap-6 mt-10">
           {[

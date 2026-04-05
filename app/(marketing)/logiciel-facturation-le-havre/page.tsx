@@ -98,6 +98,9 @@ function Hero() {
                 </div>
               ))}
             </motion.div>
+            <motion.div variants={fadeInUp} className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 text-left">
+              <p className="text-sm text-indigo-700 leading-relaxed"><span className="font-semibold">📍 Le Havre :</span> Premier port de France, Le Havre concentre des entreprises BTP liées aux activités portuaires et logistiques, ainsi qu'un marché immobilier actif post-reconstruction. Les artisans de Seine-Maritime gèrent des volumes importants de factures fournisseurs chaque mois.</p>
+            </motion.div>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
               <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xl text-lg px-8 h-14" asChild><a href="#demo">Tester gratuitement <ArrowRight className="ml-2 w-5 h-5" /></a></Button>
               <Button size="lg" variant="outline" className="border-2 border-slate-200 text-slate-700 text-lg px-8 h-14" asChild><a href="#tarifs">Voir les tarifs</a></Button>

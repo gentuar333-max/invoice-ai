@@ -87,7 +87,7 @@ function Hero() {
               <span className="text-slate-900">automatique par IA</span>
             </motion.h1>
             <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-slate-600 mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Plus de <strong>8,600 artisans et 6,500 PME</strong> en Gard gèrent des dizaines de factures fournisseurs chaque mois. InvoiceAgent les traite automatiquement par OCR IA — depuis n'importe quel chantier ou bureau à Nîmes.
+              Plus de <strong>8,600 artisans et 6,500 PME</strong> en Gard gèrent des dizaines de factures fournisseurs chaque mois. Ville romaine au carrefour de l'Occitanie, Nîmes concentre un tissu d'artisans BTP dense — rénovation de mas, restauration de bâti ancien, chantiers de standing. InvoiceAgent traite automatiquement vos factures par OCR IA depuis n'importe quel chantier du Gard.
             </motion.p>
             <motion.div variants={fadeInUp} className="grid grid-cols-3 gap-3 mb-8">
               {[{ value: '8,600', label: 'Artisans', sub: 'en Gard' }, { value: '< 5s', label: 'Par facture', sub: 'OCR IA auto' }, { value: '€0', label: 'Pour démarrer', sub: '5 factures/mois' }].map((stat) => (
@@ -97,6 +97,9 @@ function Hero() {
                   <p className="text-xs text-slate-400 mt-0.5">{stat.sub}</p>
                 </div>
               ))}
+            </motion.div>
+            <motion.div variants={fadeInUp} className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 text-left">
+              <p className="text-sm text-indigo-700 leading-relaxed"><span className="font-semibold">📍 Nimes :</span> Ville romaine au carrefour de l'Occitanie, Nîmes concentre un tissu d'artisans BTP dense — rénovation de mas, restauration de bâti ancien, chantiers de standing. Les entreprises du Gard gèrent un volume important de factures fournisseurs entre chantiers locaux et achats régionaux.</p>
             </motion.div>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
               <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xl text-lg px-8 h-14" asChild><a href="#demo">Tester gratuitement <ArrowRight className="ml-2 w-5 h-5" /></a></Button>

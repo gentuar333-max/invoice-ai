@@ -191,7 +191,7 @@ function Features() {
 function Pricing() {
   const plans = [
     { name: 'Gratuit', price: '0', description: 'Pour démarrer à Dijon', features: ['5 factures fournisseurs/mois', 'Scan smartphone chantier', 'Suivi payé / impayé', 'Tableau de bord simple', 'Export PDF'], cta: 'Commencer gratuitement', popular: false, href: `${BASE_URL}/auth/login` },
-    { name: 'Starter', price: '19', description: 'Artisans et PME de Côte-d'Or', features: ['100 factures / mois', 'TVA 10% et 20% automatique', 'Réconciliation bancaire CSV', 'Alertes factures impayées', 'Export CSV + PDF', 'Tableau de bord complet'], cta: 'Choisir Starter', popular: true, href: `${BASE_URL}/checkout?plan=starter` },
+    { name: 'Starter', price: '19', description: "Artisans et PME de Côte-d'Or", features: ['100 factures / mois', 'TVA 10% et 20% automatique', 'Réconciliation bancaire CSV', 'Alertes factures impayées', 'Export CSV + PDF', 'Tableau de bord complet'], cta: 'Choisir Starter', popular: true, href: `${BASE_URL}/checkout?plan=starter` },
     { name: 'Pro', price: '29', description: 'Factures + contrats', features: ['Factures illimitées', 'IA correspondances bancaires', 'Export FEC conforme DGFiP', 'Analyse contrats (5/mois)', 'Détection clauses risque', 'Pénalités identifiées'], cta: 'Choisir Pro', popular: false, href: `${BASE_URL}/checkout?plan=pro` },
     { name: 'Business', price: '49', description: 'Multi-chantiers Dijon', features: ['Tout Pro inclus', 'Multi-chantiers illimité', 'Analyse contrats illimitée', 'Résumé intelligent', 'Historique RGPD', 'Accompagnement perso'], cta: 'Choisir Business', popular: false, href: `${BASE_URL}/checkout?plan=business` },
   ];
@@ -242,7 +242,7 @@ function Demo() {
           <InlineDemoV2 />
         </motion.div>
         <div className="grid grid-cols-3 gap-6 mt-10">
-          {[{ value: '6,900', label: 'Artisans en Côte-d'Or', icon: MapPin }, { value: '< 5s', label: 'Par facture traitée', icon: Zap }, { value: '€0', label: 'Pour commencer', icon: CheckCircle2 }].map((stat) => (
+          {[{ value: '6,900', label: "Artisans en Côte-d'Or", icon: MapPin }, { value: '< 5s', label: 'Par facture traitée', icon: Zap }, { value: '€0', label: 'Pour commencer', icon: CheckCircle2 }].map((stat) => (
             <AnimatedSection key={stat.label} className="text-center">
               <div className="w-12 h-12 mx-auto rounded-2xl bg-white/10 flex items-center justify-center mb-3"><stat.icon className="w-6 h-6 text-violet-300" /></div>
               <p className="text-2xl font-bold text-white">{stat.value}</p>

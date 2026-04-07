@@ -97,15 +97,17 @@ function Navigation() {
   );
 }
 
+// ============================================================
+// HERO SECTION - PA PARALLAX (NDRYSHIMI I VETEM)
+// ============================================================
 function Hero() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  // ❌ HIQUR: useRef, useScroll, useTransform - efekti parallax hequr
   return (
-    <section ref={ref} className="relative lg:min-h-screen flex items-center pt-20 overflow-hidden pb-12 lg:pb-20">
+    <section className="relative lg:min-h-screen flex items-center pt-20 overflow-hidden pb-12 lg:pb-20">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-violet-50/30 to-indigo-50/20" />
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-violet-400/20 to-indigo-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
-      <motion.div style={{ y }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+      {/* ❌ HIQUR: style={{ y }} dhe ref={ref} - zevendesuar me animacion static */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center lg:text-left">
             <motion.div variants={fadeInUp}>

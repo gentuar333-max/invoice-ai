@@ -90,7 +90,7 @@ function Hero() {
               Plus de <strong>6,900 artisans et 5,400 PME</strong> en Côte-d'Or gèrent des dizaines de factures fournisseurs chaque mois. InvoiceAgent les traite automatiquement par OCR IA — depuis n'importe quel chantier ou bureau à Dijon.
             </motion.p>
             <motion.div variants={fadeInUp} className="grid grid-cols-3 gap-3 mb-8">
-              {[{ value: '6,900', label: 'Artisans', sub: 'en Côte-d'Or' }, { value: '< 5s', label: 'Par facture', sub: 'OCR IA auto' }, { value: '€0', label: 'Pour démarrer', sub: '5 factures/mois' }].map((stat) => (
+              {[{ value: '6,900', label: 'Artisans', sub: "en Côte-d'Or" }, { value: '< 5s', label: 'Par facture', sub: 'OCR IA auto' }, { value: '€0', label: 'Pour démarrer', sub: '5 factures/mois' }].map((stat) => (
                 <div key={stat.label} className="bg-white/80 rounded-xl p-3 border border-slate-100 text-center">
                   <p className="text-xl font-bold text-violet-700">{stat.value}</p>
                   <p className="text-xs font-semibold text-slate-700 mt-1">{stat.label}</p>

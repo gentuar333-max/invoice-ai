@@ -21,6 +21,9 @@ const marketingPaths = [
   '/extraction-facture-pdf', '/reconciliation-bancaire-csv', '/analyse-contrat-ia',
   '/logiciel-comptabilite-pme', '/facturation-', '/export-fec-comptable',
   '/tva-automatique-pme', '/logiciel-facturation-', '/logiciel-comptabilite-', '/landing',
+  '/detection-clauses-abusives', '/detection-frais-caches', '/detection-doublons-factures',
+  '/verifier-contrat-avant-signature', '/analyse-contrat-prestation',
+  '/extraction-donnees-facture', '/ocr-factures-pdf',
 ];
 
 function Logo() {

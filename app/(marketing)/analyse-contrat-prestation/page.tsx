@@ -152,7 +152,7 @@ function Hero() {
             </motion.div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.3 }} className="relative">
+          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.3 }} className="relative hidden lg:block">
             <div className="bg-white rounded-3xl shadow-2xl shadow-violet-600/20 p-6 border border-slate-100">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">

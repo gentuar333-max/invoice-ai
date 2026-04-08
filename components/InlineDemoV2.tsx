@@ -151,6 +151,38 @@ function FactureResult({ data }: { data: any }) {
           </motion.div>
         )}
       </motion.div>
+
+      {data.tax_amount != null && data.total_amount != null && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0 }} className="bg-blue-50 rounded-xl p-4 mb-4 border border-blue-100">
+          <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-3">TVA a declarer</p>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-blue-800 font-medium">Montant TVA detecte</span>
+            <span className="text-sm font-bold text-blue-900">{fmt(data.tax_amount)}</span>
+          </div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-blue-800 font-medium">Taux TVA effectif</span>
+            <span className="text-sm font-bold text-blue-900">
+              {data.subtotal && data.subtotal > 0
+                ? `${((data.tax_amount / data.subtotal) * 100).toFixed(2)}%`
+                : data.total_amount > 0
+                ? `${((data.tax_amount / (data.total_amount - data.tax_amount)) * 100).toFixed(2)}%`
+                : '—'}
+            </span>
+          </div>
+          <div className="mt-3 pt-3 border-t border-blue-200">
+            <div className="flex items-start gap-2">
+              <span className="text-blue-500 text-xs mt-0.5">💡</span>
+              <p className="text-xs text-blue-600 leading-relaxed">
+                {data.tax_amount != null && data.total_amount != null && (data.tax_amount / (data.total_amount - data.tax_amount) * 100) < 15
+                  ? 'TVA mixte detectee — taux reduit sur certains produits (alimentation, livres). Reportez ce montant sur votre declaration CA3.'
+                  : data.tax_amount != null && data.total_amount != null && (data.tax_amount / (data.total_amount - data.tax_amount) * 100) >= 19
+                  ? 'TVA a taux normal 20%. Reportez ce montant en case 0800 de votre declaration CA3.'
+                  : 'TVA intermediaire 10%. Reportez ce montant en case 0700 de votre declaration CA3.'}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
       {data.line_items?.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="mb-4">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">{data.line_items.length} ligne{data.line_items.length > 1 ? 's' : ''} detectee{data.line_items.length > 1 ? 's' : ''}</p>

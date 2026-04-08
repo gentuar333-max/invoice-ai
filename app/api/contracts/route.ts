@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
 
     const bytes = await file.arrayBuffer();
     const base64 = Buffer.from(bytes).toString("base64");
+    console.log("MIME:", file.type);
     const mimeType = file.type || "application/pdf";
 
     const prompt = `Tu es un expert juridique. Analyse ce contrat et reponds UNIQUEMENT en JSON valide sans markdown:
@@ -31,13 +32,31 @@ export async function POST(request: NextRequest) {
 }`;
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    const result = await model.generateContent([
-      prompt,
-      { inlineData: { mimeType, data: base64 } },
-    ]);
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: mimeType,
+                data: base64,
+              },
+            },
+          ],
+        },
+      ],
+    });
 
     const text = result.response.text();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const cleaned = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return NextResponse.json({ success: false, error: "Reponse IA invalide" }, { status: 500 });
     }

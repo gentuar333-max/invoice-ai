@@ -307,6 +307,7 @@ export default function InlineDemoV2() {
     const endpoint = mode === 'facture' ? '/api/invoices/extract' : '/api/contracts'
     const res = await fetch(endpoint, { method: 'POST', body: formData })
     const json = await res.json()
+    console.log('API Response:', JSON.stringify(json))
     if (!json.success) throw new Error(json.error || 'Erreur IA')
     return json.data
   }

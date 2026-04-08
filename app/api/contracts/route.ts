@@ -45,10 +45,26 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      return NextResponse.json({ success: false, error: `Gemini error: ${errText}` }, { status: 500 });
+    }
+
     const geminiData = await geminiRes.json();
     const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    if (!text) {
+      return NextResponse.json({ success: false, error: "Gemini returned empty response" }, { status: 500 });
+    }
+
     const clean = text.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(clean);
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(clean);
+    } catch (parseErr: any) {
+      return NextResponse.json({ success: false, error: `JSON parse error: ${parseErr.message}` }, { status: 500 });
+    }
 
     // Save to DB - ignore errors for demo mode without auth
     try {
@@ -65,7 +81,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (_) {}
 
-    return NextResponse.json({ success: false, error: error.message, stack: error.stack }, { status: 500 });
+    return NextResponse.json({ success: true, data: parsed });
 
   } catch (error: any) {
     console.error("Contract analysis error:", error);

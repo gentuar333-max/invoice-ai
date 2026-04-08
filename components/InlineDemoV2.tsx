@@ -231,13 +231,15 @@ export default function InlineDemoV2() {
   const [isDragging, setIsDragging] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [errorMsg, setErrorMsg] = useState('')
-  const [usageLeft, setUsageLeft] = useState(2)
+  const [usageLeft, setUsageLeft] = useState(5)
+  const [mounted, setMounted] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Fix SSR hydration - read localStorage only on client side
   useEffect(() => {
+    setMounted(true)
     const count = getUsageCount()
-    setUsageLeft(Math.max(0, 2 - count))
+    setUsageLeft(Math.max(0, 5 - count))
   }, [])
 
   function getUsageCount(): number {
@@ -250,12 +252,23 @@ export default function InlineDemoV2() {
     try {
       const newCount = getUsageCount() + 1
       localStorage.setItem('demo_v2_usage', String(newCount))
-      setUsageLeft(Math.max(0, 2 - newCount))
+      setUsageLeft(Math.max(0, 5 - newCount))
+    } catch {}
+  }
+
+  function resetUsage() {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem('demo_v2_usage', '0')
+      setUsageLeft(5)
+      setStep('idle')
+      setProgress(0)
+      setResult(null)
     } catch {}
   }
 
   async function handleFile(file: File) {
-    if (getUsageCount() >= 2) { setStep('limit'); return }
+    if (getUsageCount() >= 5) { setStep('limit'); return }
     setResult(null)
     setErrorMsg('')
 
@@ -326,6 +339,8 @@ export default function InlineDemoV2() {
   }
 
   const isAnalyzing = ['uploading', 'reading', 'extracting', 'analyzing'].includes(step)
+
+  if (!mounted) return null
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -432,11 +447,14 @@ export default function InlineDemoV2() {
             <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-violet-100 flex items-center justify-center">
               <Lock className="w-7 h-7 text-violet-600" />
             </div>
-            <p className="text-lg font-bold text-slate-900 mb-2">2 analyses utilisees</p>
+            <p className="text-lg font-bold text-slate-900 mb-2">5 analyses utilisees</p>
             <p className="text-sm text-slate-500 mb-6">Creez un compte gratuit pour continuer avec 5 factures par mois.</p>
             <a href={LOGIN_URL} className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg">
               Creer mon compte gratuit <ArrowRight className="w-4 h-4" />
             </a>
+            <button onClick={resetUsage} className="block w-full mt-4 py-2 text-xs text-slate-300 hover:text-slate-500 transition-colors">
+              Reinitialiser (test)
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

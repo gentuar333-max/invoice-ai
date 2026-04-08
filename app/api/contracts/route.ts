@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (_) {}
 
-    return NextResponse.json({ success: true, data: parsed });
+    return NextResponse.json({ success: false, error: error.message, stack: error.stack }, { status: 500 });
 
   } catch (error: any) {
     console.error("Contract analysis error:", error);

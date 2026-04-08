@@ -16,16 +16,15 @@ export async function POST(request: NextRequest) {
     const base64 = Buffer.from(bytes).toString("base64");
     const mimeType = file.type || "application/pdf";
 
-    const prompt = `Tu es un expert juridique et comptable. Analyse ce contrat et extrais les informations suivantes.
-Reponds UNIQUEMENT en JSON valide sans markdown:
+    const prompt = `Tu es un expert juridique. Analyse ce contrat et reponds UNIQUEMENT en JSON valide sans markdown:
 {
-  "vendor_name": "nom du fournisseur ou partenaire",
+  "vendor_name": "nom du fournisseur",
   "payment_terms": "conditions de paiement",
   "hidden_fees": [{"description": "frais cache", "amount": "montant"}],
   "risk_clauses": [{"clause": "clause a risque", "severity": "high/medium/low"}],
   "penalties": "penalites de retard ou resiliation",
   "key_dates": [{"date": "date", "description": "signification"}],
-  "obligations": "principales obligations des parties",
+  "obligations": "principales obligations",
   "summary": "resume en 2-3 phrases"
 }`;
 
@@ -35,7 +34,12 @@ Reponds UNIQUEMENT en JSON valide sans markdown:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ inline_data: { mime_type: mimeType, data: base64 } }, { text: prompt }] }],
+          contents: [{
+            parts: [
+              { inline_data: { mime_type: mimeType, data: base64 } },
+              { text: prompt }
+            ]
+          }],
           generationConfig: { temperature: 0.1, maxOutputTokens: 2000 },
         }),
       }
@@ -46,7 +50,7 @@ Reponds UNIQUEMENT en JSON valide sans markdown:
     const clean = text.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(clean);
 
-    // Try DB insert but ignore errors in demo mode
+    // Save to DB - ignore errors for demo mode without auth
     try {
       await supabase.from("contracts").insert({
         filename: file.name,
@@ -71,7 +75,10 @@ Reponds UNIQUEMENT en JSON valide sans markdown:
 
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("contracts").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("contracts")
+      .select("*")
+      .order("created_at", { ascending: false });
     if (error) throw error;
     return NextResponse.json({ success: true, data });
   } catch (error: any) {

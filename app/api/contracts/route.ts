@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -28,45 +30,20 @@ export async function POST(request: NextRequest) {
   "summary": "resume en 2-3 phrases"
 }`;
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: mimeType, data: base64 } },
-              { text: prompt }
-            ]
-          }],
-          generationConfig: { temperature: 0.1, maxOutputTokens: 2000 },
-        }),
-      }
-    );
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent([
+      prompt,
+      { inlineData: { mimeType, data: base64 } },
+    ]);
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      return NextResponse.json({ success: false, error: `Gemini error: ${errText}` }, { status: 500 });
+    const text = result.response.text();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json({ success: false, error: "Reponse IA invalide" }, { status: 500 });
     }
 
-    const geminiData = await geminiRes.json();
-    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const parsed = JSON.parse(jsonMatch[0]);
 
-    if (!text) {
-      return NextResponse.json({ success: false, error: "Gemini returned empty response" }, { status: 500 });
-    }
-
-    const clean = text.replace(/```json|```/g, "").trim();
-
-    let parsed: any;
-    try {
-      parsed = JSON.parse(clean);
-    } catch (parseErr: any) {
-      return NextResponse.json({ success: false, error: `JSON parse error: ${parseErr.message}` }, { status: 500 });
-    }
-
-    // Save to DB - ignore errors for demo mode without auth
     try {
       await supabase.from("contracts").insert({
         filename: file.name,
@@ -85,6 +62,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error("Contract analysis error:", error);
+    if (error.message?.includes("API_KEY")) {
+      return NextResponse.json({ success: false, error: "Cle API invalide." }, { status: 401 });
+    }
+    if (error.message?.includes("429")) {
+      return NextResponse.json({ success: false, error: "Quota API depasse. Reessayez." }, { status: 429 });
+    }
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

@@ -24,6 +24,28 @@ const marketingPaths = [
   '/detection-clauses-abusives', '/detection-frais-caches', '/detection-doublons-factures',
   '/verifier-contrat-avant-signature', '/analyse-contrat-prestation',
   '/extraction-donnees-facture', '/ocr-factures-pdf',
+  // SEO batch 2 — TVA
+  '/erreur-tva-facture-comment-corriger',
+  '/logiciel-tva-automatique-pme',
+  '/calcul-tva-erreur-entreprise',
+  // SEO batch 2 — Gabime
+  '/erreurs-facture-frequentes-pme',
+  '/comment-verifier-facture-fournisseur',
+  '/doublon-facture-que-faire',
+  '/controle-facture-automatise',
+  // SEO batch 2 — Kontrata
+  '/clauses-abusives-contrat-exemple',
+  '/comment-analyser-contrat-fournisseur',
+  '/risque-contrat-prestation-entreprise',
+  '/frais-caches-contrat-entreprise',
+  // SEO batch 2 — Bank
+  '/rapprochement-bancaire-erreur',
+  '/logiciel-rapprochement-bancaire-automatique',
+  '/ecart-rapprochement-bancaire-solution',
+  // SEO batch 2 — Long-tail
+  '/comment-detecter-erreur-facture-pdf',
+  '/outil-analyse-facture-automatique',
+  '/scanner-facture-detecter-erreurs',
 ];
 
 function Logo() {
@@ -116,7 +138,7 @@ export default function NavbarClient() {
               <div style={{ height: 1, background: BORDER, margin: "6px 0" }} />
               {isLoggedIn ? (
                 <button onClick={handleLogout} style={{ padding: "11px 14px", borderRadius: 6, border: "none", fontSize: 13, fontWeight: 600, color: "#ef4444", background: "#ef444415", cursor: "pointer", textAlign: "left", letterSpacing: 0.5 }}>
-                  Déconnexion
+                  Deconnexion
                 </button>
               ) : (
                 <a href="/auth/login" style={{ padding: "11px 14px", borderRadius: 6, textDecoration: "none", fontSize: 13, fontWeight: 700, color: "#0f1923", background: GOLD, textAlign: "center", display: "block", letterSpacing: 1 }}>
@@ -130,7 +152,7 @@ export default function NavbarClient() {
     );
   }
 
-  // DESKTOP — Logo left | Links center | Auth right
+  // DESKTOP
   return (
     <>
       <style>{`
@@ -159,7 +181,7 @@ export default function NavbarClient() {
         </div>
         <div className="ia-right">
           {isLoggedIn ? (
-            <button onClick={handleLogout} className="ia-logout">Déconnexion</button>
+            <button onClick={handleLogout} className="ia-logout">Deconnexion</button>
           ) : (
             <a href="/auth/login" className="ia-login">Connexion</a>
           )}

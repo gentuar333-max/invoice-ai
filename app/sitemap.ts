@@ -21,6 +21,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/detection-frais-caches', 0.9],
     ['/detection-doublons-factures', 0.9],
     ['/verifier-contrat-avant-signature', 0.9],
+    ['/analyse-contrat-prestation', 0.9],
+    ['/extraction-donnees-facture', 0.9],
+    ['/ocr-factures-pdf', 0.9],
+
+    // SEO batch — TVA
+    ['/erreur-tva-facture-comment-corriger', 0.9],
+    ['/logiciel-tva-automatique-pme', 0.9],
+    ['/calcul-tva-erreur-entreprise', 0.9],
+
+    // SEO batch — Erreurs factures
+    ['/erreurs-facture-frequentes-pme', 0.9],
+    ['/comment-verifier-facture-fournisseur', 0.9],
+    ['/doublon-facture-que-faire', 0.9],
+    ['/controle-facture-automatise', 0.9],
+
+    // SEO batch — Contrats
+    ['/clauses-abusives-contrat-exemple', 0.9],
+    ['/comment-analyser-contrat-fournisseur', 0.9],
+    ['/risque-contrat-prestation-entreprise', 0.9],
+    ['/frais-caches-contrat-entreprise', 0.9],
+
+    // SEO batch — Rapprochement bancaire
+    ['/rapprochement-bancaire-erreur', 0.9],
+    ['/logiciel-rapprochement-bancaire-automatique', 0.9],
+    ['/ecart-rapprochement-bancaire-solution', 0.9],
+
+    // SEO batch — Long-tail
+    ['/comment-detecter-erreur-facture-pdf', 0.8],
+    ['/outil-analyse-facture-automatique', 0.8],
+    ['/scanner-facture-detecter-erreurs', 0.8],
 
     // Secteurs freelance & PME
     ['/facturation-freelance', 0.8],

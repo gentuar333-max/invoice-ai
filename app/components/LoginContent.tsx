@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const BG = "#131f2e";
 const CARD = "#1e2d40";
@@ -17,6 +17,16 @@ export default function LoginContent() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [success, setSuccess] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Kap ?ref=IAXXXXXX nga URL dhe ruaj në localStorage
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      localStorage.setItem("referral_code", ref.toUpperCase());
+      setMode("register"); // hap direkt tab-in e regjistrimit
+    }
+  }, [searchParams]);
 
   async function handleSubmit() {
     if (!email || !password) return;
@@ -27,8 +37,20 @@ export default function LoginContent() {
       const { createClient } = await import("@/lib/supabase");
       const supabase = createClient();
       if (mode === "register") {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+
+        // Lidh referral_code me userin e ri nëse ekziston
+        const referralCode = localStorage.getItem("referral_code");
+        if (referralCode && data.user) {
+          await fetch("/api/referral/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ referral_code: referralCode }),
+          });
+          localStorage.removeItem("referral_code");
+        }
+
         await fetch("/api/email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

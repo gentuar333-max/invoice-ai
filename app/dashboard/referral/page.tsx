@@ -198,7 +198,7 @@ export default function ReferralDashboard() {
 
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <div style={{ flex: 1, background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "11px 14px" }}>
-              <p style={{ fontSize: 12, color: MUTED, margin: "0 0 2px", fontSize: 10 }}>Votre code</p>
+              <p style={{ fontSize: 10, color: MUTED, margin: "0 0 2px" }}>Votre code</p>
               <p style={{ fontSize: 15, fontWeight: 700, color: GOLD, margin: 0, letterSpacing: 1 }}>
                 {data?.referral_code ?? "—"}
               </p>

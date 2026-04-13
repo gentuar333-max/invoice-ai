@@ -14,6 +14,7 @@ const links = [
   { href: "/dashboard", label: "Mes factures" },
   { href: "/reconciliation", label: "Banque" },
   { href: "/pricing", label: "Tarifs" },
+  { href: "/dashboard/referral", label: "🎁 Parrainage" },
 ];
 
 const marketingPaths = [
@@ -24,25 +25,26 @@ const marketingPaths = [
   '/detection-clauses-abusives', '/detection-frais-caches', '/detection-doublons-factures',
   '/verifier-contrat-avant-signature', '/analyse-contrat-prestation',
   '/extraction-donnees-facture', '/ocr-factures-pdf',
-  // SEO batch 2 — TVA
+  '/programme-parrainage',
+  // SEO batch — TVA
   '/erreur-tva-facture-comment-corriger',
   '/logiciel-tva-automatique-pme',
   '/calcul-tva-erreur-entreprise',
-  // SEO batch 2 — Gabime
+  // SEO batch — Gabime
   '/erreurs-facture-frequentes-pme',
   '/comment-verifier-facture-fournisseur',
   '/doublon-facture-que-faire',
   '/controle-facture-automatise',
-  // SEO batch 2 — Kontrata
+  // SEO batch — Kontrata
   '/clauses-abusives-contrat-exemple',
   '/comment-analyser-contrat-fournisseur',
   '/risque-contrat-prestation-entreprise',
   '/frais-caches-contrat-entreprise',
-  // SEO batch 2 — Bank
+  // SEO batch — Bank
   '/rapprochement-bancaire-erreur',
   '/logiciel-rapprochement-bancaire-automatique',
   '/ecart-rapprochement-bancaire-solution',
-  // SEO batch 2 — Long-tail
+  // SEO batch — Long-tail
   '/comment-detecter-erreur-facture-pdf',
   '/outil-analyse-facture-automatique',
   '/scanner-facture-detecter-erreurs',
@@ -162,6 +164,7 @@ export default function NavbarClient() {
         .ia-link { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500; color: ${MUTED}; transition: all 0.15s; white-space: nowrap; letter-spacing: 0.5px; border-bottom: 2px solid transparent; }
         .ia-link:hover { color: ${TEXT}; background: ${CARD}; }
         .ia-link.active { color: ${GOLD}; font-weight: 700; border-bottom: 2px solid ${GOLD}; background: ${GOLD}12; }
+        .ia-link.referral { color: ${GOLD}; }
         .ia-logout { padding: 7px 16px; border-radius: 6px; border: 1px solid #ef444440; font-size: 12px; font-weight: 700; color: #ef4444; background: #ef444415; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
         .ia-login { padding: 7px 18px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 800; color: #0f1923; background: ${GOLD}; letter-spacing: 1px; text-transform: uppercase; }
         .ia-login:hover { background: #d4a43a; }
@@ -171,8 +174,13 @@ export default function NavbarClient() {
         <div className="ia-center">
           {links.map((link) => {
             const isActive = pathname?.startsWith(link.href);
+            const isReferral = link.href === '/dashboard/referral';
             return (
-              <a key={link.href} href={link.href} className={`ia-link${isActive ? ' active' : ''}`}>
+              <a
+                key={link.href}
+                href={link.href}
+                className={`ia-link${isActive ? ' active' : ''}${isReferral && !isActive ? ' referral' : ''}`}
+              >
                 {link.label}
                 {isActive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: GOLD }} />}
               </a>

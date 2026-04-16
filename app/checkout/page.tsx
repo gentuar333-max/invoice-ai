@@ -10,15 +10,20 @@ const GOLD = "#e8b84b";
 const TEXT = "#ffffff";
 const MUTED = "#a8c4d8";
 
-const PLAN_INFO: Record<string, { label: string; price: string; billing: string; economy?: string }> = {
-  // Mensuel
-  starter:         { label: "Starter",  price: "19€",  billing: "/mois" },
-  pro:             { label: "Pro",       price: "29€",  billing: "/mois" },
-  business:        { label: "Business", price: "49€",  billing: "/mois" },
-  // Annuel
-  starter_yearly:  { label: "Starter Annuel",  price: "15€",  billing: "/mois", economy: "Facturé 180€/an — économie 48€" },
-  pro_yearly:      { label: "Pro Annuel",       price: "23€",  billing: "/mois", economy: "Facturé 276€/an — économie 72€" },
-  business_yearly: { label: "Business Annuel", price: "39€",  billing: "/mois", economy: "Facturé 468€/an — économie 120€" },
+const PLAN_INFO: Record<string, {
+  label: string;
+  price: string;
+  billing: string;
+  totalYearly?: string;
+  priceMonthly?: string;
+  economy?: string;
+}> = {
+  starter:         { label: "Starter",         price: "19€", billing: "/mois" },
+  pro:             { label: "Pro",              price: "29€", billing: "/mois" },
+  business:        { label: "Business",         price: "49€", billing: "/mois" },
+  starter_yearly:  { label: "Starter Annuel",  price: "15€", billing: "/mois", totalYearly: "180", priceMonthly: "15€", economy: "Économie 48€ vs mensuel" },
+  pro_yearly:      { label: "Pro Annuel",       price: "23€", billing: "/mois", totalYearly: "276", priceMonthly: "23€", economy: "Économie 72€ vs mensuel" },
+  business_yearly: { label: "Business Annuel", price: "39€", billing: "/mois", totalYearly: "468", priceMonthly: "39€", economy: "Économie 120€ vs mensuel" },
 };
 
 function CheckoutContent() {
@@ -65,26 +70,43 @@ function CheckoutContent() {
           </h1>
 
           {/* Plan card */}
-          <div style={{ background: `${GOLD}15`, border: `1px solid ${GOLD}40`, borderRadius: 6, padding: "14px 20px" }}>
+          <div style={{ background: `${GOLD}15`, border: `1px solid ${GOLD}40`, borderRadius: 6, padding: "16px 20px" }}>
             <p style={{ fontSize: 11, color: MUTED, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 6px" }}>
               Plan sélectionné
             </p>
-            <p style={{ fontSize: 16, fontWeight: 800, color: GOLD, margin: "0 0 4px", letterSpacing: 0.5 }}>
+            <p style={{ fontSize: 16, fontWeight: 800, color: GOLD, margin: "0 0 10px", letterSpacing: 0.5 }}>
               {info.label}
             </p>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 3 }}>
-              <span style={{ fontSize: 32, fontWeight: 800, color: TEXT }}>{info.price}</span>
-              <span style={{ fontSize: 13, color: MUTED }}>{info.billing}</span>
-            </div>
+
+            {/* Prix principal */}
+            {isYearly ? (
+              <>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 4 }}>
+                  <span style={{ fontSize: 44, fontWeight: 800, color: TEXT }}>{info.totalYearly}€</span>
+                  <span style={{ fontSize: 14, color: MUTED }}>/an</span>
+                </div>
+                <p style={{ fontSize: 12, color: MUTED, margin: "4px 0 10px" }}>
+                  soit {info.priceMonthly}/mois
+                </p>
+              </>
+            ) : (
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 4, marginBottom: 10 }}>
+                <span style={{ fontSize: 44, fontWeight: 800, color: TEXT }}>{info.price}</span>
+                <span style={{ fontSize: 14, color: MUTED }}>{info.billing}</span>
+              </div>
+            )}
+
+            {/* Économie */}
             {info.economy && (
-              <div style={{ marginTop: 8, background: "#4ade8015", border: "1px solid #4ade8030", borderRadius: 4, padding: "6px 12px" }}>
+              <div style={{ background: "#4ade8015", border: "1px solid #4ade8030", borderRadius: 4, padding: "6px 12px", marginBottom: 8 }}>
                 <p style={{ fontSize: 11, color: "#4ade80", fontWeight: 700, margin: 0 }}>
                   ✓ {info.economy}
                 </p>
               </div>
             )}
+
             {isYearly && (
-              <p style={{ fontSize: 10, color: MUTED, margin: "6px 0 0" }}>
+              <p style={{ fontSize: 10, color: MUTED, margin: 0 }}>
                 Engagement annuel — renouvellement automatique
               </p>
             )}
@@ -116,7 +138,7 @@ function CheckoutContent() {
           disabled={loading || !email}
           style={{ width: "100%", background: loading || !email ? BORDER : GOLD, color: "#0f1923", border: "none", padding: "13px", borderRadius: 3, fontSize: 11, fontWeight: 800, cursor: loading || !email ? "not-allowed" : "pointer", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}
         >
-          {loading ? "REDIRECTION..." : "PAYER AVEC STRIPE"}
+          {loading ? "REDIRECTION..." : `PAYER ${isYearly ? info.totalYearly + "€" : info.price} AVEC STRIPE`}
         </button>
 
         <p style={{ textAlign: "center", fontSize: 11, color: MUTED, lineHeight: 1.6 }}>

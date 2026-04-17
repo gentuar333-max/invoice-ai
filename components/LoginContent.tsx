@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const BG = "#09090b";
 const CARD = "#18181b";
@@ -9,7 +9,7 @@ const ACCENT = "#6366f1";
 const TEXT = "#fafafa";
 const MUTED = "#71717a";
 
-export default function LoginContent() {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,6 +17,16 @@ export default function LoginContent() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [success, setSuccess] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Kap ?ref=IAXXXXXX nga URL
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      localStorage.setItem("referral_code", ref.toUpperCase());
+      setMode("register");
+    }
+  }, [searchParams]);
 
   async function handleSubmit() {
     if (!email || !password) return;
@@ -28,8 +38,19 @@ export default function LoginContent() {
       const supabase = createClient();
 
       if (mode === "register") {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+
+        // Lidh referral_code me userin e ri
+        const referralCode = localStorage.getItem("referral_code");
+        if (referralCode && data.user) {
+          await fetch("/api/referral/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ referral_code: referralCode }),
+          });
+          localStorage.removeItem("referral_code");
+        }
 
         await fetch("/api/email", {
           method: "POST",
@@ -60,7 +81,6 @@ export default function LoginContent() {
             .select("plan")
             .eq("id", data.user.id)
             .single();
-
           if (profile?.plan) {
             localStorage.setItem("user_plan", profile.plan);
           }
@@ -83,7 +103,7 @@ export default function LoginContent() {
         {/* LOGO */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-            <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
               <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5"/>
               <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="'DM Sans',sans-serif">I</text>
               <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontFamily="serif" fontStyle="italic">A</text>
@@ -91,7 +111,7 @@ export default function LoginContent() {
             </svg>
             <span style={{ fontSize: 18, fontWeight: 700, color: TEXT, letterSpacing: "-0.3px" }}>InvoiceAgent</span>
           </div>
-          <p style={{ fontSize: 13, color: MUTED }}>
+          <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>
             {mode === "login" ? "Connectez-vous à votre compte" : "Créez votre compte gratuit"}
           </p>
         </div>
@@ -105,7 +125,7 @@ export default function LoginContent() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vous@exemple.com"
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              style={{ width: "100%", background: "#09090b", border: `1px solid rgba(255,255,255,0.1)`, borderRadius: 8, padding: "12px 16px", fontSize: 14, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box", transition: "border 0.2s" }}
+              style={{ width: "100%", background: "#09090b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "12px 16px", fontSize: 14, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
             />
           </div>
           <div>
@@ -116,7 +136,7 @@ export default function LoginContent() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              style={{ width: "100%", background: "#09090b", border: `1px solid rgba(255,255,255,0.1)`, borderRadius: 8, padding: "12px 16px", fontSize: 14, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+              style={{ width: "100%", background: "#09090b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "12px 16px", fontSize: 14, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
             />
           </div>
         </div>
@@ -129,14 +149,14 @@ export default function LoginContent() {
 
         {success && (
           <div style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.3)", borderRadius: 8, padding: "12px 16px", color: "#4ade80", fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
-            ✓ {success}
+            {success}
           </div>
         )}
 
         <button
           onClick={handleSubmit}
           disabled={loading || !email || !password}
-          style={{ width: "100%", background: loading || !email || !password ? "rgba(99,102,241,0.3)" : ACCENT, color: "white", border: "none", padding: "14px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: loading || !email || !password ? "not-allowed" : "pointer", marginBottom: 20, transition: "background 0.2s" }}
+          style={{ width: "100%", background: loading || !email || !password ? "rgba(99,102,241,0.3)" : ACCENT, color: "white", border: "none", padding: "14px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: loading || !email || !password ? "not-allowed" : "pointer", marginBottom: 20 }}
         >
           {loading ? "Chargement..." : mode === "login" ? "Se connecter" : "Créer mon compte"}
         </button>
@@ -167,5 +187,13 @@ export default function LoginContent() {
 
       </div>
     </div>
+  );
+}
+
+export default function LoginContent() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#09090b" }} />}>
+      <LoginForm />
+    </Suspense>
   );
 }

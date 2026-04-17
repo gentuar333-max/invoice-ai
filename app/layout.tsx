@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import NavbarClient from "@/components/NavbarClient";
 import { Geist } from "next/font/google";
@@ -14,6 +14,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -25,6 +32,10 @@ export default function RootLayout({
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
           * { box-sizing: border-box; }
+          html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+          }
           body { font-family: 'DM Sans', sans-serif; }
           .navbar {
             position: sticky;

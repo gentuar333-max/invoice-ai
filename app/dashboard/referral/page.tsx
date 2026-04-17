@@ -76,7 +76,6 @@ function IbanSection() {
   }, []);
 
   function formatIban(value: string) {
-    // Formate IBAN me hapësira çdo 4 karakterë
     const clean = value.replace(/\s/g, '').toUpperCase();
     return clean.match(/.{1,4}/g)?.join(' ') ?? clean;
   }
@@ -110,21 +109,15 @@ function IbanSection() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <CreditCard size={15} color={hasIban ? GREEN : GOLD} />
-          <p style={{ fontSize: 10, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: 1, textTransform: "uppercase" }}>
-            Coordonnées bancaires
-          </p>
+          <p style={{ fontSize: 10, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: 1, textTransform: "uppercase" }}>Coordonnées bancaires</p>
         </div>
         {hasIban && !editing && (
-          <button
-            onClick={() => setEditing(true)}
-            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3px 10px", color: MUTED, fontSize: 10, cursor: "pointer", fontWeight: 600 }}
-          >
+          <button onClick={() => setEditing(true)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3px 10px", color: MUTED, fontSize: 10, cursor: "pointer", fontWeight: 600 }}>
             Modifier
           </button>
         )}
       </div>
 
-      {/* Alerte si IBAN manque et bonus pending */}
       {!hasIban && (
         <div style={{ background: "#e8b84b15", border: "1px solid #e8b84b40", borderRadius: 6, padding: "8px 10px", marginBottom: 12, display: "flex", alignItems: "flex-start", gap: 8 }}>
           <AlertCircle size={13} color={GOLD} style={{ flexShrink: 0, marginTop: 1 }} />
@@ -134,15 +127,11 @@ function IbanSection() {
         </div>
       )}
 
-      {/* IBAN existant affiché */}
       {hasIban && !editing && (
         <div style={{ background: BG, border: "1px solid #4ade8030", borderRadius: 6, padding: "10px 12px", marginBottom: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
             <CheckCircle size={12} color={GREEN} />
             <span style={{ fontSize: 10, color: GREEN, fontWeight: 700 }}>IBAN enregistré</span>
-            {ibanData.iban_verified && (
-              <span style={{ fontSize: 9, background: "#4ade8020", color: GREEN, padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>Vérifié</span>
-            )}
           </div>
           <p style={{ fontSize: 13, fontWeight: 700, color: TEXT, margin: "0 0 2px", letterSpacing: 1, wordBreak: "break-all" }}>
             {formatIban(ibanData.iban ?? '')}
@@ -151,59 +140,33 @@ function IbanSection() {
         </div>
       )}
 
-      {/* Formulaire ajout/modification */}
       {(!hasIban || editing) && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div>
-            <label style={{ fontSize: 9, color: MUTED, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 4 }}>
-              Nom du titulaire du compte
-            </label>
-            <input
-              type="text"
-              value={ibanName}
-              onChange={e => setIbanName(e.target.value)}
-              placeholder="Jean Dupont"
-              style={{ width: "100%", background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "9px 10px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
-            />
+            <label style={{ fontSize: 9, color: MUTED, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 4 }}>Nom du titulaire</label>
+            <input type="text" value={ibanName} onChange={e => setIbanName(e.target.value)} placeholder="Jean Dupont"
+              style={{ width: "100%", background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "9px 10px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }} />
           </div>
           <div>
-            <label style={{ fontSize: 9, color: MUTED, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 4 }}>
-              IBAN
-            </label>
-            <input
-              type="text"
-              value={iban}
-              onChange={e => setIban(formatIban(e.target.value))}
-              placeholder="FR76 3000 6000 0112 3456 7890 189"
-              maxLength={42}
-              style={{ width: "100%", background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "9px 10px", fontSize: 12, color: TEXT, outline: "none", fontFamily: "'DM Mono', monospace", boxSizing: "border-box", letterSpacing: 1 }}
-            />
+            <label style={{ fontSize: 9, color: MUTED, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 4 }}>IBAN</label>
+            <input type="text" value={iban} onChange={e => setIban(formatIban(e.target.value))} placeholder="FR76 3000 6000 0112 3456 7890 189" maxLength={42}
+              style={{ width: "100%", background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "9px 10px", fontSize: 12, color: TEXT, outline: "none", fontFamily: "monospace", boxSizing: "border-box", letterSpacing: 1 }} />
           </div>
-
-          {error && (
-            <p style={{ fontSize: 11, color: "#ef4444", margin: 0 }}>{error}</p>
-          )}
-
+          {error && <p style={{ fontSize: 11, color: "#ef4444", margin: 0 }}>{error}</p>}
           <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={saveIban}
-              disabled={saving || !iban || !ibanName}
-              style={{ flex: 1, background: saving || !iban || !ibanName ? BORDER : GOLD, color: "#0f1923", border: "none", borderRadius: 6, padding: "10px", fontSize: 11, fontWeight: 800, cursor: saving || !iban || !ibanName ? "not-allowed" : "pointer", letterSpacing: 1, textTransform: "uppercase" }}
-            >
-              {saving ? "Enregistrement..." : saved ? "✓ Enregistré !" : "Enregistrer l'IBAN"}
+            <button onClick={saveIban} disabled={saving || !iban || !ibanName}
+              style={{ flex: 1, background: saving || !iban || !ibanName ? BORDER : GOLD, color: "#0f1923", border: "none", borderRadius: 6, padding: "10px", fontSize: 11, fontWeight: 800, cursor: saving || !iban || !ibanName ? "not-allowed" : "pointer", letterSpacing: 1, textTransform: "uppercase" }}>
+              {saving ? "Enregistrement..." : saved ? "Enregistré !" : "Enregistrer l'IBAN"}
             </button>
             {editing && (
-              <button
-                onClick={() => { setEditing(false); setIban(ibanData.iban ?? ""); setIbanName(ibanData.iban_name ?? ""); }}
-                style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 6, padding: "10px 14px", color: MUTED, fontSize: 11, cursor: "pointer", fontWeight: 600 }}
-              >
+              <button onClick={() => { setEditing(false); setIban(ibanData.iban ?? ""); setIbanName(ibanData.iban_name ?? ""); }}
+                style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 6, padding: "10px 14px", color: MUTED, fontSize: 11, cursor: "pointer", fontWeight: 600 }}>
                 Annuler
               </button>
             )}
           </div>
-
           <p style={{ fontSize: 9, color: MUTED, margin: 0, lineHeight: 1.5 }}>
-            🔒 Vos coordonnées bancaires sont chiffrées et sécurisées. Utilisées uniquement pour le versement de vos bonus de parrainage.
+            Vos coordonnées bancaires sont chiffrées et utilisées uniquement pour le versement de vos bonus.
           </p>
         </div>
       )}
@@ -253,7 +216,7 @@ export default function ReferralDashboard() {
             <Gift size={18} color={GOLD} />
             <h1 style={{ fontSize: 17, fontWeight: 800, color: TEXT, margin: 0 }}>Programme de parrainage</h1>
           </div>
-          <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Invitez vos contacts — gagnez jusqu'à 200€ sans limite</p>
+          <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Invitez vos contacts — gagnez jusqu'à 400€ et plus</p>
         </div>
 
         {/* Stats */}
@@ -276,8 +239,13 @@ export default function ReferralDashboard() {
         {/* Paliers */}
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "14px", marginBottom: 14 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: TEXT, margin: "0 0 12px", letterSpacing: 1, textTransform: "uppercase" }}>Paliers de gains</p>
+
           <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 10 }}>
-            {[{ n: 1, r: "15€", l: "1 filleul" }, { n: 3, r: "50€", l: "3 filleuls" }, { n: 10, r: "200€", l: "10 filleuls" }].map((m) => {
+            {[
+              { n: 1,  r: "35€",  l: "1 filleul" },
+              { n: 3,  r: "120€", l: "3 filleuls" },
+              { n: 10, r: "400€", l: "10 filleuls" },
+            ].map((m) => {
               const done = paid_count >= m.n;
               return (
                 <div key={m.n} style={{ textAlign: "center" }}>
@@ -290,15 +258,17 @@ export default function ReferralDashboard() {
               );
             })}
           </div>
+
           <div style={{ height: 4, background: BORDER, borderRadius: 4, overflow: "hidden", marginBottom: 6 }}>
             <div style={{ height: "100%", background: GOLD, borderRadius: 4, width: `${Math.min((paid_count / 10) * 100, 100)}%` }} />
           </div>
           <p style={{ fontSize: 9, color: MUTED, textAlign: "center", margin: "0 0 12px" }}>{paid_count}/10 filleuls payés</p>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
             {[
-              { l: "1 FILLEUL", a: "15€", s: "par parrainage" },
-              { l: "3 FILLEULS", a: "50€", s: "+5€ bonus" },
-              { l: "10 FILLEULS", a: "200€", s: "+50€ bonus" },
+              { l: "1 FILLEUL",  a: "35€",  s: "par parrainage" },
+              { l: "3 FILLEULS", a: "120€", s: "+15€ bonus" },
+              { l: "10 FILLEULS",a: "400€", s: "+50€ bonus" },
             ].map((p, i) => (
               <div key={i} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "8px 4px", textAlign: "center" }}>
                 <p style={{ fontSize: 8, color: MUTED, margin: "0 0 2px", textTransform: "uppercase" }}>{p.l}</p>
@@ -307,10 +277,10 @@ export default function ReferralDashboard() {
               </div>
             ))}
           </div>
-          <p style={{ fontSize: 9, color: MUTED, textAlign: "center", marginTop: 8, marginBottom: 0 }}>♾️ Sans limite — chaque 10 filleuls = +50€</p>
+          <p style={{ fontSize: 9, color: MUTED, textAlign: "center", marginTop: 8, marginBottom: 0 }}>♾️ Sans limite — chaque 10 filleuls = +50€ bonus</p>
         </div>
 
-        {/* IBAN Section */}
+        {/* IBAN */}
         <IbanSection />
 
         {/* Lien */}
@@ -321,10 +291,8 @@ export default function ReferralDashboard() {
               <p style={{ fontSize: 9, color: MUTED, margin: "0 0 2px" }}>Votre code</p>
               <p style={{ fontSize: 13, fontWeight: 700, color: GOLD, margin: 0, letterSpacing: 1 }}>{data?.referral_code ?? "—"}</p>
             </div>
-            <button
-              onClick={copyLink}
-              style={{ display: "flex", alignItems: "center", gap: 5, background: copied ? "#4ade8020" : GOLD, color: copied ? GREEN : "#0f1923", border: copied ? `1px solid ${GREEN}` : "none", borderRadius: 6, padding: "0 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
-            >
+            <button onClick={copyLink}
+              style={{ display: "flex", alignItems: "center", gap: 5, background: copied ? "#4ade8020" : GOLD, color: copied ? GREEN : "#0f1923", border: copied ? `1px solid ${GREEN}` : "none", borderRadius: 6, padding: "0 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? "Copié !" : "Copier"}
             </button>
@@ -355,7 +323,7 @@ export default function ReferralDashboard() {
             {[
               "Partagez votre lien unique à vos contacts, clients ou sur LinkedIn",
               "Votre contact s'inscrit sur InvoiceAgent via votre lien",
-              "Dès qu'il souscrit à un plan payant, vous recevez 15€",
+              "Dès qu'il souscrit à un plan payant, vous recevez 35€",
               "À 3 et 10 parrainages, des bonus supplémentaires sont débloqués",
             ].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
@@ -368,7 +336,7 @@ export default function ReferralDashboard() {
           </div>
         </div>
 
-        {/* Tabs filleuls / gains */}
+        {/* Tabs */}
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: `1px solid ${BORDER}` }}>
             {(["filleuls", "gains"] as const).map((tab) => (

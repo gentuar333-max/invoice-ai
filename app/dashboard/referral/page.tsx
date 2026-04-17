@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Copy, Check, Gift, Users, Euro, TrendingUp } from "lucide-react";
+import { Copy, Check, Gift, Users, Euro, TrendingUp, CreditCard, CheckCircle, AlertCircle } from "lucide-react";
 
 const BG = "#131f2e";
 const CARD = "#1e2d40";
@@ -35,6 +35,12 @@ interface ReferralData {
   }[];
 }
 
+interface IbanData {
+  iban: string | null;
+  iban_name: string | null;
+  iban_verified: boolean;
+}
+
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {
     pending:    { label: "Invité",      color: MUTED, bg: "#2e405830" },
@@ -47,6 +53,161 @@ function StatusBadge({ status }: { status: string }) {
     <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: s.bg, padding: "2px 7px", borderRadius: 4, whiteSpace: "nowrap" }}>
       {s.label}
     </span>
+  );
+}
+
+function IbanSection() {
+  const [ibanData, setIbanData] = useState<IbanData>({ iban: null, iban_name: null, iban_verified: false });
+  const [iban, setIban] = useState("");
+  const [ibanName, setIbanName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/referral/iban")
+      .then(r => r.json())
+      .then(d => {
+        setIbanData(d);
+        if (d.iban) setIban(d.iban);
+        if (d.iban_name) setIbanName(d.iban_name);
+      });
+  }, []);
+
+  function formatIban(value: string) {
+    // Formate IBAN me hapësira çdo 4 karakterë
+    const clean = value.replace(/\s/g, '').toUpperCase();
+    return clean.match(/.{1,4}/g)?.join(' ') ?? clean;
+  }
+
+  async function saveIban() {
+    setError("");
+    setSaving(true);
+    try {
+      const res = await fetch("/api/referral/iban", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ iban: iban.replace(/\s/g, ''), iban_name: ibanName }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setSaved(true);
+      setEditing(false);
+      setIbanData(prev => ({ ...prev, iban: data.iban, iban_name: ibanName }));
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const hasIban = !!ibanData.iban;
+
+  return (
+    <div style={{ background: CARD, border: `1px solid ${hasIban ? "#4ade8040" : BORDER}`, borderRadius: 8, padding: "14px", marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <CreditCard size={15} color={hasIban ? GREEN : GOLD} />
+          <p style={{ fontSize: 10, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: 1, textTransform: "uppercase" }}>
+            Coordonnées bancaires
+          </p>
+        </div>
+        {hasIban && !editing && (
+          <button
+            onClick={() => setEditing(true)}
+            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3px 10px", color: MUTED, fontSize: 10, cursor: "pointer", fontWeight: 600 }}
+          >
+            Modifier
+          </button>
+        )}
+      </div>
+
+      {/* Alerte si IBAN manque et bonus pending */}
+      {!hasIban && (
+        <div style={{ background: "#e8b84b15", border: "1px solid #e8b84b40", borderRadius: 6, padding: "8px 10px", marginBottom: 12, display: "flex", alignItems: "flex-start", gap: 8 }}>
+          <AlertCircle size={13} color={GOLD} style={{ flexShrink: 0, marginTop: 1 }} />
+          <p style={{ fontSize: 11, color: GOLD, margin: 0, lineHeight: 1.4 }}>
+            Ajoutez votre IBAN pour recevoir vos bonus de parrainage par virement bancaire.
+          </p>
+        </div>
+      )}
+
+      {/* IBAN existant affiché */}
+      {hasIban && !editing && (
+        <div style={{ background: BG, border: "1px solid #4ade8030", borderRadius: 6, padding: "10px 12px", marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            <CheckCircle size={12} color={GREEN} />
+            <span style={{ fontSize: 10, color: GREEN, fontWeight: 700 }}>IBAN enregistré</span>
+            {ibanData.iban_verified && (
+              <span style={{ fontSize: 9, background: "#4ade8020", color: GREEN, padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>Vérifié</span>
+            )}
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: TEXT, margin: "0 0 2px", letterSpacing: 1, wordBreak: "break-all" }}>
+            {formatIban(ibanData.iban ?? '')}
+          </p>
+          <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>{ibanData.iban_name}</p>
+        </div>
+      )}
+
+      {/* Formulaire ajout/modification */}
+      {(!hasIban || editing) && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div>
+            <label style={{ fontSize: 9, color: MUTED, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 4 }}>
+              Nom du titulaire du compte
+            </label>
+            <input
+              type="text"
+              value={ibanName}
+              onChange={e => setIbanName(e.target.value)}
+              placeholder="Jean Dupont"
+              style={{ width: "100%", background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "9px 10px", fontSize: 13, color: TEXT, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
+          </div>
+          <div>
+            <label style={{ fontSize: 9, color: MUTED, textTransform: "uppercase", letterSpacing: 1, display: "block", marginBottom: 4 }}>
+              IBAN
+            </label>
+            <input
+              type="text"
+              value={iban}
+              onChange={e => setIban(formatIban(e.target.value))}
+              placeholder="FR76 3000 6000 0112 3456 7890 189"
+              maxLength={42}
+              style={{ width: "100%", background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "9px 10px", fontSize: 12, color: TEXT, outline: "none", fontFamily: "'DM Mono', monospace", boxSizing: "border-box", letterSpacing: 1 }}
+            />
+          </div>
+
+          {error && (
+            <p style={{ fontSize: 11, color: "#ef4444", margin: 0 }}>{error}</p>
+          )}
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={saveIban}
+              disabled={saving || !iban || !ibanName}
+              style={{ flex: 1, background: saving || !iban || !ibanName ? BORDER : GOLD, color: "#0f1923", border: "none", borderRadius: 6, padding: "10px", fontSize: 11, fontWeight: 800, cursor: saving || !iban || !ibanName ? "not-allowed" : "pointer", letterSpacing: 1, textTransform: "uppercase" }}
+            >
+              {saving ? "Enregistrement..." : saved ? "✓ Enregistré !" : "Enregistrer l'IBAN"}
+            </button>
+            {editing && (
+              <button
+                onClick={() => { setEditing(false); setIban(ibanData.iban ?? ""); setIbanName(ibanData.iban_name ?? ""); }}
+                style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 6, padding: "10px 14px", color: MUTED, fontSize: 11, cursor: "pointer", fontWeight: 600 }}
+              >
+                Annuler
+              </button>
+            )}
+          </div>
+
+          <p style={{ fontSize: 9, color: MUTED, margin: 0, lineHeight: 1.5 }}>
+            🔒 Vos coordonnées bancaires sont chiffrées et sécurisées. Utilisées uniquement pour le versement de vos bonus de parrainage.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -95,7 +256,7 @@ export default function ReferralDashboard() {
           <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Invitez vos contacts — gagnez jusqu'à 200€ sans limite</p>
         </div>
 
-        {/* Stats 3 colonnes */}
+        {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
           {[
             { icon: <Users size={13} color={GOLD} />, label: "Filleuls payés", value: String(paid_count) },
@@ -115,8 +276,6 @@ export default function ReferralDashboard() {
         {/* Paliers */}
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "14px", marginBottom: 14 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: TEXT, margin: "0 0 12px", letterSpacing: 1, textTransform: "uppercase" }}>Paliers de gains</p>
-
-          {/* Progress circles */}
           <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 10 }}>
             {[{ n: 1, r: "15€", l: "1 filleul" }, { n: 3, r: "50€", l: "3 filleuls" }, { n: 10, r: "200€", l: "10 filleuls" }].map((m) => {
               const done = paid_count >= m.n;
@@ -131,14 +290,10 @@ export default function ReferralDashboard() {
               );
             })}
           </div>
-
-          {/* Progress bar */}
           <div style={{ height: 4, background: BORDER, borderRadius: 4, overflow: "hidden", marginBottom: 6 }}>
             <div style={{ height: "100%", background: GOLD, borderRadius: 4, width: `${Math.min((paid_count / 10) * 100, 100)}%` }} />
           </div>
           <p style={{ fontSize: 9, color: MUTED, textAlign: "center", margin: "0 0 12px" }}>{paid_count}/10 filleuls payés</p>
-
-          {/* 3 boxes */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
             {[
               { l: "1 FILLEUL", a: "15€", s: "par parrainage" },
@@ -155,11 +310,12 @@ export default function ReferralDashboard() {
           <p style={{ fontSize: 9, color: MUTED, textAlign: "center", marginTop: 8, marginBottom: 0 }}>♾️ Sans limite — chaque 10 filleuls = +50€</p>
         </div>
 
+        {/* IBAN Section */}
+        <IbanSection />
+
         {/* Lien */}
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "14px", marginBottom: 14 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: TEXT, margin: "0 0 10px", letterSpacing: 1, textTransform: "uppercase" }}>Votre lien de parrainage</p>
-
-          {/* Code + bouton sur même ligne */}
           <div style={{ display: "flex", gap: 8, alignItems: "stretch", marginBottom: 8 }}>
             <div style={{ flex: 1, background: BG, border: `1px solid ${BORDER}`, borderRadius: 6, padding: "8px 10px", minWidth: 0 }}>
               <p style={{ fontSize: 9, color: MUTED, margin: "0 0 2px" }}>Votre code</p>
@@ -173,15 +329,11 @@ export default function ReferralDashboard() {
               {copied ? "Copié !" : "Copier"}
             </button>
           </div>
-
-          {/* URL */}
           <div style={{ background: BG, borderRadius: 6, padding: "7px 10px", border: `1px solid ${BORDER}`, marginBottom: 10, overflow: "hidden" }}>
             <p style={{ fontSize: 9, color: MUTED, margin: 0, wordBreak: "break-all", lineHeight: 1.5 }}>
               {data?.referral_link ?? "—"}
             </p>
           </div>
-
-          {/* Share */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
             {[
               { label: "📧 Email", href: `mailto:?subject=Essayez InvoiceAgent&body=${data?.referral_link ?? ''}` },
@@ -216,7 +368,7 @@ export default function ReferralDashboard() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs filleuls / gains */}
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: `1px solid ${BORDER}` }}>
             {(["filleuls", "gains"] as const).map((tab) => (
@@ -226,7 +378,6 @@ export default function ReferralDashboard() {
               </button>
             ))}
           </div>
-
           <div style={{ padding: "12px" }}>
             {activeTab === "filleuls" ? (
               !data?.referrals?.length ? (

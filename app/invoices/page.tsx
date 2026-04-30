@@ -248,6 +248,23 @@ export default function InvoicesPage() {
                   {error}
                 </div>
               )}
+
+              {/* Ce que l'IA extrait */}
+              <div style={{ background: "#ffffff", borderRadius: 14, padding: "16px", marginTop: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#71717a", marginBottom: 12 }}>En 30 secondes, l'IA extrait et structure</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[{label:"Fournisseur",desc:"Nom, SIRET, adresse"},{label:"Montants",desc:"HT, TVA, TTC"},{label:"Dates",desc:"Emission et echeance"},{label:"Lignes",desc:"Articles et quantites"}].map(item => (
+                    <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f97316", flexShrink: 0, marginTop: 5 }} />
+                      <div><p style={{ fontSize: 13, fontWeight: 700, color: "#18181b", marginBottom: 1 }}>{item.label}</p><p style={{ fontSize: 11, color: "#71717a" }}>{item.desc}</p></div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #e4e4e7", display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
+                  <p style={{ fontSize: 12, color: "#71717a" }}>Detection automatique des doublons incluse</p>
+                </div>
+              </div>
             </div>
           )}
 

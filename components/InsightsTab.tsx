@@ -200,7 +200,7 @@ export default function InsightsTab({ insightsData, insightsLoading, insightsErr
 
       {/* Actualiser */}
       <button onClick={onGenerate}
-        style={{ background: C.white, color: C.orange, border: `1.5px solid ${C.orangeB}`, padding: "11px", borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+        style={{ background: C.white, color: C.orange, border: `1.5px solid #fed7aa`, padding: "11px", borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
         Actualiser l'analyse
       </button>
     </div>

@@ -308,12 +308,37 @@ export default function DashboardPage() {
 
             {/* Liste */}
             {filtered.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "48px 24px", background: C.white, borderRadius: 16 }}>
-                <p style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 6 }}>Aucune facture</p>
-                <p style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Importez votre premiere facture</p>
-                <Link href="/invoices" style={{ background: C.orange, color: C.white, padding: "11px 28px", borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-                  Nouvelle facture
-                </Link>
+              <div style={{ background: C.white, borderRadius: 16, overflow: "hidden" }}>
+                <div style={{ textAlign: "center", padding: "36px 24px 24px" }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 6 }}>Aucune facture</p>
+                  <p style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Importez votre premiere facture</p>
+                  <Link href="/invoices" style={{ background: C.orange, color: C.white, padding: "12px 32px", borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: "none", display: "inline-block", boxShadow: "0 2px 8px rgba(249,115,22,0.35)" }}>
+                    Nouvelle facture
+                  </Link>
+                </div>
+                <div style={{ borderTop: "1px solid #e4e4e7", padding: "16px 20px" }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 12 }}>En 30 secondes, l'IA extrait et structure</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    {[
+                      { label: "Fournisseur", desc: "Nom, SIRET, adresse" },
+                      { label: "Montants",    desc: "HT, TVA, TTC" },
+                      { label: "Dates",       desc: "Emission et echeance" },
+                      { label: "Lignes",      desc: "Articles et quantites" },
+                    ].map(item => (
+                      <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.orange, flexShrink: 0, marginTop: 5 }} />
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 1 }}>{item.label}</p>
+                          <p style={{ fontSize: 11, color: C.muted }}>{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green }} />
+                    <p style={{ fontSize: 12, color: C.muted }}>Detection automatique des doublons incluse</p>
+                  </div>
+                </div>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

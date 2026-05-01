@@ -113,8 +113,8 @@ export default function NavbarClient() {
           .btm-item.active .btm-label { color: ${C.orange}; font-weight: 700; }
           .btm-dot { width: 4px; height: 4px; border-radius: 50%; background: ${C.orange}; }
           .btm-icon { width: 22px; height: 22px; }
-          .btm-fab { width: 52px; height: 52px; border-radius: 50%; background: ${C.orange}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(249,115,22,0.5); margin-top: -20px; text-decoration: none; border: 3px solid white; }
-          .btm-fab span { font-size: 28px; color: white; font-weight: 400; line-height: 1; margin-top: -1px; }
+          .btm-fab { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; }
+          .btm-fab .fab-icon { font-size: 26px; color: ${C.muted}; line-height: 1; font-weight: 300; }
           .logout-btn { font-size: 12px; font-weight: 700; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; }
         `}</style>
 
@@ -130,9 +130,11 @@ export default function NavbarClient() {
             const isActive = pathname?.startsWith(tab.href) && !tab.fab;
             if (tab.fab) {
               return (
-                <a key={tab.href} href={tab.href} className="btm-item" style={{ justifyContent: "flex-start", paddingTop: 0 }}>
-                  <div className="btm-fab"><span>+</span></div>
-                  <span className="btm-label" style={{ marginTop: 3 }}>{tab.label}</span>
+                <a key={tab.href} href={tab.href} className={`btm-item${pathname?.startsWith(tab.href) ? " active" : ""}`}>
+                  <svg className="btm-icon" viewBox="0 0 24 24" fill="none" stroke={pathname?.startsWith(tab.href) ? C.orange : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span className="btm-label">{tab.label}</span>
                 </a>
               );
             }

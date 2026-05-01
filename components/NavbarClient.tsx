@@ -14,6 +14,7 @@ const bottomTabs = [
   { href: "/dashboard",      label: "Factures" },
   { href: "/invoices",       label: "Nouvelle",  fab: true },
   { href: "/reconciliation", label: "Banque" },
+  { href: "/settings",       label: "Profil" },
 ];
 
 const desktopLinks = [
@@ -21,6 +22,7 @@ const desktopLinks = [
   { href: "/reconciliation",     label: "Banque" },
   { href: "/pricing",            label: "Tarifs" },
   { href: "/dashboard/referral", label: "Parrainage" },
+  { href: "/settings",           label: "Profil" },
 ];
 
 const marketingPaths = [
@@ -111,8 +113,8 @@ export default function NavbarClient() {
           .btm-item.active .btm-label { color: ${C.orange}; font-weight: 700; }
           .btm-dot { width: 4px; height: 4px; border-radius: 50%; background: ${C.orange}; }
           .btm-icon { width: 22px; height: 22px; }
-          .btm-fab { width: 48px; height: 48px; border-radius: 50%; background: ${C.orange}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(249,115,22,0.45); margin-top: -18px; text-decoration: none; }
-          .btm-fab span { font-size: 26px; color: white; font-weight: 300; line-height: 1; }
+          .btm-fab { width: 52px; height: 52px; border-radius: 50%; background: ${C.orange}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(249,115,22,0.5); margin-top: -20px; text-decoration: none; border: 3px solid white; }
+          .btm-fab span { font-size: 28px; color: white; font-weight: 400; line-height: 1; margin-top: -1px; }
           .logout-btn { font-size: 12px; font-weight: 700; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; }
         `}</style>
 
@@ -143,6 +145,9 @@ export default function NavbarClient() {
                   </>}
                   {tab.href === "/reconciliation" && <>
                     <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                  </>}
+                {tab.href === "/settings" && <>
+                    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
                   </>}
                 </svg>
                 <span className="btm-label">{tab.label}</span>

@@ -106,6 +106,7 @@ export default function DashboardPage() {
   const [insightsData, setInsightsData] = useState<any>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insightsError, setInsightsError] = useState("");
+  const [unmatchedCount, setUnmatchedCount] = useState(0);
 
   async function fetchInsights(uid: string) {
     setInsightsLoading(true);
@@ -119,7 +120,7 @@ export default function DashboardPage() {
     finally { setInsightsLoading(false); }
   }
 
-  useEffect(() => { loadInvoices(); loadContracts(); }, []);
+  useEffect(() => { loadInvoices(); loadContracts(); loadUnmatched(); }, []);
 
   useEffect(() => { applyFilters(invoices, period, filterTab); }, [invoices, period, filterTab]);
 
@@ -141,6 +142,17 @@ export default function DashboardPage() {
       .order("created_at", { ascending: false });
     if (!error && data) setInvoices(data);
     setLoading(false);
+  }
+
+  async function loadUnmatched() {
+    try {
+      const supabase = createClient();
+      const { count } = await supabase
+        .from("bank_transactions")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "unmatched");
+      setUnmatchedCount(count ?? 0);
+    } catch {}
   }
 
   async function loadContracts() {
@@ -277,6 +289,18 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
+          {unmatchedCount > 0 && (
+            <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, padding: "12px 14px", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#2563eb" }}>{unmatchedCount} transaction{unmatchedCount > 1 ? "s" : ""} non rapprochee{unmatchedCount > 1 ? "s" : ""}</p>
+                <p style={{ fontSize: 11, color: C.muted }}>A verifier dans Banque</p>
+              </div>
+              <a href="/reconciliation" style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", textDecoration: "none", background: "#dbeafe", padding: "6px 12px", borderRadius: 8 }}>
+                Voir
+              </a>
+            </div>
+          )}
 
         {/* ── TABS ─────────────────────────────────────── */}
         <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, background: C.white, marginTop: 12 }}>

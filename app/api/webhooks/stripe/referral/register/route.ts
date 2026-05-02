@@ -1,19 +1,15 @@
-// app/api/referral/register/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
     const { referral_code } = await req.json();
-
     if (!referral_code) {
       return NextResponse.json({ error: 'Missing referral_code' }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
-
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -29,14 +25,14 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -65,7 +61,6 @@ export async function GET() {
       ['paid', 'bonus_paid'].includes(r.status)
     ).length ?? 0;
 
-    // Palier tjetër: 1 → 3 → 10 → 20 → 30...
     let next_milestone_target = 1;
     if (paid_count >= 10) {
       next_milestone_target = Math.ceil((paid_count + 1) / 10) * 10;
@@ -80,7 +75,6 @@ export async function GET() {
 
     return NextResponse.json({
       referral_code,
-      // FIX: /auth/login jo /auth/register
       referral_link: referral_code
         ? `https://invoiceagent.fr/auth/login?ref=${referral_code}`
         : null,
@@ -91,7 +85,7 @@ export async function GET() {
       payouts: payouts ?? [],
     });
 
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

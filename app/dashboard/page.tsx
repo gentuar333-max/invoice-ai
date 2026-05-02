@@ -107,6 +107,9 @@ export default function DashboardPage() {
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insightsError, setInsightsError] = useState("");
   const [unmatchedCount, setUnmatchedCount] = useState(0);
+  const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
+  const [trialExpired, setTrialExpired] = useState(false);
+  const [showTrialModal, setShowTrialModal] = useState(false);
 
   async function fetchInsights(uid: string) {
     setInsightsLoading(true);
@@ -120,7 +123,7 @@ export default function DashboardPage() {
     finally { setInsightsLoading(false); }
   }
 
-  useEffect(() => { loadInvoices(); loadContracts(); loadUnmatched(); }, []);
+  useEffect(() => { loadInvoices(); loadContracts(); loadUnmatched(); loadTrial(); }, []);
 
   useEffect(() => { applyFilters(invoices, period, filterTab); }, [invoices, period, filterTab]);
 
@@ -152,6 +155,16 @@ export default function DashboardPage() {
         .select("id", { count: "exact", head: true })
         .eq("status", "unmatched");
       setUnmatchedCount(count ?? 0);
+    } catch {}
+  }
+
+  async function loadTrial() {
+    try {
+      const { getTrialStatus } = await import("@/lib/plan");
+      const trial = await getTrialStatus();
+      setTrialDaysLeft(trial.daysLeft);
+      setTrialExpired(trial.trialExpired);
+      if (trial.trialExpired) setShowTrialModal(true);
     } catch {}
   }
 
@@ -485,6 +498,44 @@ export default function DashboardPage() {
       </div>
 
       {showFeedback && <FeedbackWidget trigger="auto" onClose={() => setShowFeedback(false)} />}
+
+      {/* Trial banner */}
+      {trialDaysLeft !== null && trialDaysLeft > 0 && trialDaysLeft <= 14 && (
+        <div style={{ position: "fixed", bottom: 84, left: 0, right: 0, zIndex: 50, padding: "0 16px" }}>
+          <div style={{ background: C.orange, borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 16px rgba(249,115,22,0.4)" }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: C.white }}>
+              Essai gratuit — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}
+            </p>
+            <a href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: C.orange, background: C.white, padding: "5px 12px", borderRadius: 8, textDecoration: "none" }}>
+              Upgrader
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Trial expired modal */}
+      {showTrialModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ background: C.white, borderRadius: 20, padding: "32px 24px", maxWidth: 360, width: "100%", textAlign: "center" }}>
+            <div style={{ width: 56, height: 56, background: C.orangeL, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.orange} strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 8 }}>Votre essai gratuit est termine</h2>
+            <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 24 }}>
+              Choisissez un plan pour continuer a utiliser InvoiceAgent et acceder a toutes vos factures.
+            </p>
+            <a href="/pricing" style={{ display: "block", background: C.orange, color: C.white, padding: "13px", borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: "none", marginBottom: 10, boxShadow: "0 2px 8px rgba(249,115,22,0.35)" }}>
+              Voir les abonnements
+            </a>
+            <button onClick={() => setShowTrialModal(false)}
+              style={{ background: "none", border: "none", color: C.muted, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+              Continuer en mode gratuit
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -7,8 +7,37 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "InvoiceAgent",
-  description: "Agents IA pour automatiser votre comptabilité",
+  title: {
+    default: "InvoiceAgent — Extrayez, rapprochez et analysez vos factures en 30s",
+    template: "%s | InvoiceAgent",
+  },
+  description: "Importez vos factures, l'IA extrait les données automatiquement. Rapprochement bancaire CSV, détection de doublons et clauses abusives inclus. Essai gratuit.",
+  keywords: ["logiciel facture automatique", "rapprochement bancaire automatique", "extraction facture IA", "détection doublons factures", "analyse contrat IA", "comptabilité PME automatique"],
+  authors: [{ name: "InvoiceAgent" }],
+  creator: "InvoiceAgent",
+  publisher: "InvoiceAgent",
+  metadataBase: new URL("https://invoiceagent.fr"),
+  alternates: {
+    canonical: "https://invoiceagent.fr",
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "https://invoiceagent.fr",
+    siteName: "InvoiceAgent",
+    title: "InvoiceAgent — Extrayez, rapprochez et analysez vos factures en 30s",
+    description: "Importez vos factures, l'IA extrait les données automatiquement. Rapprochement bancaire CSV, détection de doublons et clauses abusives inclus.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "InvoiceAgent — Extrayez et analysez vos factures en 30s",
+    description: "Importez vos factures, l'IA extrait les données automatiquement. Essai gratuit.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   verification: {
     google: "LeC_eM_ljGwGHtXKOyKwXlC7AXxcw2FiE9UYLgLKpT8",
   },

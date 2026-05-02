@@ -52,6 +52,19 @@ function LoginForm() {
           localStorage.removeItem("referral_code");
         }
 
+        // Fingerprint check — blloko trial abuse
+        if (data.user) {
+          try {
+            const { generateFingerprint } = await import("@/lib/fingerprint");
+            const fp = generateFingerprint();
+            await fetch("/api/fingerprint", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fingerprint: fp, user_id: data.user.id }),
+            });
+          } catch {}
+        }
+
         await fetch("/api/email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

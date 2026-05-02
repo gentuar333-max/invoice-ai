@@ -303,11 +303,13 @@ export default function InvoicesPage() {
 
               {/* Champs editables */}
               <div style={{ background: C.white, borderRadius: 14, padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 12 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 12 }}>
                   <Field label="Fournisseur" value={edited.vendor_name || ""} onChange={v => updateField("vendor_name", v)} />
-                  <Field label="N Facture" value={edited.invoice_number || ""} onChange={v => updateField("invoice_number", v)} />
-                  <Field label="Date facture" value={edited.invoice_date || ""} onChange={v => updateField("invoice_date", v)} type="date" />
-                  <Field label="Date echeance" value={edited.due_date || ""} onChange={v => updateField("due_date", v)} type="date" />
+                  <Field label="N° Facture" value={edited.invoice_number || ""} onChange={v => updateField("invoice_number", v)} />
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <Field label="Date facture" value={edited.invoice_date || ""} onChange={v => updateField("invoice_date", v)} type="date" />
+                    <Field label="Date echeance" value={edited.due_date || ""} onChange={v => updateField("due_date", v)} type="date" />
+                  </div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                   <Field label="Sous-total" value={String(edited.subtotal ?? "")} onChange={v => updateField("subtotal", parseFloat(v) || null)} type="number" />
@@ -336,7 +338,17 @@ export default function InvoicesPage() {
               {/* Champs manquants */}
               {edited.missing_fields && edited.missing_fields.length > 0 && (
                 <div style={{ background: C.amberL, border: `1px solid #fde68a`, borderRadius: 10, padding: "10px 14px", marginBottom: 12 }}>
-                  <p style={{ fontSize: 12, color: C.amber, fontWeight: 600 }}>Champs non detectes : {edited.missing_fields.join(", ")}</p>
+                  <p style={{ fontSize: 12, color: C.amber, fontWeight: 600, marginBottom: 4 }}>Certains champs n'ont pas pu etre detectes automatiquement :</p>
+                  <p style={{ fontSize: 11, color: C.amber }}>{edited.missing_fields.map((f: string) => {
+                    const labels: Record<string, string> = {
+                      vendor_name: "Fournisseur", invoice_number: "N° facture",
+                      invoice_date: "Date facture", due_date: "Date echeance",
+                      subtotal: "Sous-total", tax_amount: "TVA",
+                      total_amount: "Total TTC", currency: "Devise",
+                      siret: "SIRET", category: "Categorie", line_items: "Lignes"
+                    };
+                    return labels[f] || f;
+                  }).join(", ")}</p>
                 </div>
               )}
 

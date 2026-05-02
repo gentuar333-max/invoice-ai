@@ -1,4 +1,3 @@
- 
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -131,7 +130,7 @@ export default function SettingsPage() {
         <div style={{ background: C.white, borderRadius: 16, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 12, overflow: "hidden" }}>
           {[
             { label: "Parrainage", sub: "Gagnez 35€ par filleul", href: "/dashboard/referral" },
-            { label: "Tarifs",     sub: "Voir tous les plans",     href: "/pricing" },
+            { label: "Abonnements", sub: "Voir tous les offres",   href: "/pricing" },
           ].map((item, i) => (
             <Link key={item.href} href={item.href}
               style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: i === 0 ? `1px solid ${C.border}` : "none", textDecoration: "none" }}>

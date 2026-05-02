@@ -20,7 +20,7 @@ const bottomTabs = [
 const desktopLinks = [
   { href: "/dashboard",          label: "Factures" },
   { href: "/reconciliation",     label: "Banque" },
-  { href: "/pricing",            label: "Tarifs" },
+  { href: "/pricing",            label: "Abonnements" },
   { href: "/dashboard/referral", label: "Parrainage" },
   { href: "/settings",           label: "Profil" },
 ];
@@ -115,13 +115,12 @@ export default function NavbarClient() {
           .btm-icon { width: 22px; height: 22px; }
           .btm-fab { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; }
           .btm-fab .fab-icon { font-size: 26px; color: ${C.muted}; line-height: 1; font-weight: 300; }
-          .logout-btn { font-size: 12px; font-weight: 700; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+
         `}</style>
 
         {/* Top bar */}
         <div className="top-bar">
           <Logo />
-          {isLoggedIn && <button className="logout-btn" onClick={handleLogout}>Deconnexion</button>}
         </div>
 
         {/* Bottom tabs */}

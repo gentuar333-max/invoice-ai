@@ -8,10 +8,10 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: {
-    default: "InvoiceAgent — Extrayez, rapprochez et analysez vos factures en 30s",
+    default: "InvoiceAgent — Extrayez et analysez vos factures en 15s — Gratuit",
     template: "%s | InvoiceAgent",
   },
-  description: "Importez vos factures, l'IA extrait les données automatiquement. Rapprochement bancaire CSV, détection de doublons et clauses abusives inclus. Essai gratuit.",
+  description: "Importez vos factures gratuitement, l'IA extrait les données en 15 secondes. Rapprochement bancaire CSV, détection doublons et clauses abusives. Sans carte bancaire.",
   keywords: ["logiciel facture automatique", "rapprochement bancaire automatique", "extraction facture IA", "détection doublons factures", "analyse contrat IA", "comptabilité PME automatique"],
   authors: [{ name: "InvoiceAgent" }],
   creator: "InvoiceAgent",
@@ -25,13 +25,13 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     url: "https://invoiceagent.fr",
     siteName: "InvoiceAgent",
-    title: "InvoiceAgent — Extrayez, rapprochez et analysez vos factures en 30s",
-    description: "Importez vos factures, l'IA extrait les données automatiquement. Rapprochement bancaire CSV, détection de doublons et clauses abusives inclus.",
+    title: "InvoiceAgent — Extrayez et analysez vos factures en 15s — Gratuit",
+    description: "Importez vos factures gratuitement, l'IA extrait les données en 15 secondes. Rapprochement bancaire CSV, détection doublons et clauses abusives.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "InvoiceAgent — Extrayez et analysez vos factures en 30s",
-    description: "Importez vos factures, l'IA extrait les données automatiquement. Essai gratuit.",
+    title: "InvoiceAgent — Extrayez vos factures en 15s — Gratuit",
+    description: "Importez vos factures gratuitement, l'IA extrait les données en 15 secondes. Sans carte bancaire.",
   },
   robots: {
     index: true,

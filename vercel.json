@@ -1,9 +1,15 @@
- 
 {
   "crons": [
     {
       "path": "/api/cron",
       "schedule": "0 8 * * *"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "https://www.invoiceagent.fr/:path*",
+      "destination": "https://invoiceagent.fr/:path*",
+      "permanent": true
     }
   ]
 }

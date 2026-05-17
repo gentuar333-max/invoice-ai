@@ -318,17 +318,13 @@ export default function DashboardPage() {
           )}
 
         {/* ── TABS ─────────────────────────────────────── */}
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
-        <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, background: C.white, marginTop: 12 }}>
+        <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, background: C.white, marginTop: 12, maxWidth: 720, margin: "12px auto 0" }}>
           {(["factures","contrats","insights"] as Tab[]).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               style={{ flex: 1, padding: "13px 8px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: activeTab === tab ? 700 : 500, color: activeTab === tab ? C.orange : C.muted, borderBottom: activeTab === tab ? `2px solid ${C.orange}` : "2px solid transparent", transition: "all 0.15s", fontFamily: "inherit" }}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
-        </div>
-
-        </div>
         </div>
 
         {/* ── TAB: FACTURES ──────────────────────────── */}

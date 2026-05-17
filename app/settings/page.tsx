@@ -128,19 +128,26 @@ export default function SettingsPage() {
 
         {/* Liens */}
         <div style={{ background: C.white, borderRadius: 16, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 12, overflow: "hidden" }}>
-          {[
-            { label: "Parrainage", sub: "Gagnez 35€ par filleul", href: "/dashboard/referral" },
-            { label: "Abonnements", sub: "Voir tous les offres",   href: "/pricing" },
-          ].map((item, i) => (
-            <Link key={item.href} href={item.href}
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: i === 0 ? `1px solid ${C.border}` : "none", textDecoration: "none" }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 2 }}>{item.label}</p>
-                <p style={{ fontSize: 12, color: C.muted }}>{item.sub}</p>
+          {/* Parrainage — bientôt disponible */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: `1px solid ${C.border}`, opacity: 0.6 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: C.text }}>Parrainage</p>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#7c3aed", background: "#ede9fe", padding: "2px 8px", borderRadius: 99 }}>Bientôt disponible</span>
               </div>
-              <span style={{ fontSize: 18, color: C.muted }}>›</span>
-            </Link>
-          ))}
+              <p style={{ fontSize: 12, color: C.muted }}>Gagnez 35€ par filleul</p>
+            </div>
+            <span style={{ fontSize: 18, color: C.muted }}>›</span>
+          </div>
+          {/* Abonnements */}
+          <Link href="/pricing"
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", textDecoration: "none" }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 2 }}>Abonnements</p>
+              <p style={{ fontSize: 12, color: C.muted }}>Voir tous les offres</p>
+            </div>
+            <span style={{ fontSize: 18, color: C.muted }}>›</span>
+          </Link>
         </div>
 
         {/* Deconnexion */}

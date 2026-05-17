@@ -148,6 +148,7 @@ export default function ReconciliationPage() {
 
         {/* Header */}
         <div style={{ background: `linear-gradient(150deg, #fff7ed 0%, #ffedd5 100%)`, padding: "20px 16px", borderBottom: `1px solid ${C.orangeB}` }}>
+          <div style={{ maxWidth: 640, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: total > 0 ? 16 : 0 }}>
             <div>
               <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>Banque</h1>
@@ -175,9 +176,10 @@ export default function ReconciliationPage() {
               ))}
             </div>
           )}
+          </div>
         </div>
 
-        <div style={{ padding: "16px" }}>
+        <div style={{ padding: "16px", maxWidth: 640, margin: "0 auto" }}>
 
           {/* Messages */}
           {error && (

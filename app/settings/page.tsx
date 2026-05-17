@@ -82,10 +82,12 @@ export default function SettingsPage() {
 
       {/* Header */}
       <div style={{ background: `linear-gradient(150deg, #fff7ed 0%, #ffedd5 100%)`, padding: "20px 16px", borderBottom: `1px solid ${C.orangeB}` }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text }}>Parametres</h1>
+        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text }}>Parametres</h1>
+        </div>
       </div>
 
-      <div style={{ padding: "16px" }}>
+      <div style={{ padding: "16px", maxWidth: 560, margin: "0 auto" }}>
 
         {/* Profil card */}
         <div style={{ background: C.white, borderRadius: 16, padding: "20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 12 }}>

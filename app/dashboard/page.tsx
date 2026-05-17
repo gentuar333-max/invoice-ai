@@ -255,6 +255,7 @@ export default function DashboardPage() {
 
         {/* ── HEADER ─────────────────────────────────── */}
         <div style={{ background: `linear-gradient(150deg, #fff7ed 0%, #ffedd5 100%)`, padding: "20px 16px 20px", borderBottom: `1px solid ${C.orangeB}` }}>
+          <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <div>
               <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>Mes Factures</h1>
@@ -278,10 +279,11 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+          </div>
         </div>
 
         {/* ── ALERTES ──────────────────────────────────── */}
-        <div style={{ padding: "12px 16px 0" }}>
+        <div style={{ padding: "12px 16px 0", maxWidth: 720, margin: "0 auto" }}>
           {overdueCount > 0 && (
             <div style={{ background: C.redL, border: `1px solid #fecaca`, borderRadius: 12, padding: "12px 14px", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
@@ -316,6 +318,7 @@ export default function DashboardPage() {
           )}
 
         {/* ── TABS ─────────────────────────────────────── */}
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
         <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, background: C.white, marginTop: 12 }}>
           {(["factures","contrats","insights"] as Tab[]).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
@@ -325,9 +328,12 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        </div>
+        </div>
+
         {/* ── TAB: FACTURES ──────────────────────────── */}
         {activeTab === "factures" && (
-          <div style={{ padding: "14px 16px" }}>
+          <div style={{ padding: "14px 16px", maxWidth: 720, margin: "0 auto" }}>
 
             {/* Periode */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12, overflowX: "auto", paddingBottom: 2 }}>
@@ -435,7 +441,7 @@ export default function DashboardPage() {
 
         {/* ── TAB: CONTRATS ──────────────────────────── */}
         {activeTab === "contrats" && (
-          <div style={{ padding: "16px" }}>
+          <div style={{ padding: "16px", maxWidth: 720, margin: "0 auto" }}>
             <div className="card" style={{ textAlign: "center", padding: "28px 20px", marginBottom: 16 }}>
               <h3 style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 6 }}>Analyser un contrat</h3>
               <p style={{ fontSize: 13, color: C.muted, marginBottom: 20, lineHeight: 1.6 }}>L'IA detecte les clauses a risque, frais caches et conditions importantes</p>
@@ -483,7 +489,7 @@ export default function DashboardPage() {
 
         {/* ── TAB: INSIGHTS ──────────────────────────── */}
         {activeTab === "insights" && (
-          <div style={{ padding: "16px" }}>
+          <div style={{ padding: "16px", maxWidth: 720, margin: "0 auto" }}>
             <InsightsTab
               isMobile={true}
               userId={currentUserId}

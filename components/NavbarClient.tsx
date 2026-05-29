@@ -1,19 +1,35 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-const C = { bg: "#ffffff", sidebar: "#fafaf9", border: "#e8e5e0", accent: "#6366f1", text: "#1c1917", muted: "#78716c", hover: "#f5f4f2", active: "#eeecff" };
-const navLinks = [
-  { href: "/dashboard", label: "Mes factures" },
-  { href: "/invoices", label: "Nouvelle facture" },
+
+const C = {
+  bg:     "#ffffff",
+  border: "#e4e4e7",
+  orange: "#f97316",
+  text:   "#18181b",
+  muted:  "#71717a",
+};
+
+const bottomTabs = [
+  { href: "/dashboard",      label: "Factures" },
+  { href: "/invoices",       label: "Nouvelle",  fab: true },
   { href: "/reconciliation", label: "Banque" },
-  { href: "/pricing", label: "Abonnements" },
-  { href: "/settings", label: "Profil" },
+  { href: "/settings",       label: "Profil" },
 ];
+
+const desktopLinks = [
+  { href: "/dashboard",          label: "Factures" },
+  { href: "/reconciliation",     label: "Banque" },
+  { href: "/pricing",            label: "Abonnements" },
+  { href: "/dashboard/referral", label: "Parrainage" },
+  { href: "/settings",           label: "Profil" },
+];
+
 const marketingPaths = [
   '/blog', '/tarifs', '/mentions-legales', '/cgu', '/confidentialite',
   '/extraction-facture-pdf', '/reconciliation-bancaire-csv', '/analyse-contrat-ia',
   '/logiciel-comptabilite-pme', '/facturation-', '/export-fec-comptable',
-  '/tva-automatique-pme', '/logiciel-facturation-', '/landing',
+  '/tva-automatique-pme', '/logiciel-facturation-', '/logiciel-comptabilite-', '/landing',
   '/detection-clauses-abusives', '/detection-frais-caches', '/detection-doublons-factures',
   '/verifier-contrat-avant-signature', '/analyse-contrat-prestation',
   '/extraction-donnees-facture', '/ocr-factures-pdf', '/programme-parrainage',
@@ -25,20 +41,19 @@ const marketingPaths = [
   '/frais-caches-contrat-entreprise', '/rapprochement-bancaire-erreur',
   '/logiciel-rapprochement-bancaire-automatique', '/ecart-rapprochement-bancaire-solution',
   '/comment-detecter-erreur-facture-pdf', '/outil-analyse-facture-automatique',
-  '/scanner-facture-detecter-erreurs', '/perte-argent-facture-entreprise',
-  '/frais-caches-facture-comment-detecter', '/erreurs-facturation-tva-artisan',
-  '/comment-eviter-pertes-comptabilite-pme', '/tva-recuperable-erreur-facture',
+  '/scanner-facture-detecter-erreurs',
 ];
+
 function Logo() {
   return (
-    <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "0 4px" }}>
-      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+    <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
         <rect width="32" height="32" rx="7" fill="#09090b" stroke="#6366f1" strokeWidth="1.5" />
         <text x="8" y="22" fill="#6366f1" fontSize="15" fontWeight="700" fontFamily="DM Sans">I</text>
         <text x="16" y="22" fill="white" fontSize="15" fontWeight="300" fontStyle="italic">A</text>
         <circle cx="28" cy="5" r="3" fill="#818cf8" />
       </svg>
-      <span style={{ fontSize: 15, fontWeight: 700, color: "#1c1917", letterSpacing: "-0.02em" }}>InvoiceAgent</span>
+      <span style={{ fontSize: 16, fontWeight: 800, color: C.text }}>InvoiceAgent</span>
     </a>
   );
 }
@@ -48,14 +63,14 @@ export default function NavbarClient() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
     function check() { setIsMobile(window.innerWidth < 768); }
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
+
   useEffect(() => {
     async function checkUser() {
       try {
@@ -67,6 +82,7 @@ export default function NavbarClient() {
     }
     checkUser();
   }, [pathname]);
+
   async function handleLogout() {
     try {
       const { createClient } = await import("@/lib/supabase");
@@ -76,72 +92,102 @@ export default function NavbarClient() {
       router.push("/auth/login");
     } catch {}
   }
+
   if (pathname === "/" || marketingPaths.some(p => pathname?.startsWith(p))) return null;
+
+  // ── MOBILE ─────────────────────────────────────────────
   if (isMobile) {
     return (
       <>
         <style>{`
-          .mob-top { position: sticky; top: 0; z-index: 200; background: #ffffff; border-bottom: 1px solid #e8e5e0; padding: 0 20px; height: 54px; display: flex; align-items: center; justify-content: space-between; }
-          .mob-hamburger { display: flex; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-          .mob-hamburger span { display: block; width: 22px; height: 2px; background: #1c1917; border-radius: 2px; transition: all 0.2s; }
-          .mob-drawer { position: fixed; top: 54px; left: 0; right: 0; bottom: 0; background: #ffffff; z-index: 199; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid #e8e5e0; animation: slideDown 0.18s ease; }
-          @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-          .mob-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; color: #78716c; transition: all 0.15s; }
-          .mob-link.active { color: #6366f1; background: #eeecff; }
-          .mob-link:not(.active):hover { background: #f5f4f2; color: #1c1917; }
-          .mob-divider { height: 1px; background: #e8e5e0; margin: 8px 0; }
-          .mob-logout { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; color: #ef4444; background: none; border: none; cursor: pointer; font-family: inherit; width: 100%; }
-          .mob-logout:hover { background: #fef2f2; }
+          .top-bar {
+            position: sticky; top: 0; z-index: 99;
+            background: ${C.bg}; border-bottom: 1px solid ${C.border};
+            padding: 0 16px; height: 52px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          }
+          .btm { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: ${C.bg}; border-top: 1px solid ${C.border}; display: flex; box-shadow: 0 -2px 12px rgba(0,0,0,0.06); padding-bottom: env(safe-area-inset-bottom, 0px); }
+          .btm-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 8px; text-decoration: none; border: none; background: none; cursor: pointer; gap: 3px; }
+          .btm-label { font-size: 10px; font-weight: 600; color: ${C.muted}; font-family: 'DM Sans', sans-serif; }
+          .btm-item.active .btm-label { color: ${C.orange}; font-weight: 700; }
+          .btm-dot { width: 4px; height: 4px; border-radius: 50%; background: ${C.orange}; }
+          .btm-icon { width: 22px; height: 22px; }
+          .btm-fab { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; }
+          .btm-fab .fab-icon { font-size: 26px; color: ${C.muted}; line-height: 1; font-weight: 300; }
+
         `}</style>
-        <div className="mob-top">
+
+        {/* Top bar */}
+        <div className="top-bar">
           <Logo />
-          <button className="mob-hamburger" onClick={() => setMenuOpen(o => !o)}>
-            <span style={{ transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none" }} />
-            <span style={{ opacity: menuOpen ? 0 : 1 }} />
-            <span style={{ transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none" }} />
-          </button>
         </div>
-        {menuOpen && (
-          <div className="mob-drawer">
-            {navLinks.map(link => {
-              const active = !!pathname?.startsWith(link.href);
-              return <a key={link.href} href={link.href} className={`mob-link${active ? " active" : ""}`}>{link.label}</a>;
-            })}
-            <div className="mob-divider" />
-            {isLoggedIn
-              ? <button className="mob-logout" onClick={handleLogout}>Deconnexion</button>
-              : <a href="/auth/login" className="mob-link" style={{ color: "#6366f1" }}>Connexion</a>
+
+        {/* Bottom tabs */}
+        <nav className="btm">
+          {bottomTabs.map(tab => {
+            const isActive = pathname?.startsWith(tab.href) && !tab.fab;
+            if (tab.fab) {
+              return (
+                <a key={tab.href} href={tab.href} className={`btm-item${pathname?.startsWith(tab.href) ? " active" : ""}`}>
+                  <svg className="btm-icon" viewBox="0 0 24 24" fill="none" stroke={pathname?.startsWith(tab.href) ? C.orange : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span className="btm-label">{tab.label}</span>
+                </a>
+              );
             }
-          </div>
-        )}
+            return (
+              <a key={tab.href} href={tab.href} className={`btm-item${isActive ? " active" : ""}`}>
+                {/* Icone SVG simple */}
+                <svg className="btm-icon" viewBox="0 0 24 24" fill="none" stroke={isActive ? C.orange : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {tab.href === "/dashboard" && <>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                  </>}
+                  {tab.href === "/reconciliation" && <>
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                  </>}
+                {tab.href === "/settings" && <>
+                    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                  </>}
+                </svg>
+                <span className="btm-label">{tab.label}</span>
+                {isActive && <div className="btm-dot" />}
+              </a>
+            );
+          })}
+        </nav>
       </>
     );
   }
+
+  // ── DESKTOP ────────────────────────────────────────────
   return (
     <>
       <style>{`
-        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 220px; z-index: 100; background: #fafaf9; border-right: 1px solid #e8e5e0; display: flex; flex-direction: column; padding: 20px 12px; gap: 4px; }
-        .sidebar-logo { padding: 4px 8px 20px; border-bottom: 1px solid #e8e5e0; margin-bottom: 8px; }
-        .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 13.5px; font-weight: 600; color: #78716c; transition: all 0.15s; white-space: nowrap; }
-        .sidebar-link:hover { color: #1c1917; background: #f5f4f2; }
-        .sidebar-link.active { color: #6366f1; background: #eeecff; }
-        .sidebar-bottom { margin-top: auto; padding-top: 12px; border-top: 1px solid #e8e5e0; }
-        .sidebar-logout { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #78716c; background: none; border: none; cursor: pointer; font-family: inherit; width: 100%; transition: all 0.15s; }
-        .sidebar-logout:hover { color: #ef4444; background: #fef2f2; }
+        .desk-nav { position: sticky; top: 0; z-index: 100; background: ${C.bg}; border-bottom: 1px solid ${C.border}; height: 60px; display: flex; align-items: center; padding: 0 28px; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .desk-links { display: flex; align-items: center; gap: 2px; }
+        .desk-link { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; color: ${C.muted}; transition: all 0.15s; white-space: nowrap; border: none; background: none; cursor: pointer; font-family: inherit; }
+        .desk-link:hover { color: ${C.text}; background: #f4f4f5; }
+        .desk-link.active { color: ${C.orange}; background: #fff7ed; font-weight: 700; }
+        .desk-cta { padding: 8px 20px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 700; color: white; background: ${C.orange}; box-shadow: 0 2px 8px rgba(249,115,22,0.3); margin-left: 8px; }
+        .desk-logout { padding: 7px 16px; border-radius: 10px; border: 1px solid #fecaca; font-size: 12px; font-weight: 700; color: #ef4444; background: #fef2f2; cursor: pointer; font-family: inherit; }
       `}</style>
-      <aside className="sidebar">
-        <div className="sidebar-logo"><Logo /></div>
-        {navLinks.map(link => {
-          const active = !!pathname?.startsWith(link.href);
-          return <a key={link.href} href={link.href} className={`sidebar-link${active ? " active" : ""}`}>{link.label}</a>;
-        })}
-        <div className="sidebar-bottom">
-          {isLoggedIn
-            ? <button className="sidebar-logout" onClick={handleLogout}>Deconnexion</button>
-            : <a href="/auth/login" className="sidebar-link" style={{ color: "#6366f1" }}>Connexion</a>
-          }
+      <nav className="desk-nav">
+        <Logo />
+        <div className="desk-links">
+          {desktopLinks.map(link => (
+            <a key={link.href} href={link.href} className={`desk-link${pathname?.startsWith(link.href) ? " active" : ""}`}>
+              {link.label}
+            </a>
+          ))}
+          <a href="/invoices" className="desk-cta">+ Nouvelle facture</a>
         </div>
-      </aside>
+        {isLoggedIn
+          ? <button className="desk-logout" onClick={handleLogout}>Deconnexion</button>
+          : <a href="/auth/login" className="desk-cta">Connexion</a>
+        }
+      </nav>
     </>
   );
 }

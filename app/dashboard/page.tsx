@@ -24,7 +24,7 @@ type Tab = "factures" | "contrats" | "insights";
 type FilterTab = "Toutes" | "En attente" | "Payees";
 
 function fmt(value: number): string {
-  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value) + " â‚¬";
+  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value) + " €";
 }
 
 function getStatus(inv: Invoice): string {
@@ -293,13 +293,13 @@ export default function DashboardPage() {
 
       <div style={{ background: "var(--creme)", minHeight: "100vh", paddingBottom: 100, fontFamily: "'DM Sans', sans-serif" }}>
 
-        {/* â”€â”€ SECTION HEADER â”€â”€ */}
+        {/* ── SECTION HEADER ── */}
         <div style={{ padding: "22px 20px 16px" }}>
           <h1 className="section-title">Vue d&apos;ensemble</h1>
           <p className="section-sub">{new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</p>
         </div>
 
-        {/* â”€â”€ STATS â”€â”€ */}
+        {/* ── STATS ── */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 20px", marginBottom: 20 }}>
           <div className="stat-card fu">
             <div className="stat-label">Total TTC</div>
@@ -323,7 +323,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* â”€â”€ ALERTES â”€â”€ */}
+        {/* ── ALERTES ── */}
         <div style={{ padding: "0 20px" }}>
           {overdueCount > 0 && (
             <div className="alert-box fu" style={{ background: "#F2E4E1", border: "1px solid #e8c4bb" }}>
@@ -337,7 +337,7 @@ export default function DashboardPage() {
           {totalTax > 0 && (
             <div className="alert-box fu" style={{ background: "#F5EDD8", border: "1px solid #e8d5a8" }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--or-accent)" }}>TVA a declarer Â· {fmt(totalTax)}</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--or-accent)" }}>TVA a declarer · {fmt(totalTax)}</p>
                 <p style={{ fontSize: 11, color: "var(--texte-pale)" }}>Avant le 20/{String(nextMonth).padStart(2,"0")}/{tvaYear}</p>
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* â”€â”€ TABS â”€â”€ */}
+        {/* ── TABS ── */}
         <div className="ia-nav-tabs-inner" style={{ marginTop: 12 }}>
           {(["factures","contrats","insights"] as Tab[]).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} className={`ia-tab-btn${activeTab === tab ? " active" : ""}`}>
@@ -362,7 +362,7 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* â”€â”€ TAB: FACTURES â”€â”€ */}
+        {/* ── TAB: FACTURES ── */}
         {activeTab === "factures" && (
           <div style={{ padding: "14px 20px" }}>
 
@@ -400,19 +400,19 @@ export default function DashboardPage() {
                     <div key={inv.id} className="invoice-item fu" style={{ animationDelay: `${idx * 0.03}s` }}>
                       <div className="invoice-initials">{getInitials(inv.vendor_name)}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="invoice-name">{inv.vendor_name || "â€”"}</div>
+                        <div className="invoice-name">{inv.vendor_name || "—"}</div>
                         <div className="invoice-date">
-                          {inv.invoice_number ? `${inv.invoice_number} Â· ` : ""}
-                          {inv.invoice_date || "â€”"}
+                          {inv.invoice_number ? `${inv.invoice_number} · ` : ""}
+                          {inv.invoice_date || "—"}
                           {days !== null && !["paid","rapproche"].includes(status) && (
                             <span style={{ color: days < 0 ? "var(--rouge-alerte)" : days < 7 ? "var(--or-accent)" : "var(--texte-pale)" }}>
-                              {" Â· "}{days < 0 ? `${Math.abs(days)}j de retard` : inv.due_date ? new Date(inv.due_date).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}) : ""}
+                              {" · "}{days < 0 ? `${Math.abs(days)}j de retard` : inv.due_date ? new Date(inv.due_date).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}) : ""}
                             </span>
                           )}
                         </div>
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <div className="invoice-amount">{inv.total_amount ? fmt(Number(inv.total_amount)) : "â€”"}</div>
+                        <div className="invoice-amount">{inv.total_amount ? fmt(Number(inv.total_amount)) : "—"}</div>
                         <StatusBadge status={status} />
                         {canConfirm && (
                           <div>
@@ -427,7 +427,7 @@ export default function DashboardPage() {
                         style={{ fontSize: 16, color: "var(--creme-profond)", background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: "0 2px" }}
                         onMouseEnter={e => (e.currentTarget.style.color = "var(--rouge-alerte)")}
                         onMouseLeave={e => (e.currentTarget.style.color = "var(--creme-profond)")}>
-                        Ã—
+                        ×
                       </button>
                     </div>
                   );
@@ -437,7 +437,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* â”€â”€ TAB: CONTRATS â”€â”€ */}
+        {/* ── TAB: CONTRATS ── */}
         {activeTab === "contrats" && (
           <div style={{ padding: "14px 20px" }}>
             <div className="upload-zone">
@@ -527,7 +527,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* â”€â”€ TAB: INSIGHTS â”€â”€ */}
+        {/* ── TAB: INSIGHTS ── */}
         {activeTab === "insights" && (
           <div style={{ padding: "14px 20px" }}>
             <InsightsTab
@@ -542,7 +542,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* â”€â”€ FAB â”€â”€ */}
+      {/* ── FAB ── */}
       <a href="/invoices" className="fab">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--creme)" strokeWidth="1.8" strokeLinecap="round">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -554,7 +554,7 @@ export default function DashboardPage() {
       {trialDaysLeft !== null && trialDaysLeft > 0 && trialDaysLeft <= 14 && (
         <div style={{ position: "fixed", bottom: 84, left: 0, right: 0, zIndex: 50, padding: "0 16px" }}>
           <div style={{ background: "var(--cafe)", borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 16px rgba(107,74,42,0.35)" }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--creme)" }}>Essai gratuit â€” {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--creme)" }}>Essai gratuit — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}</p>
             <a href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: "var(--cafe)", background: "var(--creme)", padding: "5px 12px", borderRadius: 8, textDecoration: "none" }}>Upgrader</a>
           </div>
         </div>
@@ -578,4 +578,3 @@ export default function DashboardPage() {
     </>
   );
 }
-

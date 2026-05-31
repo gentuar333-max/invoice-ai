@@ -1,27 +1,10 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { logAudit } from "@/lib/audit";
 import { FeedbackWidget } from "@/app/feedback/page";
 import InsightsTab from "@/components/InsightsTab";
 import Link from "next/link";
-
-const C = {
-  bg:      "#f4f4f5",
-  white:   "#ffffff",
-  orange:  "#f97316",
-  orangeL: "#fff7ed",
-  orangeB: "#fed7aa",
-  text:    "#18181b",
-  muted:   "#71717a",
-  border:  "#e4e4e7",
-  red:     "#ef4444",
-  redL:    "#fef2f2",
-  green:   "#22c55e",
-  greenL:  "#f0fdf4",
-  amber:   "#f59e0b",
-  amberL:  "#fffbeb",
-};
 
 type Invoice = {
   id: string;
@@ -41,7 +24,7 @@ type Tab = "factures" | "contrats" | "insights";
 type FilterTab = "Toutes" | "En attente" | "Payees";
 
 function fmt(value: number): string {
-  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value) + " €";
+  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value) + " â‚¬";
 }
 
 function getStatus(inv: Invoice): string {
@@ -61,34 +44,24 @@ function getDaysUntilDue(due_date: string): number | null {
   return Math.ceil((due.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 }
 
-function ProgressBar({ dueDate, status }: { dueDate: string; status: string }) {
-  if (["paid", "rapproche"].includes(status)) return null;
-  const days = getDaysUntilDue(dueDate);
-  if (days === null) return null;
-  const pct = Math.max(0, Math.min(100, ((30 - Math.max(0, days)) / 30) * 100));
-  const color = days < 0 ? C.red : days < 7 ? C.amber : C.orange;
-  return (
-    <div style={{ height: 3, background: C.border, borderRadius: 99, overflow: "hidden", marginTop: 10 }}>
-      <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 99 }} />
-    </div>
-  );
+function getInitials(name: string): string {
+  if (!name) return "??";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
 }
 
-function StatusPill({ status }: { status: string }) {
-  const map: Record<string, { label: string; color: string; bg: string }> = {
-    paid:                     { label: "Payee",      color: C.green,  bg: C.greenL },
-    rapproche:                { label: "Rapproche",  color: C.green,  bg: C.greenL },
-    suggestion_ai:            { label: "Suggestion", color: C.orange, bg: C.orangeL },
-    correspondance_partielle: { label: "Partiel",    color: C.amber,  bg: C.amberL },
-    pending:                  { label: "En attente", color: C.amber,  bg: C.amberL },
-    overdue:                  { label: "En retard",  color: C.red,    bg: C.redL },
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    paid:                     { label: "Payee",      cls: "status-payee" },
+    rapproche:                { label: "Rapproche",  cls: "status-payee" },
+    suggestion_ai:            { label: "Suggestion", cls: "status-attente" },
+    correspondance_partielle: { label: "Partiel",    cls: "status-attente" },
+    pending:                  { label: "En attente", cls: "status-attente" },
+    overdue:                  { label: "En retard",  cls: "status-retard" },
   };
   const s = map[status] ?? map["pending"];
-  return (
-    <span style={{ fontSize: 11, fontWeight: 700, color: s.color, background: s.bg, padding: "3px 10px", borderRadius: 99 }}>
-      {s.label}
-    </span>
-  );
+  return <span className={`status-badge ${s.cls}`}>{s.label}</span>;
 }
 
 export default function DashboardPage() {
@@ -110,6 +83,7 @@ export default function DashboardPage() {
   const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
   const [trialExpired, setTrialExpired] = useState(false);
   const [showTrialModal, setShowTrialModal] = useState(false);
+  const [openContrat, setOpenContrat] = useState<string | null>(null);
 
   async function fetchInsights(uid: string) {
     setInsightsLoading(true);
@@ -124,9 +98,7 @@ export default function DashboardPage() {
   }
 
   useEffect(() => { loadInvoices(); loadContracts(); loadUnmatched(); loadTrial(); }, []);
-
   useEffect(() => { applyFilters(invoices, period, filterTab); }, [invoices, period, filterTab]);
-
   useEffect(() => {
     if (invoices.length >= 5 && !localStorage.getItem("feedback_shown")) {
       setTimeout(() => { setShowFeedback(true); localStorage.setItem("feedback_shown", "true"); }, 3000);
@@ -150,10 +122,7 @@ export default function DashboardPage() {
   async function loadUnmatched() {
     try {
       const supabase = createClient();
-      const { count } = await supabase
-        .from("bank_transactions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "unmatched");
+      const { count } = await supabase.from("bank_transactions").select("id", { count: "exact", head: true }).eq("status", "unmatched");
       setUnmatchedCount(count ?? 0);
     } catch {}
   }
@@ -221,17 +190,17 @@ export default function DashboardPage() {
 
   const now = new Date();
   const nextMonth = now.getMonth() + 2 > 12 ? 1 : now.getMonth() + 2;
-  const tvaYear  = now.getMonth() + 2 > 12 ? now.getFullYear() + 1 : now.getFullYear();
-  const totalTax    = filtered.reduce((a, i) => a + (i.tax_amount || 0), 0);
-  const paidCount   = filtered.filter(i => ["paid","rapproche"].includes(getStatus(i))).length;
-  const overdueCount= filtered.filter(i => getStatus(i) === "overdue").length;
+  const tvaYear = now.getMonth() + 2 > 12 ? now.getFullYear() + 1 : now.getFullYear();
+  const totalTax = filtered.reduce((a, i) => a + (i.tax_amount || 0), 0);
+  const paidCount = filtered.filter(i => ["paid","rapproche"].includes(getStatus(i))).length;
+  const overdueCount = filtered.filter(i => getStatus(i) === "overdue").length;
   const unpaidTotal = filtered.filter(i => !["paid","rapproche"].includes(getStatus(i))).reduce((a, i) => a + (i.total_amount || 0), 0);
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "#F9F4EE", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <div style={{ width: 36, height: 36, border: `3px solid ${C.border}`, borderTopColor: C.orange, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <div style={{ width: 36, height: 36, border: "3px solid #E3D5C4", borderTopColor: "#6B4A2A", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
       </div>
     );
   }
@@ -239,253 +208,328 @@ export default function DashboardPage() {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap');
+        :root {
+          --creme: #F9F4EE;
+          --creme-fonce: #EFE7DC;
+          --creme-profond: #E3D5C4;
+          --cafe: #6B4A2A;
+          --cafe-clair: #8D6840;
+          --cafe-pale: #C4A882;
+          --texte-fonce: #2C1A0E;
+          --texte-moyen: #5C3D20;
+          --texte-pale: #9A7A5A;
+          --blanc: #FDFAF7;
+          --vert-succes: #5A7A4A;
+          --rouge-alerte: #8A3A2A;
+          --or-accent: #B8923A;
+        }
         * { box-sizing: border-box; }
-        .chip { padding: 7px 16px; border-radius: 99px; border: 1.5px solid ${C.border}; background: ${C.white}; font-size: 13px; font-weight: 600; color: ${C.muted}; cursor: pointer; white-space: nowrap; transition: all 0.15s; font-family: inherit; }
-        .chip.on { background: ${C.text}; color: ${C.white}; border-color: ${C.text}; }
-        .chip.orange { background: ${C.orange}; color: ${C.white}; border-color: ${C.orange}; }
-        .period-btn { padding: 6px 14px; border-radius: 8px; border: 1.5px solid ${C.border}; background: ${C.white}; font-size: 12px; font-weight: 600; color: ${C.muted}; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-        .period-btn.on { background: ${C.orange}; color: ${C.white}; border-color: ${C.orange}; }
-        .card { background: ${C.white}; border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .inv-row { background: ${C.white}; border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        body { font-family: 'DM Sans', sans-serif; background: var(--creme); }
+
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--texte-fonce); line-height: 1.2; }
+        .section-sub { font-size: 0.78rem; color: var(--texte-pale); margin-top: 4px; font-weight: 300; }
+
+        .stat-card { background: var(--blanc); border-radius: 12px; padding: 16px; border: 1px solid var(--creme-profond); }
+        .stat-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--texte-pale); margin-bottom: 6px; }
+        .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--texte-fonce); line-height: 1; }
+        .stat-change { font-size: 0.7rem; margin-top: 4px; color: var(--texte-pale); }
+        .stat-change.up { color: var(--vert-succes); }
+        .stat-change.down { color: var(--rouge-alerte); }
+
+        .ia-nav-tabs-inner { display: flex; gap: 0; background: var(--cafe); border-bottom: none; overflow-x: auto; scrollbar-width: none; }
+        .ia-nav-tabs-inner::-webkit-scrollbar { display: none; }
+        .ia-tab-btn { flex-shrink: 0; padding: 10px 18px 14px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cafe-pale); cursor: pointer; border-bottom: 2px solid transparent; border-top: none; border-left: none; border-right: none; transition: all 0.2s; white-space: nowrap; background: none; font-family: 'DM Sans', sans-serif; }
+        .ia-tab-btn.active { color: var(--creme); border-bottom-color: var(--cafe-pale); }
+
+        .period-btn { padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--creme-profond); background: var(--blanc); font-size: 0.75rem; font-weight: 500; color: var(--texte-pale); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+        .period-btn.on { background: var(--cafe); color: var(--creme); border-color: var(--cafe); }
+
+        .filter-chip { padding: 6px 14px; border-radius: 99px; border: 1.5px solid var(--creme-profond); background: var(--blanc); font-size: 0.75rem; font-weight: 500; color: var(--texte-pale); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+        .filter-chip.on { background: var(--texte-fonce); color: var(--creme); border-color: var(--texte-fonce); }
+
+        .invoice-item { background: var(--blanc); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--creme-profond); display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+        .invoice-item:hover { border-color: var(--cafe-pale); }
+        .invoice-initials { width: 38px; height: 38px; border-radius: 10px; background: var(--creme-profond); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 500; color: var(--cafe); flex-shrink: 0; letter-spacing: 0.03em; }
+        .invoice-name { font-size: 0.88rem; font-weight: 500; color: var(--texte-fonce); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .invoice-date { font-size: 0.72rem; color: var(--texte-pale); margin-top: 2px; }
+        .invoice-amount { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--texte-fonce); }
+
+        .status-badge { display: inline-block; font-size: 0.62rem; padding: 2px 8px; border-radius: 20px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 3px; }
+        .status-payee { background: #EAF0E6; color: var(--vert-succes); }
+        .status-attente { background: #F5EDD8; color: var(--or-accent); }
+        .status-retard { background: #F2E4E1; color: var(--rouge-alerte); }
+
+        .upload-zone { margin: 0 0 20px; border: 1.5px dashed var(--cafe-pale); border-radius: 12px; padding: 28px 20px; text-align: center; background: var(--blanc); cursor: pointer; transition: all 0.2s; }
+        .upload-zone:hover { border-color: var(--cafe); background: var(--creme-fonce); }
+        .btn-upload { margin-top: 14px; display: inline-block; background: var(--cafe); color: var(--creme); padding: 10px 22px; border-radius: 8px; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.03em; border: none; cursor: pointer; transition: background 0.2s; font-family: 'DM Sans', sans-serif; }
+        .btn-upload:hover { background: var(--cafe-clair); }
+        .btn-upload:disabled { background: var(--cafe-pale); cursor: not-allowed; }
+
+        .contrat-item { background: var(--blanc); border-radius: 12px; overflow: hidden; border: 1px solid var(--creme-profond); margin-bottom: 14px; }
+        .contrat-header { padding: 14px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .contrat-icon { width: 36px; height: 36px; background: var(--creme-profond); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .contrat-name { font-size: 0.88rem; font-weight: 500; color: var(--texte-fonce); }
+        .contrat-date { font-size: 0.72rem; color: var(--texte-pale); margin-top: 2px; }
+        .risk-badge { font-size: 0.62rem; padding: 3px 9px; border-radius: 20px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+        .risk-low { background: #EAF0E6; color: var(--vert-succes); }
+        .risk-medium { background: #F5EDD8; color: var(--or-accent); }
+        .risk-high { background: #F2E4E1; color: var(--rouge-alerte); }
+        .contrat-detail { padding: 0 16px 14px; border-top: 1px solid var(--creme-fonce); }
+        .clause-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; font-size: 0.78rem; color: var(--texte-moyen); line-height: 1.4; border-bottom: 1px solid var(--creme-fonce); }
+        .clause-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+        .list-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--texte-pale); margin-bottom: 8px; margin-top: 4px; }
+
+        .fab { position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px; background: var(--cafe); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(107,74,42,0.35); cursor: pointer; z-index: 200; border: none; transition: transform 0.2s, background 0.2s; text-decoration: none; }
+        .fab:hover { transform: scale(1.08); background: var(--cafe-clair); }
+
+        .alert-box { border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .alert-link { font-size: 12px; font-weight: 700; text-decoration: none; padding: 6px 12px; border-radius: 8px; }
+
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         .fu { animation: fadeUp 0.25s ease forwards; }
       `}</style>
 
-      <div style={{ background: C.bg, minHeight: "100vh", paddingBottom: 84 }}>
+      <div style={{ background: "var(--creme)", minHeight: "100vh", paddingBottom: 100, fontFamily: "'DM Sans', sans-serif" }}>
 
-        {/* ── HEADER ─────────────────────────────────── */}
-        <div style={{ background: `linear-gradient(150deg, #fff7ed 0%, #ffedd5 100%)`, padding: "20px 16px 20px", borderBottom: `1px solid ${C.orangeB}` }}>
-          <div style={{ maxWidth: 720, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-            <div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>Mes Factures</h1>
-              <p style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{invoices.length} factures · {paidCount} payees</p>
-            </div>
-            <Link href="/invoices" style={{ width: 44, height: 44, borderRadius: "50%", background: C.orange, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: C.white, textDecoration: "none", fontWeight: 300, boxShadow: "0 4px 14px rgba(249,115,22,0.4)", lineHeight: 1 }}>
-              +
-            </Link>
-          </div>
+        {/* â”€â”€ SECTION HEADER â”€â”€ */}
+        <div style={{ padding: "22px 20px 16px" }}>
+          <h1 className="section-title">Vue d&apos;ensemble</h1>
+          <p className="section-sub">{new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</p>
+        </div>
 
-          {/* Stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {[
-              { label: "Total factures", value: String(invoices.length), sub: `${paidCount} payees`, color: C.text },
-              { label: "En attente",     value: fmt(unpaidTotal),         sub: `${overdueCount > 0 ? `${overdueCount} en retard` : `${invoices.length - paidCount} factures`}`, color: unpaidTotal > 0 ? C.orange : C.text },
-            ].map((s, i) => (
-              <div key={i} className="card">
-                <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1, marginBottom: 5 }}>{s.value}</p>
-                <p style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 2 }}>{s.label}</p>
-                <p style={{ fontSize: 11, color: C.muted }}>{s.sub}</p>
-              </div>
-            ))}
+        {/* â”€â”€ STATS â”€â”€ */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 20px", marginBottom: 20 }}>
+          <div className="stat-card fu">
+            <div className="stat-label">Total TTC</div>
+            <div className="stat-value">{fmt(filtered.reduce((a, i) => a + (i.total_amount || 0), 0))}</div>
+            <div className={`stat-change ${invoices.length > 0 ? "up" : ""}`}>{invoices.length} factures</div>
           </div>
+          <div className="stat-card fu">
+            <div className="stat-label">En attente</div>
+            <div className="stat-value">{fmt(unpaidTotal)}</div>
+            <div className="stat-change down">{invoices.length - paidCount} factures</div>
+          </div>
+          <div className="stat-card fu">
+            <div className="stat-label">Payees</div>
+            <div className="stat-value">{fmt(filtered.filter(i => ["paid","rapproche"].includes(getStatus(i))).reduce((a, i) => a + (i.total_amount || 0), 0))}</div>
+            <div className="stat-change up">{paidCount} factures</div>
+          </div>
+          <div className="stat-card fu">
+            <div className="stat-label">En retard</div>
+            <div className="stat-value">{overdueCount}</div>
+            <div className="stat-change down">{overdueCount > 0 ? "Action requise" : "Aucun retard"}</div>
           </div>
         </div>
 
-        {/* ── ALERTES ──────────────────────────────────── */}
-        <div style={{ padding: "12px 16px 0", maxWidth: 720, margin: "0 auto" }}>
+        {/* â”€â”€ ALERTES â”€â”€ */}
+        <div style={{ padding: "0 20px" }}>
           {overdueCount > 0 && (
-            <div style={{ background: C.redL, border: `1px solid #fecaca`, borderRadius: 12, padding: "12px 14px", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="alert-box fu" style={{ background: "#F2E4E1", border: "1px solid #e8c4bb" }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: C.red }}>{overdueCount} facture{overdueCount > 1 ? "s" : ""} en retard</p>
-                <p style={{ fontSize: 11, color: C.muted }}>Rapprocher maintenant</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--rouge-alerte)" }}>{overdueCount} facture{overdueCount > 1 ? "s" : ""} en retard</p>
+                <p style={{ fontSize: 11, color: "var(--texte-pale)" }}>Rapprocher maintenant</p>
               </div>
-              <Link href="/reconciliation" style={{ fontSize: 12, fontWeight: 700, color: C.red, textDecoration: "none", background: "#fee2e2", padding: "6px 12px", borderRadius: 8 }}>
-                Voir
-              </Link>
+              <Link href="/reconciliation" className="alert-link" style={{ color: "var(--rouge-alerte)", background: "#f5d5cf" }}>Voir</Link>
             </div>
           )}
           {totalTax > 0 && (
-            <div style={{ background: C.amberL, border: `1px solid #fde68a`, borderRadius: 12, padding: "12px 14px", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="alert-box fu" style={{ background: "#F5EDD8", border: "1px solid #e8d5a8" }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: C.amber }}>TVA a declarer · {fmt(totalTax)}</p>
-                <p style={{ fontSize: 11, color: C.muted }}>Avant le 20/{String(nextMonth).padStart(2,"0")}/{tvaYear}</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--or-accent)" }}>TVA a declarer Â· {fmt(totalTax)}</p>
+                <p style={{ fontSize: 11, color: "var(--texte-pale)" }}>Avant le 20/{String(nextMonth).padStart(2,"0")}/{tvaYear}</p>
               </div>
+            </div>
+          )}
+          {unmatchedCount > 0 && (
+            <div className="alert-box fu" style={{ background: "#e8f0e6", border: "1px solid #c4d8be" }}>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--vert-succes)" }}>{unmatchedCount} transaction{unmatchedCount > 1 ? "s" : ""} non rapprochee{unmatchedCount > 1 ? "s" : ""}</p>
+                <p style={{ fontSize: 11, color: "var(--texte-pale)" }}>A verifier dans Banque</p>
+              </div>
+              <a href="/reconciliation" className="alert-link" style={{ color: "var(--vert-succes)", background: "#d0e8ca" }}>Voir</a>
             </div>
           )}
         </div>
 
-          {unmatchedCount > 0 && (
-            <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, padding: "12px 14px", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "#2563eb" }}>{unmatchedCount} transaction{unmatchedCount > 1 ? "s" : ""} non rapprochee{unmatchedCount > 1 ? "s" : ""}</p>
-                <p style={{ fontSize: 11, color: C.muted }}>A verifier dans Banque</p>
-              </div>
-              <a href="/reconciliation" style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", textDecoration: "none", background: "#dbeafe", padding: "6px 12px", borderRadius: 8 }}>
-                Voir
-              </a>
-            </div>
-          )}
-
-        {/* ── TABS ─────────────────────────────────────── */}
-        <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, background: C.white, marginTop: 12, maxWidth: 720, margin: "12px auto 0" }}>
+        {/* â”€â”€ TABS â”€â”€ */}
+        <div className="ia-nav-tabs-inner" style={{ marginTop: 12 }}>
           {(["factures","contrats","insights"] as Tab[]).map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              style={{ flex: 1, padding: "13px 8px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13, fontWeight: activeTab === tab ? 700 : 500, color: activeTab === tab ? C.orange : C.muted, borderBottom: activeTab === tab ? `2px solid ${C.orange}` : "2px solid transparent", transition: "all 0.15s", fontFamily: "inherit" }}>
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`ia-tab-btn${activeTab === tab ? " active" : ""}`}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
 
-        {/* ── TAB: FACTURES ──────────────────────────── */}
+        {/* â”€â”€ TAB: FACTURES â”€â”€ */}
         {activeTab === "factures" && (
-          <div style={{ padding: "14px 16px", maxWidth: 720, margin: "0 auto" }}>
+          <div style={{ padding: "14px 20px" }}>
 
-            {/* Periode */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12, overflowX: "auto", paddingBottom: 2 }}>
               {([["month","Ce mois"],["quarter","3 mois"],["halfyear","6 mois"],["all","Tout"]] as [Period,string][]).map(([p,l]) => (
                 <button key={p} onClick={() => setPeriod(p)} className={`period-btn${period === p ? " on" : ""}`}>{l}</button>
               ))}
             </div>
 
-            {/* Filter chips */}
             <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 2 }}>
               {(["Toutes","En attente","Payees"] as FilterTab[]).map(ft => (
-                <button key={ft} onClick={() => setFilterTab(ft)} className={`chip${filterTab === ft ? " on" : ""}`}>{ft}</button>
+                <button key={ft} onClick={() => setFilterTab(ft)} className={`filter-chip${filterTab === ft ? " on" : ""}`}>{ft}</button>
               ))}
             </div>
 
-            {/* Liste */}
             {filtered.length === 0 ? (
-              <div style={{ background: C.white, borderRadius: 16, overflow: "hidden" }}>
-                <div style={{ textAlign: "center", padding: "36px 24px 24px" }}>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 6 }}>Aucune facture</p>
-                  <p style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Importez votre premiere facture</p>
-                  <Link href="/invoices" style={{ background: C.orange, color: C.white, padding: "12px 32px", borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: "none", display: "inline-block", boxShadow: "0 2px 8px rgba(249,115,22,0.35)" }}>
-                    Nouvelle facture
-                  </Link>
+              <div className="upload-zone" onClick={() => window.location.href = "/invoices"}>
+                <div style={{ width: 44, height: 44, margin: "0 auto 12px", background: "var(--creme-profond)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--cafe)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
                 </div>
-                <div style={{ borderTop: "1px solid #e4e4e7", padding: "16px 20px" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 12 }}>En 30 secondes, l'IA extrait et structure</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                    {[
-                      { label: "Fournisseur", desc: "Nom, SIRET, adresse" },
-                      { label: "Montants",    desc: "HT, TVA, TTC" },
-                      { label: "Dates",       desc: "Emission et echeance" },
-                      { label: "Lignes",      desc: "Articles et quantites" },
-                    ].map(item => (
-                      <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.orange, flexShrink: 0, marginTop: 5 }} />
-                        <div>
-                          <p style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 1 }}>{item.label}</p>
-                          <p style={{ fontSize: 11, color: C.muted }}>{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green }} />
-                    <p style={{ fontSize: 12, color: C.muted }}>Detection automatique des doublons incluse</p>
-                  </div>
-                </div>
+                <div style={{ fontSize: "0.92rem", fontWeight: 500, color: "var(--texte-moyen)", marginBottom: 5 }}>Deposer une facture PDF</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--texte-pale)", lineHeight: 1.5 }}>L'IA extrait automatiquement fournisseur, SIRET, montants HT / TVA / TTC et lignes</div>
+                <button className="btn-upload">Importer PDF</button>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <>
+                <div className="list-label">Factures recentes</div>
                 {filtered.map((inv, idx) => {
                   const status = getStatus(inv);
                   const canConfirm = ["suggestion_ai","correspondance_partielle"].includes(status);
                   const days = getDaysUntilDue(inv.due_date);
                   return (
-                    <div key={inv.id} className="inv-row fu" style={{ animationDelay: `${idx * 0.03}s` }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 15, fontWeight: 700, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 3 }}>
-                            {inv.vendor_name || "—"}
-                          </p>
-                          <p style={{ fontSize: 12, color: C.muted }}>
-                            {inv.invoice_number ? `${inv.invoice_number} · ` : ""}
-                            {inv.invoice_date || "—"}
-                            {days !== null && !["paid","rapproche"].includes(status) && (
-                              <span style={{ color: days < 0 ? C.red : days < 7 ? C.amber : C.muted }}>
-                                {" · "}
-                                {days < 0 ? `${Math.abs(days)}j de retard` : `Echeance ${inv.due_date ? new Date(inv.due_date).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}) : ""}`}
-                              </span>
-                            )}
-                          </p>
+                    <div key={inv.id} className="invoice-item fu" style={{ animationDelay: `${idx * 0.03}s` }}>
+                      <div className="invoice-initials">{getInitials(inv.vendor_name)}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="invoice-name">{inv.vendor_name || "â€”"}</div>
+                        <div className="invoice-date">
+                          {inv.invoice_number ? `${inv.invoice_number} Â· ` : ""}
+                          {inv.invoice_date || "â€”"}
+                          {days !== null && !["paid","rapproche"].includes(status) && (
+                            <span style={{ color: days < 0 ? "var(--rouge-alerte)" : days < 7 ? "var(--or-accent)" : "var(--texte-pale)" }}>
+                              {" Â· "}{days < 0 ? `${Math.abs(days)}j de retard` : inv.due_date ? new Date(inv.due_date).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}) : ""}
+                            </span>
+                          )}
                         </div>
-                        <p style={{ fontSize: 16, fontWeight: 800, color: C.text, marginLeft: 12, whiteSpace: "nowrap" }}>
-                          {inv.total_amount ? fmt(Number(inv.total_amount)) : "—"}
-                        </p>
                       </div>
-
-                      <ProgressBar dueDate={inv.due_date} status={status} />
-
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
-                        <StatusPill status={status} />
-                        <div style={{ display: "flex", gap: 8 }}>
-                          {canConfirm && (
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div className="invoice-amount">{inv.total_amount ? fmt(Number(inv.total_amount)) : "â€”"}</div>
+                        <StatusBadge status={status} />
+                        {canConfirm && (
+                          <div>
                             <button onClick={() => confirmPayment(inv.id)}
-                              style={{ fontSize: 12, fontWeight: 700, color: C.green, background: C.greenL, border: "none", padding: "4px 12px", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" }}>
+                              style={{ fontSize: 11, fontWeight: 700, color: "var(--vert-succes)", background: "#EAF0E6", border: "none", padding: "2px 8px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", marginTop: 3 }}>
                               Confirmer
                             </button>
-                          )}
-                          <button onClick={() => deleteInvoice(inv.id)}
-                            style={{ fontSize: 18, color: C.border, background: "none", border: "none", cursor: "pointer", lineHeight: 1, padding: "0 4px" }}
-                            onMouseEnter={e => (e.currentTarget.style.color = C.red)}
-                            onMouseLeave={e => (e.currentTarget.style.color = C.border)}>
-                            x
-                          </button>
-                        </div>
+                          </div>
+                        )}
                       </div>
+                      <button onClick={() => deleteInvoice(inv.id)}
+                        style={{ fontSize: 16, color: "var(--creme-profond)", background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: "0 2px" }}
+                        onMouseEnter={e => (e.currentTarget.style.color = "var(--rouge-alerte)")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "var(--creme-profond)")}>
+                        Ã—
+                      </button>
                     </div>
                   );
                 })}
-              </div>
+              </>
             )}
           </div>
         )}
 
-        {/* ── TAB: CONTRATS ──────────────────────────── */}
+        {/* â”€â”€ TAB: CONTRATS â”€â”€ */}
         {activeTab === "contrats" && (
-          <div style={{ padding: "16px", maxWidth: 720, margin: "0 auto" }}>
-            <div className="card" style={{ textAlign: "center", padding: "28px 20px", marginBottom: 16 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 6 }}>Analyser un contrat</h3>
-              <p style={{ fontSize: 13, color: C.muted, marginBottom: 20, lineHeight: 1.6 }}>L'IA detecte les clauses a risque, frais caches et conditions importantes</p>
-              <label style={{ background: contractLoading ? C.muted : C.orange, color: C.white, padding: "12px 28px", borderRadius: 12, cursor: contractLoading ? "not-allowed" : "pointer", fontSize: 14, fontWeight: 700, display: "inline-block" }}>
-                {contractLoading ? "Analyse en cours..." : "Importer un contrat PDF"}
-                <input type="file" accept=".pdf" style={{ display: "none" }} onChange={handleContractUpload} disabled={contractLoading} />
+          <div style={{ padding: "14px 20px" }}>
+            <div className="upload-zone">
+              <div style={{ width: 44, height: 44, margin: "0 auto 12px", background: "var(--creme-profond)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--cafe)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: "0.92rem", fontWeight: 500, color: "var(--texte-moyen)", marginBottom: 5 }}>Analyser un contrat</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--texte-pale)", lineHeight: 1.5 }}>L'IA detecte les clauses dangereuses, frais caches et conditions importantes</div>
+              <label>
+                <button className="btn-upload" disabled={contractLoading} onClick={() => (document.getElementById("contract-upload") as HTMLInputElement)?.click()}>
+                  {contractLoading ? "Analyse en cours..." : "Deposer contrat PDF"}
+                </button>
+                <input id="contract-upload" type="file" accept=".pdf" style={{ display: "none" }} onChange={handleContractUpload} />
               </label>
             </div>
 
             {contractResult && (
-              <div className="card" style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: C.orange, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Resultat analyse</p>
-                {contractResult.summary && <p style={{ fontSize: 13, color: C.text, lineHeight: 1.7, marginBottom: 12 }}>{contractResult.summary}</p>}
-                {contractResult.risk_clauses?.length > 0 && (
-                  <div style={{ background: C.amberL, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: C.amber, marginBottom: 8 }}>{contractResult.risk_clauses.length} clause(s) a risque</p>
-                    {contractResult.risk_clauses.map((c: any, i: number) => <p key={i} style={{ fontSize: 12, color: C.text, marginBottom: 4 }}>· {c.clause}</p>)}
-                  </div>
-                )}
-                {contractResult.hidden_fees?.length > 0 && (
-                  <div style={{ background: C.redL, borderRadius: 10, padding: "12px 14px" }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: C.red, marginBottom: 8 }}>{contractResult.hidden_fees.length} frais cache(s)</p>
-                    {contractResult.hidden_fees.map((f: any, i: number) => <p key={i} style={{ fontSize: 12, color: C.text, marginBottom: 4 }}>· {f.description}</p>)}
-                  </div>
-                )}
+              <div className="contrat-item fu" style={{ marginBottom: 16 }}>
+                <div style={{ padding: "14px 16px" }}>
+                  <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--cafe)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>Resultat analyse IA</p>
+                  {contractResult.summary && <p style={{ fontSize: "0.82rem", color: "var(--texte-moyen)", lineHeight: 1.6, marginBottom: 10 }}>{contractResult.summary}</p>}
+                  {contractResult.risk_clauses?.length > 0 && (
+                    <ul style={{ listStyle: "none", padding: 0 }}>
+                      {contractResult.risk_clauses.map((c: any, i: number) => (
+                        <li key={i} className="clause-item">
+                          <span className="clause-dot" style={{ background: "var(--rouge-alerte)" }} />
+                          {c.clause}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {contractResult.hidden_fees?.length > 0 && (
+                    <ul style={{ listStyle: "none", padding: 0, marginTop: 8 }}>
+                      {contractResult.hidden_fees.map((f: any, i: number) => (
+                        <li key={i} className="clause-item">
+                          <span className="clause-dot" style={{ background: "var(--or-accent)" }} />
+                          {f.description}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             )}
 
             {contracts.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {contracts.map(c => (
-                  <div key={c.id} className="card">
-                    <p style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>{c.vendor_name || c.filename}</p>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      {c.risk_clauses?.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: C.amber, background: C.amberL, padding: "2px 8px", borderRadius: 6 }}>{c.risk_clauses.length} risque(s)</span>}
-                      {c.hidden_fees?.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: C.red, background: C.redL, padding: "2px 8px", borderRadius: 6 }}>{c.hidden_fees.length} frais</span>}
-                      <span style={{ fontSize: 11, color: C.muted }}>{new Date(c.created_at).toLocaleDateString("fr-FR")}</span>
+              <>
+                <div className="list-label">Historique des analyses</div>
+                {contracts.map((c, idx) => (
+                  <div key={c.id} className="contrat-item fu" style={{ animationDelay: `${idx * 0.05}s` }}>
+                    <div className="contrat-header" onClick={() => setOpenContrat(openContrat === c.id ? null : c.id)}>
+                      <div className="contrat-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--cafe)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div className="contrat-name">{c.vendor_name || c.filename || "Contrat"}</div>
+                        <div className="contrat-date">{new Date(c.created_at).toLocaleDateString("fr-FR")}</div>
+                      </div>
+                      <span className={`risk-badge ${c.risk_clauses?.length > 2 ? "risk-high" : c.risk_clauses?.length > 0 ? "risk-medium" : "risk-low"}`}>
+                        {c.risk_clauses?.length > 2 ? "Risque eleve" : c.risk_clauses?.length > 0 ? "Risque moyen" : "Risque faible"}
+                      </span>
                     </div>
+                    {openContrat === c.id && (
+                      <div className="contrat-detail">
+                        {c.risk_clauses?.map((cl: any, i: number) => (
+                          <div key={i} className="clause-item">
+                            <span className="clause-dot" style={{ background: "var(--rouge-alerte)" }} />
+                            {cl.clause}
+                          </div>
+                        ))}
+                        {c.hidden_fees?.map((f: any, i: number) => (
+                          <div key={i} className="clause-item">
+                            <span className="clause-dot" style={{ background: "var(--or-accent)" }} />
+                            {f.description}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
-              </div>
+              </>
             )}
           </div>
         )}
 
-        {/* ── TAB: INSIGHTS ──────────────────────────── */}
+        {/* â”€â”€ TAB: INSIGHTS â”€â”€ */}
         {activeTab === "insights" && (
-          <div style={{ padding: "16px", maxWidth: 720, margin: "0 auto" }}>
+          <div style={{ padding: "14px 20px" }}>
             <InsightsTab
               isMobile={true}
               userId={currentUserId}
@@ -496,48 +540,42 @@ export default function DashboardPage() {
             />
           </div>
         )}
-
       </div>
+
+      {/* â”€â”€ FAB â”€â”€ */}
+      <a href="/invoices" className="fab">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--creme)" strokeWidth="1.8" strokeLinecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </a>
 
       {showFeedback && <FeedbackWidget trigger="auto" onClose={() => setShowFeedback(false)} />}
 
-      {/* Trial banner */}
       {trialDaysLeft !== null && trialDaysLeft > 0 && trialDaysLeft <= 14 && (
         <div style={{ position: "fixed", bottom: 84, left: 0, right: 0, zIndex: 50, padding: "0 16px" }}>
-          <div style={{ background: C.orange, borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 16px rgba(249,115,22,0.4)" }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: C.white }}>
-              Essai gratuit — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}
-            </p>
-            <a href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: C.orange, background: C.white, padding: "5px 12px", borderRadius: 8, textDecoration: "none" }}>
-              Upgrader
-            </a>
+          <div style={{ background: "var(--cafe)", borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 16px rgba(107,74,42,0.35)" }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--creme)" }}>Essai gratuit â€” {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}</p>
+            <a href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: "var(--cafe)", background: "var(--creme)", padding: "5px 12px", borderRadius: 8, textDecoration: "none" }}>Upgrader</a>
           </div>
         </div>
       )}
 
-      {/* Trial expired modal */}
       {showTrialModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-          <div style={{ background: C.white, borderRadius: 20, padding: "32px 24px", maxWidth: 360, width: "100%", textAlign: "center" }}>
-            <div style={{ width: 56, height: 56, background: C.orangeL, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.orange} strokeWidth="2" strokeLinecap="round">
+        <div style={{ position: "fixed", inset: 0, background: "rgba(44,26,14,0.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ background: "var(--blanc)", borderRadius: 20, padding: "32px 24px", maxWidth: 360, width: "100%", textAlign: "center" }}>
+            <div style={{ width: 56, height: 56, background: "var(--creme-profond)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--cafe)" strokeWidth="2" strokeLinecap="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
             </div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 8 }}>Votre essai gratuit est termine</h2>
-            <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 24 }}>
-              Choisissez un plan pour continuer a utiliser InvoiceAgent et acceder a toutes vos factures.
-            </p>
-            <a href="/pricing" style={{ display: "block", background: C.orange, color: C.white, padding: "13px", borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: "none", marginBottom: 10, boxShadow: "0 2px 8px rgba(249,115,22,0.35)" }}>
-              Voir les abonnements
-            </a>
-            <button onClick={() => setShowTrialModal(false)}
-              style={{ background: "none", border: "none", color: C.muted, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-              Continuer en mode gratuit
-            </button>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: "var(--texte-fonce)", fontFamily: "'Cormorant Garamond', serif", marginBottom: 8 }}>Votre essai gratuit est termine</h2>
+            <p style={{ fontSize: 14, color: "var(--texte-pale)", lineHeight: 1.6, marginBottom: 24 }}>Choisissez un plan pour continuer a utiliser InvoiceAgent.</p>
+            <a href="/pricing" style={{ display: "block", background: "var(--cafe)", color: "var(--creme)", padding: "13px", borderRadius: 12, fontSize: 14, fontWeight: 500, textDecoration: "none", marginBottom: 10 }}>Voir les abonnements</a>
+            <button onClick={() => setShowTrialModal(false)} style={{ background: "none", border: "none", color: "var(--texte-pale)", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Continuer en mode gratuit</button>
           </div>
         </div>
       )}
     </>
   );
 }
+

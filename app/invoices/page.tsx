@@ -6,24 +6,7 @@ import { saveInvoiceToSupabase } from "@/lib/save-invoice";
 import UpgradeModal from "@/components/UpgradeModal";
 import { getUserPlan, PLAN_LIMITS } from "@/lib/plan";
 
-const C = {
-  bg:      "#f4f4f5",
-  white:   "#ffffff",
-  orange:  "#f97316",
-  orangeL: "#fff7ed",
-  orangeB: "#fed7aa",
-  text:    "#18181b",
-  muted:   "#71717a",
-  border:  "#e4e4e7",
-  red:     "#ef4444",
-  redL:    "#fef2f2",
-  green:   "#22c55e",
-  greenL:  "#f0fdf4",
-  amber:   "#f59e0b",
-  amberL:  "#fffbeb",
-};
-
-function fmt(value: number | null, currency: string | null): string {
+function fmt(value: number | null): string {
   if (value === null) return "—";
   return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2 }).format(value) + " €";
 }
@@ -31,14 +14,14 @@ function fmt(value: number | null, currency: string | null): string {
 function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-      <label style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>{label}</label>
+      <label style={{ fontSize: "0.68rem", fontWeight: 600, color: "#9A7A5A", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</label>
       <input
         type={type}
         value={value || ""}
         onChange={e => onChange(e.target.value)}
-        style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", fontSize: 14, color: C.text, outline: "none", fontFamily: "inherit", transition: "border 0.15s" }}
-        onFocus={e => (e.target.style.borderColor = C.orange)}
-        onBlur={e => (e.target.style.borderColor = C.border)}
+        style={{ background: "#F9F4EE", border: "1.5px solid #E3D5C4", borderRadius: 10, padding: "10px 12px", fontSize: 14, color: "#2C1A0E", outline: "none", fontFamily: "inherit", transition: "border 0.15s" }}
+        onFocus={e => (e.target.style.borderColor = "#6B4A2A")}
+        onBlur={e => (e.target.style.borderColor = "#E3D5C4")}
       />
     </div>
   );
@@ -55,13 +38,13 @@ function StepBar({ step }: { step: number }) {
         return (
           <div key={s} style={{ display: "flex", alignItems: "center", flex: i < steps.length - 1 ? 1 : 0 }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: done || active ? C.orange : C.border, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: done || active ? C.white : C.muted, transition: "all 0.3s" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: done || active ? "#6B4A2A" : "#E3D5C4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: done || active ? "#F9F4EE" : "#9A7A5A", transition: "all 0.3s" }}>
                 {done ? "✓" : n}
               </div>
-              <span style={{ fontSize: 9, fontWeight: 600, color: active ? C.orange : done ? C.text : C.muted, whiteSpace: "nowrap" }}>{s}</span>
+              <span style={{ fontSize: 9, fontWeight: 600, color: active ? "#6B4A2A" : done ? "#2C1A0E" : "#9A7A5A", whiteSpace: "nowrap" }}>{s}</span>
             </div>
             {i < steps.length - 1 && (
-              <div style={{ flex: 1, height: 2, background: step > n ? C.orange : C.border, margin: "0 6px 14px", transition: "all 0.3s" }} />
+              <div style={{ flex: 1, height: 2, background: step > n ? "#6B4A2A" : "#E3D5C4", margin: "0 6px 14px", transition: "all 0.3s" }} />
             )}
           </div>
         );
@@ -80,14 +63,15 @@ function Analyzing({ filename }: { filename: string }) {
     return () => { clearInterval(m); clearInterval(p); };
   }, []);
   return (
-    <div style={{ background: C.white, borderRadius: 16, padding: "40px 24px", textAlign: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-      <div style={{ width: 48, height: 48, border: `3px solid ${C.border}`, borderTopColor: C.orange, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 20px" }} />
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>Analyse en cours</h3>
-      <p style={{ fontSize: 12, color: C.muted, marginBottom: 20 }}>{filename}</p>
-      <div style={{ background: C.bg, borderRadius: 99, height: 4, overflow: "hidden", marginBottom: 12 }}>
-        <div style={{ height: "100%", background: C.orange, borderRadius: 99, width: `${pct}%`, transition: "width 0.15s" }} />
+    <div style={{ background: "#FDFAF7", borderRadius: 16, padding: "40px 24px", textAlign: "center", border: "1px solid #E3D5C4" }}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div style={{ width: 48, height: 48, border: "3px solid #E3D5C4", borderTopColor: "#6B4A2A", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 20px" }} />
+      <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.3rem", fontWeight: 300, color: "#2C1A0E", marginBottom: 4 }}>Analyse en cours</h3>
+      <p style={{ fontSize: 12, color: "#9A7A5A", marginBottom: 20 }}>{filename}</p>
+      <div style={{ background: "#EFE7DC", borderRadius: 99, height: 4, overflow: "hidden", marginBottom: 12 }}>
+        <div style={{ height: "100%", background: "#6B4A2A", borderRadius: 99, width: `${pct}%`, transition: "width 0.15s" }} />
       </div>
-      <p style={{ fontSize: 13, color: C.orange, fontWeight: 600 }}>{msgs[idx]}</p>
+      <p style={{ fontSize: 13, color: "#6B4A2A", fontWeight: 500 }}>{msgs[idx]}</p>
     </div>
   );
 }
@@ -198,71 +182,79 @@ export default function InvoicesPage() {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap');
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         .fu { animation: fadeUp 0.25s ease forwards; }
+        .btn-cafe { background: #6B4A2A; color: #F9F4EE; border: none; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.2s; letter-spacing: 0.02em; }
+        .btn-cafe:hover { background: #8D6840; }
+        .btn-outline { background: #FDFAF7; color: #9A7A5A; border: 1.5px solid #E3D5C4; padding: 13px 20px; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .btn-outline:hover { border-color: #6B4A2A; color: #6B4A2A; }
       `}</style>
 
       {showUpgrade && <UpgradeModal reason="invoices" onClose={() => { setShowUpgrade(false); setFile(null); }} />}
 
-      <div style={{ background: C.bg, minHeight: "100vh", padding: "20px 16px 100px", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ background: "#F9F4EE", minHeight: "100vh", padding: "20px 16px 100px", fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ maxWidth: 560, margin: "0 auto" }}>
 
           <StepBar step={step} />
 
-          {/* Limite plan */}
           {invoiceCount >= maxInvoices - 1 && invoiceCount < maxInvoices && (
-            <div style={{ background: C.amberL, border: `1px solid #fde68a`, borderRadius: 12, padding: "11px 14px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <p style={{ fontSize: 13, color: C.amber, fontWeight: 600 }}>Il vous reste 1 facture sur votre plan.</p>
-              <a href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: C.amber, textDecoration: "none", background: "#fef3c7", padding: "5px 12px", borderRadius: 8 }}>Upgrader</a>
+            <div style={{ background: "#F5EDD8", border: "1px solid #e8d5a8", borderRadius: 12, padding: "11px 14px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={{ fontSize: 13, color: "#B8923A", fontWeight: 600 }}>Il vous reste 1 facture sur votre plan.</p>
+              <a href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: "#B8923A", textDecoration: "none", background: "#efe7dc", padding: "5px 12px", borderRadius: 8 }}>Upgrader</a>
             </div>
           )}
 
           {/* ETAPE 1 — Upload */}
           {step === 1 && (
             <div className="fu">
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, marginBottom: 4 }}>Nouvelle facture</h1>
-              <p style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Importez votre facture — l'IA extrait tout automatiquement</p>
+              <div style={{ padding: "0 0 20px" }}>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", fontWeight: 300, color: "#2C1A0E", marginBottom: 4 }}>Nouvelle facture</h1>
+                <p style={{ fontSize: "0.78rem", color: "#9A7A5A", fontWeight: 300 }}>Importez votre facture — l'IA extrait tout automatiquement</p>
+              </div>
 
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                style={{ background: dragging ? C.orangeL : C.white, border: `2px dashed ${dragging ? C.orange : C.border}`, borderRadius: 16, padding: "48px 24px", textAlign: "center", transition: "all 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
+                style={{ background: dragging ? "#EFE7DC" : "#FDFAF7", border: `1.5px dashed ${dragging ? "#6B4A2A" : "#C4A882"}`, borderRadius: 12, padding: "40px 24px", textAlign: "center", transition: "all 0.2s", marginBottom: 16 }}
               >
-                <div style={{ width: 48, height: 48, background: C.orangeL, borderRadius: 14, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.orange} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                <div style={{ width: 44, height: 44, background: "#E3D5C4", borderRadius: 10, margin: "0 auto 12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B4A2A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                   </svg>
                 </div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 4 }}>Glissez votre facture ici</p>
-                <p style={{ fontSize: 12, color: C.muted, marginBottom: 20 }}>PDF, JPG, PNG · 10 Mo maximum</p>
-                <label style={{ background: C.orange, color: C.white, padding: "11px 28px", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, display: "inline-block", boxShadow: "0 2px 8px rgba(249,115,22,0.35)" }}>
+                <p style={{ fontSize: "0.92rem", fontWeight: 500, color: "#5C3D20", marginBottom: 5 }}>Deposer une facture PDF</p>
+                <p style={{ fontSize: "0.75rem", color: "#9A7A5A", lineHeight: 1.5, marginBottom: 16 }}>PDF, JPG, PNG — 10 Mo maximum</p>
+                <label style={{ background: "#6B4A2A", color: "#F9F4EE", padding: "10px 22px", borderRadius: 8, cursor: "pointer", fontSize: "0.82rem", fontWeight: 500, display: "inline-block", letterSpacing: "0.03em" }}>
                   Choisir un fichier
                   <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }} onChange={e => setFile(e.target.files?.[0] || null)} />
                 </label>
               </div>
 
               {error && (
-                <div style={{ background: C.redL, border: `1px solid #fecaca`, borderRadius: 10, padding: "11px 14px", color: C.red, fontSize: 13, marginTop: 12 }}>
+                <div style={{ background: "#F2E4E1", border: "1px solid #e8c4bb", borderRadius: 10, padding: "11px 14px", color: "#8A3A2A", fontSize: 13, marginBottom: 12 }}>
                   {error}
                 </div>
               )}
 
-              {/* Ce que l'IA extrait */}
-              <div style={{ background: "#ffffff", borderRadius: 14, padding: "16px", marginTop: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "#71717a", marginBottom: 12 }}>En 30 secondes, l'IA extrait et structure</p>
+              <div style={{ background: "#FDFAF7", borderRadius: 12, padding: "16px", border: "1px solid #E3D5C4" }}>
+                <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#9A7A5A", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>En 30 secondes, l'IA extrait et structure</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {[{label:"Fournisseur",desc:"Nom, SIRET, adresse"},{label:"Montants",desc:"HT, TVA, TTC"},{label:"Dates",desc:"Emission et echeance"},{label:"Lignes",desc:"Articles et quantites"}].map(item => (
-                    <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f97316", flexShrink: 0, marginTop: 5 }} />
-                      <div><p style={{ fontSize: 13, fontWeight: 700, color: "#18181b", marginBottom: 1 }}>{item.label}</p><p style={{ fontSize: 11, color: "#71717a" }}>{item.desc}</p></div>
+                    <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#6B4A2A", flexShrink: 0, marginTop: 5 }} />
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 500, color: "#2C1A0E", marginBottom: 1 }}>{item.label}</p>
+                        <p style={{ fontSize: 11, color: "#9A7A5A" }}>{item.desc}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #e4e4e7", display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
-                  <p style={{ fontSize: 12, color: "#71717a" }}>Detection automatique des doublons incluse</p>
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #EFE7DC", display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#5A7A4A" }} />
+                  <p style={{ fontSize: 12, color: "#9A7A5A" }}>Detection automatique des doublons incluse</p>
                 </div>
               </div>
             </div>
@@ -278,34 +270,34 @@ export default function InvoicesPage() {
           {/* ETAPE 3 — Verification */}
           {step === 3 && edited && (
             <div className="fu">
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>
-                {edited.vendor_name || "Facture extraite"}
-              </h2>
-              <p style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>Verifiez et corrigez les donnees extraites</p>
+              <div style={{ padding: "0 0 16px" }}>
+                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", fontWeight: 300, color: "#2C1A0E", marginBottom: 4 }}>
+                  {edited.vendor_name || "Facture extraite"}
+                </h2>
+                <p style={{ fontSize: "0.78rem", color: "#9A7A5A" }}>Verifiez et corrigez les donnees extraites</p>
+              </div>
 
               {duplicateWarning && (
-                <div style={{ background: C.amberL, border: `1px solid #fde68a`, borderRadius: 10, padding: "11px 14px", color: C.amber, fontSize: 13, marginBottom: 12 }}>
+                <div style={{ background: "#F5EDD8", border: "1px solid #e8d5a8", borderRadius: 10, padding: "11px 14px", color: "#B8923A", fontSize: 13, marginBottom: 12 }}>
                   {duplicateWarning}
                 </div>
               )}
 
-              {/* Card fournisseur + total */}
-              <div style={{ background: C.orangeL, border: `1px solid ${C.orangeB}`, borderRadius: 14, padding: "14px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ background: "#6B4A2A", borderRadius: 12, padding: "14px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: C.orange, marginBottom: 2 }}>Fournisseur detecte</p>
-                  <p style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{edited.vendor_name || "Inconnu"}</p>
+                  <p style={{ fontSize: "0.65rem", fontWeight: 500, color: "#C4A882", marginBottom: 2, letterSpacing: "0.05em", textTransform: "uppercase" }}>Fournisseur</p>
+                  <p style={{ fontSize: "1rem", fontWeight: 500, color: "#F9F4EE" }}>{edited.vendor_name || "Inconnu"}</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: C.orange, marginBottom: 2 }}>Total TTC</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: C.orange }}>{fmt(edited.total_amount, edited.currency)}</p>
+                  <p style={{ fontSize: "0.65rem", fontWeight: 500, color: "#C4A882", marginBottom: 2, letterSpacing: "0.05em", textTransform: "uppercase" }}>Total TTC</p>
+                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem", fontWeight: 600, color: "#F9F4EE" }}>{fmt(edited.total_amount)}</p>
                 </div>
               </div>
 
-              {/* Champs editables */}
-              <div style={{ background: C.white, borderRadius: 14, padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 12 }}>
+              <div style={{ background: "#FDFAF7", borderRadius: 12, padding: "16px", border: "1px solid #E3D5C4", marginBottom: 12 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 12 }}>
                   <Field label="Fournisseur" value={edited.vendor_name || ""} onChange={v => updateField("vendor_name", v)} />
-                  <Field label="N° Facture" value={edited.invoice_number || ""} onChange={v => updateField("invoice_number", v)} />
+                  <Field label="N Facture" value={edited.invoice_number || ""} onChange={v => updateField("invoice_number", v)} />
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                     <Field label="Date facture" value={edited.invoice_date || ""} onChange={v => updateField("invoice_date", v)} type="date" />
                     <Field label="Date echeance" value={edited.due_date || ""} onChange={v => updateField("due_date", v)} type="date" />
@@ -318,56 +310,41 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* Lignes */}
               {edited.line_items && edited.line_items.length > 0 && (
-                <div style={{ background: C.white, borderRadius: 14, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 12 }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 10 }}>{edited.line_items.length} ligne(s) detectee(s)</p>
+                <div style={{ background: "#FDFAF7", borderRadius: 12, padding: "14px 16px", border: "1px solid #E3D5C4", marginBottom: 12 }}>
+                  <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#9A7A5A", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{edited.line_items.length} ligne(s) detectee(s)</p>
                   {edited.line_items.map((item, i) => (
-                    <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8, padding: "8px 0", borderTop: i > 0 ? `1px solid ${C.border}` : "none", alignItems: "center" }}>
+                    <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8, padding: "8px 0", borderTop: i > 0 ? "1px solid #EFE7DC" : "none", alignItems: "center" }}>
                       <input value={item.description || ""} onChange={e => updateLineItem(i, "description", e.target.value)}
-                        style={{ background: "transparent", border: "none", outline: "none", color: C.text, fontSize: 13, fontFamily: "inherit" }} />
+                        style={{ background: "transparent", border: "none", outline: "none", color: "#2C1A0E", fontSize: 13, fontFamily: "inherit" }} />
                       <input type="number" value={item.quantity ?? ""} onChange={e => updateLineItem(i, "quantity", parseFloat(e.target.value) || null)}
-                        style={{ width: 50, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 6, padding: "4px 6px", fontSize: 12, color: C.muted, textAlign: "center", fontFamily: "inherit" }} />
+                        style={{ width: 50, background: "#F9F4EE", border: "1px solid #E3D5C4", borderRadius: 6, padding: "4px 6px", fontSize: 12, color: "#9A7A5A", textAlign: "center", fontFamily: "inherit" }} />
                       <input type="number" value={item.total ?? ""} onChange={e => updateLineItem(i, "total", parseFloat(e.target.value) || null)}
-                        style={{ width: 80, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 6, padding: "4px 6px", fontSize: 12, fontWeight: 700, color: C.text, textAlign: "right", fontFamily: "inherit" }} />
+                        style={{ width: 80, background: "#F9F4EE", border: "1px solid #E3D5C4", borderRadius: 6, padding: "4px 6px", fontSize: 12, fontWeight: 700, color: "#2C1A0E", textAlign: "right", fontFamily: "inherit" }} />
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Champs manquants */}
               {edited.missing_fields && edited.missing_fields.length > 0 && (
-                <div style={{ background: C.amberL, border: `1px solid #fde68a`, borderRadius: 10, padding: "10px 14px", marginBottom: 12 }}>
-                  <p style={{ fontSize: 12, color: C.amber, fontWeight: 600, marginBottom: 4 }}>Certains champs n'ont pas pu etre detectes automatiquement :</p>
-                  <p style={{ fontSize: 11, color: C.amber }}>{edited.missing_fields.map((f: string) => {
-                    const labels: Record<string, string> = {
-                      vendor_name: "Fournisseur", invoice_number: "N° facture",
-                      invoice_date: "Date facture", due_date: "Date echeance",
-                      subtotal: "Sous-total", tax_amount: "TVA",
-                      total_amount: "Total TTC", currency: "Devise",
-                      siret: "SIRET", category: "Categorie", line_items: "Lignes"
-                    };
+                <div style={{ background: "#F5EDD8", border: "1px solid #e8d5a8", borderRadius: 10, padding: "10px 14px", marginBottom: 12 }}>
+                  <p style={{ fontSize: 12, color: "#B8923A", fontWeight: 600, marginBottom: 4 }}>Certains champs n'ont pas pu etre detectes :</p>
+                  <p style={{ fontSize: 11, color: "#B8923A" }}>{edited.missing_fields.map((f: string) => {
+                    const labels: Record<string, string> = { vendor_name: "Fournisseur", invoice_number: "N facture", invoice_date: "Date facture", due_date: "Date echeance", subtotal: "Sous-total", tax_amount: "TVA", total_amount: "Total TTC", currency: "Devise", siret: "SIRET", category: "Categorie", line_items: "Lignes" };
                     return labels[f] || f;
                   }).join(", ")}</p>
                 </div>
               )}
 
               {saveError && (
-                <div style={{ background: C.redL, border: `1px solid #fecaca`, borderRadius: 10, padding: "10px 14px", color: C.red, fontSize: 13, marginBottom: 12 }}>
+                <div style={{ background: "#F2E4E1", border: "1px solid #e8c4bb", borderRadius: 10, padding: "10px 14px", color: "#8A3A2A", fontSize: 13, marginBottom: 12 }}>
                   {saveError}
                 </div>
               )}
 
-              {/* Actions */}
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={handleSave}
-                  style={{ flex: 1, background: C.orange, color: C.white, border: "none", padding: "13px", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 2px 8px rgba(249,115,22,0.35)" }}>
-                  Confirmer et enregistrer
-                </button>
-                <button onClick={handleReset}
-                  style={{ background: C.white, color: C.muted, border: `1.5px solid ${C.border}`, padding: "13px 20px", borderRadius: 12, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
-                  Annuler
-                </button>
+                <button onClick={handleSave} className="btn-cafe" style={{ flex: 1 }}>Confirmer et enregistrer</button>
+                <button onClick={handleReset} className="btn-outline">Annuler</button>
               </div>
             </div>
           )}
@@ -375,25 +352,19 @@ export default function InvoicesPage() {
           {/* ETAPE 4 — Succes */}
           {step === 4 && saved && (
             <div className="fu" style={{ textAlign: "center", padding: "20px 0" }}>
-              <div style={{ width: 64, height: 64, background: C.greenL, border: `2px solid #bbf7d0`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 20px", color: C.green }}>
+              <div style={{ width: 64, height: 64, background: "#EAF0E6", border: "2px solid #c4d8be", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 20px", color: "#5A7A4A" }}>
                 ✓
               </div>
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 6 }}>Facture enregistree</h2>
-              <p style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>
-                {edited?.vendor_name} · {fmt(edited?.total_amount ?? null, edited?.currency ?? null)}
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem", fontWeight: 300, color: "#2C1A0E", marginBottom: 6 }}>Facture enregistree</h2>
+              <p style={{ color: "#9A7A5A", fontSize: 13, marginBottom: 4 }}>
+                {edited?.vendor_name} · {fmt(edited?.total_amount ?? null)}
               </p>
-              <p style={{ color: C.orange, fontSize: 12, fontWeight: 700, marginBottom: 28 }}>
+              <p style={{ color: "#6B4A2A", fontSize: 12, fontWeight: 500, marginBottom: 28 }}>
                 Redirection dans {countdown}s...
               </p>
               <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                <button onClick={() => router.push("/dashboard")}
-                  style={{ background: C.orange, color: C.white, border: "none", padding: "12px 28px", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                  Voir mes factures
-                </button>
-                <button onClick={handleReset}
-                  style={{ background: C.white, color: C.muted, border: `1.5px solid ${C.border}`, padding: "12px 20px", borderRadius: 12, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
-                  Nouvelle facture
-                </button>
+                <button onClick={() => router.push("/dashboard")} className="btn-cafe" style={{ padding: "12px 28px" }}>Voir mes factures</button>
+                <button onClick={handleReset} className="btn-outline" style={{ padding: "12px 20px" }}>Nouvelle facture</button>
               </div>
             </div>
           )}

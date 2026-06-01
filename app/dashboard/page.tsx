@@ -1,6 +1,5 @@
 ﻿"use client";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { logAudit } from "@/lib/audit";
 import { FeedbackWidget } from "@/app/feedback/page";
@@ -67,13 +66,12 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function DashboardPage() {
-  const searchParams = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filtered, setFiltered] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("all");
   const [showFeedback, setShowFeedback] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>((searchParams?.get("tab") as Tab) || "factures");
+  const [activeTab, setActiveTab] = useState<Tab>("factures");
   const [filterTab, setFilterTab] = useState<FilterTab>("Toutes");
   const [contracts, setContracts] = useState<any[]>([]);
   const [contractLoading, setContractLoading] = useState(false);
@@ -102,9 +100,11 @@ export default function DashboardPage() {
 
   useEffect(() => { loadInvoices(); loadContracts(); loadUnmatched(); loadTrial(); }, []);
   useEffect(() => {
-    const tab = searchParams?.get("tab") as Tab;
-    if (tab) setActiveTab(tab);
-  }, [searchParams]);
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as Tab;
+      if (tab) setActiveTab(tab);
+    }
+  }, []);
   useEffect(() => { applyFilters(invoices, period, filterTab); }, [invoices, period, filterTab]);
   useEffect(() => {
     if (invoices.length >= 5 && !localStorage.getItem("feedback_shown")) {

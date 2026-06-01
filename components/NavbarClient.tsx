@@ -68,7 +68,6 @@ export default function NavbarClient() {
 
   if (pathname === "/" || marketingPaths.some(p => pathname?.startsWith(p))) return null;
 
-  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const tabParam = searchParams?.get("tab");
   const activeTab = tabParam === "contrats" ? "contrats" : 
     tabs.find(t => t.href !== "/dashboard" && pathname?.startsWith(t.href))?.href || "/dashboard";

@@ -1,6 +1,6 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const marketingPaths = [
   '/blog', '/tarifs', '/mentions-legales', '/cgu', '/confidentialite',
@@ -33,7 +33,6 @@ const tabs = [
 export default function NavbarClient() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [initials, setInitials] = useState("IA");
 
@@ -68,8 +67,14 @@ export default function NavbarClient() {
 
   if (pathname === "/" || marketingPaths.some(p => pathname?.startsWith(p))) return null;
 
-  const tabParam = searchParams?.get("tab");
-  const activeTab = tabParam === "contrats" ? "contrats" : 
+  const [tabParam, setTabParam] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search).get("tab");
+      setTabParam(p);
+    }
+  }, [pathname]);
+  const activeTab = tabParam === "contrats" ? "contrats" :
     tabs.find(t => t.href !== "/dashboard" && pathname?.startsWith(t.href))?.href || "/dashboard";
 
   return (

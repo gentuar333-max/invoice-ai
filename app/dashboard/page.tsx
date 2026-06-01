@@ -239,7 +239,7 @@ export default function DashboardPage() {
 
         .stat-card { background: var(--blanc); border-radius: 12px; padding: 16px; border: 1px solid var(--creme-profond); }
         .stat-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--texte-pale); margin-bottom: 6px; }
-        .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--texte-fonce); line-height: 1; }
+        .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--texte-fonce); line-height: 1; }
         .stat-change { font-size: 0.7rem; margin-top: 4px; color: var(--texte-pale); }
         .stat-change.up { color: var(--vert-succes); }
         .stat-change.down { color: var(--rouge-alerte); }
@@ -585,3 +585,4 @@ export default function DashboardPage() {
     </>
   );
 }
+

@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import InlineDemo from '@/components/InlineDemo'
 
 const BASE_URL = 'https://invoiceagent.fr'
 
@@ -247,10 +246,6 @@ export default function LandingPage() {
             </a>
 
           </div>
-        </section>
-
-        <section style={{padding:'0 48px 80px',maxWidth:1100,margin:'0 auto'}}>
-          <InlineDemo />
         </section>
 
         <section id="how" className="section divider" aria-labelledby="how-heading">

@@ -76,22 +76,19 @@ export default function LandingPage() {
         .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .agent-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 36px; text-decoration: none; color: inherit; transition: all 0.25s; display: flex; flex-direction: column; gap: 20px; }
         .agent-card:hover { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.06); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .agent-card.soon { opacity: 0.5; cursor: default; }
-        .agent-card.soon:hover { transform: none; box-shadow: none; border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
         .agent-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .agent-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
         .agent-badge { font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
         .badge-live { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-        .badge-soon { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
         .agent-name { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
         .agent-desc { font-size: 14px; color: #a1a1aa; line-height: 1.6; }
         .agent-features { display: flex; flex-direction: column; gap: 8px; }
         .agent-feature { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e4e4e7; }
         .feature-dot { width: 5px; height: 5px; border-radius: 50%; background: #6366f1; flex-shrink: 0; }
-        .agent-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); margin-top: auto; }
-        .agent-price { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: #fafafa; }
-        .agent-price span { font-size: 13px; color: #52525b; }
+        .feature-dot-green { width: 5px; height: 5px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+        .agent-footer { display: flex; align-items: center; justify-content: flex-end; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); margin-top: auto; }
         .agent-cta { font-size: 13px; color: #6366f1; font-weight: 600; padding: 6px 14px; border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; }
+        .agent-cta-green { font-size: 13px; color: #10b981; font-weight: 600; padding: 6px 14px; border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; }
         .try-section { background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.15); border-radius: 20px; padding: 48px; text-align: center; }
         .try-title { font-family: 'Instrument Serif', serif; font-size: 36px; color: #fafafa; margin-bottom: 12px; }
         .try-sub { font-size: 15px; color: #71717a; margin-bottom: 32px; }
@@ -206,6 +203,8 @@ export default function LandingPage() {
           <h2 id="agents-heading" className="section-title">Chaque agent, un expert métier</h2>
           <p className="section-sub">Spécialisés, précis, disponibles 24h/24.</p>
           <div className="agents-grid">
+
+            {/* Carte 1 — InvoiceAgent original, inchangée */}
             <a href={`${BASE_URL}/invoices`} className="agent-card">
               <div className="agent-card-header">
                 <div className="agent-icon" style={{background:'rgba(99,102,241,0.2)',border:'1px solid rgba(99,102,241,0.3)'}}>🤖</div>
@@ -222,30 +221,31 @@ export default function LandingPage() {
                 <div className="agent-feature"><div className="feature-dot" />Export FEC & alertes TVA</div>
               </div>
               <div className="agent-footer">
-                <div className="agent-price">Dès 19€ <span>/ mois</span></div>
                 <div className="agent-cta">Essayer gratuitement</div>
               </div>
             </a>
-            <div className="agent-card soon">
+
+            {/* Carte 2 — Facturation Électronique 2026 */}
+            <a href={`${BASE_URL}/facturation-electronique`} className="agent-card">
               <div className="agent-card-header">
-                <div className="agent-icon" style={{background:'rgba(245,158,11,0.2)',border:'1px solid rgba(245,158,11,0.3)'}}>⏳</div>
-                <span className="agent-badge badge-soon">Bientôt disponible</span>
+                <div className="agent-icon" style={{background:'rgba(16,185,129,0.2)',border:'1px solid rgba(16,185,129,0.3)'}}>🏛</div>
+                <span className="agent-badge badge-live">● Live</span>
               </div>
               <div>
-                <div className="agent-name">Agents en développement</div>
-                <div className="agent-desc">De nouveaux agents arrivent pour automatiser encore plus de tâches.</div>
+                <div className="agent-name">Facturation Électronique</div>
+                <div className="agent-desc">Émettez et recevez des factures conformes à la réforme 2026. Transmission automatique à la Plateforme Agréée DGFiP.</div>
               </div>
               <div className="agent-features">
-                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Comptable — rapports mensuels</div>
-                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Shopify — descriptions SEO</div>
-                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent ERP — intégration Sage, Cegid</div>
-                <div className="agent-feature"><div className="feature-dot" style={{background:'#fbbf24'}} />Agent Fraude — détection anomalies</div>
+                <div className="agent-feature"><div className="feature-dot-green" />Factures Factur-X conformes EN 16931</div>
+                <div className="agent-feature"><div className="feature-dot-green" />Transmission Plateforme Agréée DGFiP</div>
+                <div className="agent-feature"><div className="feature-dot-green" />e-Reporting automatique</div>
+                <div className="agent-feature"><div className="feature-dot-green" />Gestion clients & historique complet</div>
               </div>
               <div className="agent-footer">
-                <div className="agent-price" style={{color:'#52525b',fontSize:15}}>À venir</div>
-                <div style={{fontSize:12,color:'#3f3f46',fontFamily:"'DM Mono',monospace"}}>En développement</div>
+                <div className="agent-cta-green">Découvrir</div>
               </div>
-            </div>
+            </a>
+
           </div>
         </section>
 
@@ -361,10 +361,10 @@ export default function LandingPage() {
             {[
               { title: 'Produits', links: [
                 { label: 'AI Invoice Processing', href: `${BASE_URL}/invoices`, soon: false },
+                { label: 'Facturation Électronique 2026', href: `${BASE_URL}/facturation-electronique`, soon: false },
                 { label: 'Contract Management', href: `${BASE_URL}/dashboard`, soon: false },
                 { label: 'CSV Bank Analysis', href: `${BASE_URL}/reconciliation`, soon: false },
                 { label: 'ERP Integration', href: '#', soon: true },
-                { label: 'Fraud Detection', href: '#', soon: true },
               ]},
               { title: 'Ressources', links: [
                 { label: 'Extraction facture PDF', href: `${BASE_URL}/extraction-facture-pdf`, soon: false },
